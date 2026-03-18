@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Criar Desafio | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-admin.css}">
+
+</head>
+<body>
+
+    <div class="admin-container">
+        <h1>Criar Novo Desafio</h1>
+        
+        <form id="form-admin">
+            
+            <div class="form-group">
+                <label for="modulo">Módulo (Matéria)</label>
+                <select id="modulo" required>
+                    <option value="razao">Razão, Proporção e Escala</option>
+                    <option value="estatistica">Estatística</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fase">Fase do Módulo</label>
+                    <input type="number" id="fase" min="1" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="qtd_perguntas">Qtd. Total de Perguntas</label>
+                    <input type="number" id="qtd_perguntas" min="1" max="50" value="5" required>
+                </div>
+            </div>
+
+            <hr class="divisor">
+            
+            <div id="indicador-questao">Formulando Questão 1 de 5</div>
+
+            <div class="form-group">
+                <label for="tipo_pergunta">Tipo de Pergunta</label>
+                <select id="tipo_pergunta" required onchange="toggleAlternativas()">
+                    <option value="multipla">Múltipla Escolha</option>
+                    <option value="dissertativa">Dissertativa (Texto livre)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="enunciado">Enunciado da Pergunta</label>
+                <textarea id="enunciado" rows="3" required></textarea>
+            </div>
+
+            <div id="box-alternativas" class="alternativas-box">
+                <p style="margin-bottom: 10px; font-size: 0.9rem; color: #888;">Preencha as alternativas:</p>
+                <div class="form-group"><input type="text" id="alt_a" placeholder="Alternativa A"></div>
+                <div class="form-group"><input type="text" id="alt_b" placeholder="Alternativa B"></div>
+                <div class="form-group"><input type="text" id="alt_c" placeholder="Alternativa C"></div>
+                <div class="form-group"><input type="text" id="alt_d" placeholder="Alternativa D"></div>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label for="resposta_correta">Resposta Correta</label>
+                <select id="resposta_correta_multipla" required>
+                    <option value="" disabled selected>Selecione a letra correta</option>
+                    <option value="A">Alternativa A</option>
+                    <option value="B">Alternativa B</option>
+                    <option value="C">Alternativa C</option>
+                    <option value="D">Alternativa D</option>
+                </select>
+                <input type="text" id="resposta_correta_dissertativa" class="hidden" placeholder="Digite a resposta exata">
+            </div>
+
+            <button type="submit" id="btn-submit">Salvar Pergunta (Ir para a Próxima)</button>
+        </form>
+
+        <a href="/" class="back-link">← Voltar para o Dashboard</a>
+    </div>
+
+    <audio id="bg-music" src="/audio/musica-fundo.mp3" loop preload="auto"></audio>
+    <button id="music-toggle" style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; background: #1A1A2E; color: #EAEAEA; border: 2px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 10px 20px; font-family: 'Poppins', sans-serif; font-weight: 600; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.3s;">
+        🎵 Música OFF
+    </button>
+
+    <script th:src="@{/js/script-admin.js}"></script>  
+    <script th:src="@{/js/audio-controller.js}"></script>  
+
+</body>
+</html>

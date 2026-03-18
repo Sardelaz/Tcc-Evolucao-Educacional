@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-home.css}">
+</head>
+
+<body>
+    <canvas id="art-background"></canvas>
+
+    <div class="profile-panel">
+        <div class="user-info">
+            <div class="avatar">👨‍🎓</div>
+            <div>
+                <div class="level-badge" id="user-level-badge">Nível 1</div>
+                <h3 style="margin:0; font-size: 1.1rem;">Aluno Evolução</h3>
+            </div>
+        </div>
+
+        <div class="xp-container">
+            <div class="xp-text">
+                <span id="current-xp-text">0 XP</span>
+                <span id="next-level-xp">Meta: 100 XP</span>
+            </div>
+            <div class="xp-bar-bg">
+                <div class="xp-bar-fill" id="xp-progress-bar"></div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <div class="stat-item">Ofensiva<br><span id="day-streak-count">🔥 0</span></div>
+            <button id="checkin-btn">Check-in</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <aside class="special-missions">
+            <a href="#" class="mission-card" id="simulado-card">
+                <h2>Simulado</h2>
+                <p>Teste os seus conhecimentos.</p>
+            </a>
+            <a class="mission-card" id="desafio-card">
+                <h2>Desafio Diário</h2>
+                <p>Descubra a sua meta de hoje.</p>
+            </a>
+            <a href="#" class="mission-card" id="provas-card">
+                <h2>Ranking</h2>
+                <p>Analise sua pontuação.</p>
+            </a>
+        </aside>
+
+        <main class="selection-grid">
+            <a href="./razao" class="area-card" id="razão">
+                <svg class="icon" style="stroke: var(--cor-linguagens);" fill="none" viewBox="0 0 24 24">
+                    <path
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                    </path>
+                </svg>
+                <h3>Razão e Proporção</h3>
+            </a>
+            <a href="./estatistica" class="area-card" id="humanas">
+                <svg class="icon" style="stroke: var(--cor-humanas);" fill="none" viewBox="0 0 24 24">
+                    <path
+                        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h1a2 2 0 002-2v-1a2 2 0 012-2h1.945M7.881 4.002l.07-.06a2 2 0 012.828 0l.07.06a1.65 1.65 0 002.332 0l.07-.06a2 2 0 012.828 0l.07.06a1.65 1.65 0 002.332 0l.07-.06a2 2 0 012.828 0l.07.06 1.652 1.651a2 2 0 010 2.828l-.06.07a1.65 1.65 0 000 2.332l.06.07a2 2 0 010 2.828l-.06.07a1.65 1.65 0 000 2.332l.06.07a2 2 0 010 2.828l-1.652 1.651a2 2 0 01-2.828 0l-.07-.06a1.65 1.65 0 00-2.332 0l-.07.06a2 2 0 01-2.828 0l-.07-.06a1.65 1.65 0 00-2.332 0l-.07.06a2 2 0 01-2.828 0l-1.652-1.651a2 2 0 010-2.828l.06-.07a1.65 1.65 0 000-2.332l-.06-.07a2 2 0 010-2.828l.06-.07a1.65 1.65 0 000-2.332l-.06-.07a2 2 0 010-2.828L6.229 4.062l.07-.06a1.65 1.65 0 002.332 0l.07-.06a2 2 0 012.828 0l.07.06a1.65 1.65 0 002.332 0z">
+                    </path>
+                </svg>
+                <h3>Estatística</h3>
+            </a>
+            <div class="bottom-row-wrapper">
+                <a href="#" class="area-card" id="redacao">
+                    <h3>Probabilidade</h3>
+                </a>
+                <a href="#" class="area-card" id="ranking">
+                    <h3>Aritmética</h3>
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="daily-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-modal-btn">✕</button>
+            <div class="modal-icon">🎯</div>
+            <h2 class="modal-title" id="modal-title">Título</h2>
+            <p class="modal-subtitle" id="modal-subtitle">Dia da Semana</p>
+            <p class="modal-desc" id="modal-desc">Descrição do desafio.</p>
+            <span class="modal-reward" id="modal-reward">+0 XP</span>
+            <button id="claim-reward-btn">Verificar Conclusão</button>
+        </div>
+    </div>
+
+    <audio id="bg-music" src="/audio/musica-fundo.mp3" loop preload="auto"></audio>
+    <button id="music-toggle"
+        style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; background: #1A1A2E; color: #EAEAEA; border: 2px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 10px 20px; font-family: 'Poppins', sans-serif; font-weight: 600; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.3s;">
+        🎵 Música OFF
+    </button>
+
+    <script th:src="@{/js/script-home.js}"></script>
+    <script th:src="@{/js/audio-controller.js}"></script>  
+
+</body>
+
+</html>

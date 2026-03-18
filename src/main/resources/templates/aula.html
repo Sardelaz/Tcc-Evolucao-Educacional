@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-aula.css}">
+</head>
+
+<body>
+
+    <div class="top-bar">
+        <a href="/" id="btn-voltar" class="close-btn">✕</a>
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+        </div>
+        <div class="streak-display" id="streak-container">
+            <span>🔥</span> <span id="streak-text">0</span>
+        </div>
+        <div class="timer-display">
+            <span>⏱️</span> <span id="timer-text">00:00</span>
+        </div>
+    </div>
+
+    <div class="question-area" id="area-pergunta-principal">
+        <h2 class="question-title" id="titulo-pergunta">A carregar pergunta...</h2>
+        <div id="area-resposta" style="width: 100%; display: flex; justify-content: center;"></div>
+    </div>
+
+    <div class="summary-screen" id="tela-resumo">
+        <div class="summary-card">
+            <h2 class="summary-title">Fase Concluída! 🎉</h2>
+            <p class="summary-subtitle">Aqui está o seu desempenho nesta fase.</p>
+            <div class="stat-row"><span class="stat-label">Acertos de primeira</span><span
+                    class="stat-value val-acertos" id="resumo-acertos">0</span></div>
+            <div class="stat-row"><span class="stat-label">Maior Sequência de Acertos</span><span
+                    class="stat-value val-streak" id="resumo-streak">0 🔥</span></div>
+            <div class="stat-row"><span class="stat-label">Precisou tentar de novo</span><span
+                    class="stat-value val-erros" id="resumo-erros">0</span></div>
+            <div class="stat-row"><span class="stat-label">Tempo Total</span><span class="stat-value val-tempo"
+                    id="resumo-tempo">00:00</span></div>
+        </div>
+    </div>
+
+    <div id="feedback-msg" class="feedback"></div>
+
+    <div class="bottom-bar">
+        <button class="check-btn" id="btn-verificar" onclick="verificarResposta()">Verificar</button>
+    </div>
+
+    <audio id="bg-music" src="/audio/musica-fundo.mp3" loop preload="auto"></audio>
+    <button id="music-toggle"
+        style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; background: #1A1A2E; color: #EAEAEA; border: 2px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 10px 20px; font-family: 'Poppins', sans-serif; font-weight: 600; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.3s;">
+        🎵 Música OFF
+    </button>
+
+    <script th:src="@{/js/script-aula.js}"></script>
+    <script th:src="@{/js/audio-controller.js}"></script>
+
+</body>
+
+</html>
