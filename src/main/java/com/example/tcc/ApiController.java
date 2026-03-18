@@ -3,12 +3,12 @@ package com.example.tcc;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.time.LocalDate;
-import java.time.DayOfWeek;
 
 @RestController
 @RequestMapping("/api")
 public class ApiController {
 
+    // Aqui é onde as aulas e o progresso ficam guardados enquanto o servidor rodar
     private static Map<String, List<Fase>> bancoDeAulas = new HashMap<>();
     private static Map<String, String> statusDasFases = new HashMap<>();
     private static int streakDiaria = 0;
@@ -18,16 +18,14 @@ public class ApiController {
     private static Set<String> fasesPerfeitas = new HashSet<>();
     private static String dataUltimoDesafioCompletado = "";
 
-    // ==========================================
-    // RASTREADORES DIÁRIOS (Para validar o desafio)
-    // ==========================================
+    // Variáveis para controlar o que o aluno fez hoje (zera todo dia)
     private static String dataEstatisticas = "";
     private static int checkinsHoje = 0;
     private static int fasesConcluidasHoje = 0;
     private static int maiorComboHoje = 0;
     private static int fasesPerfeitasHoje = 0;
 
-    // Zera os contadores caso o dia tenha virado
+    // Essa função limpa as metas diárias se o dia mudar
     private static void verificarResetDiario() {
         String hoje = LocalDate.now().toString();
         if (!hoje.equals(dataEstatisticas)) {
@@ -58,37 +56,15 @@ public class ApiController {
         public int totalQuestoes; 
     }
 
-    // Inicializador com as 10 fases prontas de Razão (Mantido)
-    static {
-        adicionarFase("razao", 1, criarQuestao("multipla", "O que é uma razão na matemática?", Arrays.asList("Uma soma de valores", "Uma divisão entre dois números", "Uma multiplicação", "Uma equação"), "Uma divisão entre dois números"), criarQuestao("multipla", "Em uma sala há 10 meninos e 20 meninas. Qual a razão entre meninos e meninas?", Arrays.asList("1/3", "1/2", "2/1", "10/30"), "1/2"));
-        adicionarFase("razao", 2, criarQuestao("multipla", "Simplifique a razão 15/20:", Arrays.asList("1/2", "5/4", "3/4", "15/2"), "3/4"), criarQuestao("multipla", "Qual a razão entre 50 centavos e 2 reais?", Arrays.asList("1/4", "1/2", "1/5", "1/10"), "1/4"));
-        adicionarFase("razao", 3, criarQuestao("multipla", "O que é uma proporção?", Arrays.asList("Igualdade entre duas razões", "Diferença de dois números", "A raiz de uma razão", "Soma de frações"), "Igualdade entre duas razões"), criarQuestao("multipla", "Os números 2, 3, 4 e 6 formam uma proporção nessa ordem?", Arrays.asList("Sim", "Não", "Apenas se somados", "Faltam dados"), "Sim"));
-        adicionarFase("razao", 4, criarQuestao("multipla", "Na proporção X/4 = 3/6, qual o valor de X?", Arrays.asList("1", "2", "3", "4"), "2"), criarQuestao("multipla", "Se 2 cadernos custam R$ 10, quanto custam 5 cadernos?", Arrays.asList("R$ 15", "R$ 20", "R$ 25", "R$ 30"), "R$ 25"));
-        adicionarFase("razao", 5, criarQuestao("multipla", "O que indica uma escala de 1:100 em um mapa?", Arrays.asList("1 cm no mapa = 100 cm no real", "100 cm no mapa = 1 cm no real", "O mapa tem 100 cm", "É 100 vezes maior"), "1 cm no mapa = 100 cm no real"), criarQuestao("multipla", "Em uma escala 1:50, um objeto com 2 cm tem qual tamanho real?", Arrays.asList("25 cm", "50 cm", "100 cm", "200 cm"), "100 cm"));
-        adicionarFase("razao", 6, criarQuestao("multipla", "Se a quantidade de ingredientes dobra, o rendimento:", Arrays.asList("Dobra também", "Cai pela metade", "Fica igual", "Triplica"), "Dobra também"), criarQuestao("multipla", "Se 1 kg de carne custa R$ 30, quanto custam 3 kg?", Arrays.asList("R$ 60", "R$ 90", "R$ 120", "R$ 30"), "R$ 90"));
-        adicionarFase("razao", 7, criarQuestao("multipla", "Se 4 pessoas limpam em 6 horas, 8 pessoas limpariam em:", Arrays.asList("3 horas", "4 horas", "8 horas", "12 horas"), "3 horas"), criarQuestao("multipla", "Velocidade e Tempo de viagem são grandezas:", Arrays.asList("Diretamente proporcionais", "Inversamente proporcionais", "Não têm relação", "Iguais"), "Inversamente proporcionais"));
-        adicionarFase("razao", 8, criarQuestao("multipla", "A razão das idades é 2/3. Se o mais novo tem 10, o mais velho tem:", Arrays.asList("12 anos", "15 anos", "20 anos", "30 anos"), "15 anos"), criarQuestao("multipla", "Divida R$ 100 proporcionalmente a 2 e 3:", Arrays.asList("R$ 20 e R$ 80", "R$ 30 e R$ 70", "R$ 40 e R$ 60", "R$ 50 e R$ 50"), "R$ 40 e R$ 60"));
-        adicionarFase("razao", 9, criarQuestao("multipla", "No mapa (1:1.000.000) mede 5 cm. Qual a distância real?", Arrays.asList("5 km", "50 km", "500 km", "5000 km"), "50 km"), criarQuestao("multipla", "Miniatura 1:43 com 10 cm, o real mede:", Arrays.asList("4,3 cm", "43 cm", "430 cm", "4300 cm"), "430 cm"));
-        adicionarFase("razao", 10, criarQuestao("multipla", "1 torneira enche em 4h. 2 torneiras enchem em:", Arrays.asList("1 hora", "2 horas", "4 horas", "8 horas"), "2 horas"), criarQuestao("multipla", "Se A/B = 3/4 e B/C = 4/5, qual a razão de A/C?", Arrays.asList("3/4", "3/5", "4/5", "12/20"), "3/5"));
-    }
-
-    private static Questao criarQuestao(String tipo, String enunciado, List<String> alternativas, String resposta) {
-        Questao q = new Questao(); q.tipo = tipo; q.enunciado = enunciado; q.alternativas = alternativas; q.resposta = resposta; return q;
-    }
-
-    private static void adicionarFase(String modulo, int numeroFase, Questao... questoes) {
-        bancoDeAulas.putIfAbsent(modulo, new ArrayList<>());
-        Fase f = new Fase(); f.fase = numeroFase; f.questoes = Arrays.asList(questoes); f.qtd = f.questoes.size();
-        bancoDeAulas.get(modulo).add(f);
-    }
+    // O bloco static que criava fases de razão foi removido para o app começar limpo
 
     @PostMapping("/fases/{modulo}")
     public void salvarFase(@PathVariable String modulo, @RequestBody Fase novaFase) {
         bancoDeAulas.putIfAbsent(modulo, new ArrayList<>());
         List<Fase> fases = bancoDeAulas.get(modulo);
-        fases.removeIf(f -> f.fase == novaFase.fase);
+        fases.removeIf(f -> f.fase == novaFase.fase); // Se a fase já existir, a gente apaga a velha e põe a nova
         fases.add(novaFase);
-        fases.sort(Comparator.comparingInt(f -> f.fase));
+        fases.sort(Comparator.comparingInt(f -> f.fase)); // Deixa as fases em ordem (1, 2, 3...)
     }
 
     @GetMapping("/fases/{modulo}")
@@ -107,7 +83,7 @@ public class ApiController {
         }
 
         int xpGanho = 0;
-        
+        // Só ganha XP se for a primeira vez que gabarita essa fase
         if (!fasesPerfeitas.contains(lessonId)) {
             xpGanho = (resultado.acertos * 10) + (resultado.maxStreak * 5);
             userXp += xpGanho;
@@ -118,7 +94,7 @@ public class ApiController {
             }
         }
         
-        userLevel = (userXp / 100) + 1;
+        userLevel = (userXp / 100) + 1; // A cada 100 de XP o nível sobe!
 
         Map<String, Integer> resposta = new HashMap<>();
         resposta.put("xpGanho", xpGanho);
@@ -141,10 +117,7 @@ public class ApiController {
         perfil.put("xpProximoNivel", userLevel * 100);
         perfil.put("streak", streakDiaria);
         perfil.put("fasesPerfeitas", new ArrayList<>(fasesPerfeitas)); 
-        
-        String hoje = LocalDate.now().toString();
-        perfil.put("desafioConcluidoHoje", hoje.equals(dataUltimoDesafioCompletado));
-        
+        perfil.put("desafioConcluidoHoje", LocalDate.now().toString().equals(dataUltimoDesafioCompletado));
         return perfil;
     }
 
@@ -153,14 +126,13 @@ public class ApiController {
         verificarResetDiario();
         checkinsHoje++; 
         streakDiaria++; 
-        userXp += 100;
+        userXp += 100; // Check-in dá muito XP pra incentivar a entrar todo dia
         userLevel = (userXp / 100) + 1;
 
         Map<String, Integer> resposta = new HashMap<>();
         resposta.put("streak", streakDiaria);
         resposta.put("xp", userXp);
         resposta.put("nivel", userLevel);
-        resposta.put("xpProximoNivel", userLevel * 100);
         return resposta;
     }
 
@@ -176,30 +148,23 @@ public class ApiController {
             return resposta;
         }
 
-        // LÓGICA DE VALIDAÇÃO DO DESAFIO
-        int diaSemana = LocalDate.now().getDayOfWeek().getValue(); // 1=Segunda, 7=Domingo
+        int diaSemana = LocalDate.now().getDayOfWeek().getValue(); // Pega o dia (1=Seg, 7=Dom)
         boolean condicaoAtendida = false;
 
+        // Lógica dos desafios: cada dia pede uma coisa diferente
         switch (diaSemana) {
-            case 7: // Domingo: Descanso Ativo (Check-in)
-                condicaoAtendida = (checkinsHoje >= 1); break;
-            case 1: // Segunda: Concluir 1 fase
-                condicaoAtendida = (fasesConcluidasHoje >= 1); break;
-            case 2: // Terça: Combo de 3
-                condicaoAtendida = (maiorComboHoje >= 3); break;
-            case 3: // Quarta: Combo de 5
-                condicaoAtendida = (maiorComboHoje >= 5); break;
-            case 4: // Quinta: 2 Fases
-                condicaoAtendida = (fasesConcluidasHoje >= 2); break;
-            case 5: // Sexta: Check-in e 1 Fase
-                condicaoAtendida = (checkinsHoje >= 1 && fasesConcluidasHoje >= 1); break;
-            case 6: // Sábado: 100% em uma fase
-                condicaoAtendida = (fasesPerfeitasHoje >= 1); break;
+            case 7: condicaoAtendida = (checkinsHoje >= 1); break;
+            case 1: condicaoAtendida = (fasesConcluidasHoje >= 1); break;
+            case 2: condicaoAtendida = (maiorComboHoje >= 3); break;
+            case 3: condicaoAtendida = (maiorComboHoje >= 5); break;
+            case 4: condicaoAtendida = (fasesConcluidasHoje >= 2); break;
+            case 5: condicaoAtendida = (checkinsHoje >= 1 && fasesConcluidasHoje >= 1); break;
+            case 6: condicaoAtendida = (fasesPerfeitasHoje >= 1); break;
         }
 
         if (!condicaoAtendida) {
             resposta.put("sucesso", false);
-            resposta.put("mensagem", "Objetivo não concluído! Vá estudar, cumpra o desafio e tente novamente.");
+            resposta.put("mensagem", "Objetivo não concluído! Vá estudar mais um pouco.");
             return resposta;
         }
         
@@ -212,7 +177,6 @@ public class ApiController {
         resposta.put("xpGanho", xpGanho);
         resposta.put("xpTotal", userXp);
         resposta.put("nivel", userLevel);
-        resposta.put("xpProximoNivel", userLevel * 100);
         return resposta;
     }
 }

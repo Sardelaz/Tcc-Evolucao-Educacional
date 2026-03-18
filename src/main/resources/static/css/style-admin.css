@@ -149,3 +149,34 @@ button:hover {
     font-weight: 600;
     font-size: 1.2rem;
 }
+/* Estudante explica: O segredo aqui é o 'position: fixed'. 
+   Ele faz o botão "flutuar" sobre a página, ignorando o 
+   alinhamento central do body. 
+*/
+#music-toggle {
+    position: fixed !important;
+    bottom: 20px !important;
+    left: 20px !important;
+    right: auto !important; /* Força a ignorar o lado direito */
+    
+    z-index: 9999 !important; /* Fica por cima de tudo */
+    background: #1A1A2E;
+    color: #EAEAEA;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    transition: 0.3s;
+    
+    /* Zera margens que o flexbox do body possa ter colocado */
+    margin: 0 !important; 
+    transform: none !important;
+}
+
+#music-toggle:hover {
+    background: #252545;
+    transform: scale(1.05) !important;
+}

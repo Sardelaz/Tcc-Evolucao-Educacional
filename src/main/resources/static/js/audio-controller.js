@@ -1,5 +1,3 @@
-// src/main/resources/static/js/audio-controller.js
-
 document.addEventListener('DOMContentLoaded', () => {
     const bgMusic = document.getElementById('bg-music');
     const musicToggle = document.getElementById('music-toggle');
@@ -8,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     bgMusic.volume = 0.3;
 
-    // Verifica se a música deve estar a tocar ao carregar a página
+    // Verifica se a música deve estar tocando ao carregar a página
     if (sessionStorage.getItem('musicPlaying') === 'true') {
         const savedTime = parseFloat(sessionStorage.getItem('musicTime') || 0);
         bgMusic.currentTime = savedTime;
