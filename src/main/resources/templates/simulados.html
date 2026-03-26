@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulados | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-simulados.css}">
+</head>
+<body>
+    <canvas id="art-background"></canvas>
+
+    <div class="top-nav">
+        <h2>📝 Central de Simulados</h2>
+        <a href="/" class="btn-voltar">← Voltar ao Dashboard</a>
+    </div>
+
+    <div class="simulados-layout">
+        <header class="simulados-header">
+            <h3>Teste seus conhecimentos</h3>
+            <p>Escolha um módulo abaixo para iniciar o simulado geral. O professor deve ter agrupado as fases no Painel de Controle.</p>
+        </header>
+
+        <div class="modulos-simulado-grid">
+            <div class="simulado-card" style="--cor-tema: #00A8FF;">
+                <div class="card-icon">📐</div>
+                <div class="card-content">
+                    <h4>Razão e Proporção</h4>
+                    <p>Teste geral sobre escalas, divisões proporcionais e frações equivalentes.</p>
+                    <div class="card-stats">
+                        <span>📋 Simulado Geral</span>
+                        <span>⏱️ Cronometrado</span>
+                    </div>
+                </div>
+                <a href="/aula?modulo=simulado_razao&fase=1" class="btn-iniciar">Iniciar Simulado</a>
+            </div>
+
+            <div class="simulado-card" style="--cor-tema: #9C27B0;">
+                <div class="card-icon">📊</div>
+                <div class="card-content">
+                    <h4>Estatística</h4>
+                    <p>Simulado focado em médias, modas, medianas e análise de gráficos.</p>
+                    <div class="card-stats">
+                        <span>📋 Simulado Geral</span>
+                        <span>⏱️ Cronometrado</span>
+                    </div>
+                </div>
+                <a href="/aula?modulo=simulado_estatistica&fase=1" class="btn-iniciar">Iniciar Simulado</a>
+            </div>
+
+            <div class="simulado-card" style="--cor-tema: #00BCD4;">
+                <div class="card-icon">🎲</div>
+                <div class="card-content">
+                    <h4>Probabilidade</h4>
+                    <p>Avalie sua capacidade de calcular chances e eventos aleatórios.</p>
+                    <div class="card-stats">
+                        <span>📋 Simulado Geral</span>
+                        <span>⏱️ Cronometrado</span>
+                    </div>
+                </div>
+                <a href="/aula?modulo=simulado_probabilidade&fase=1" class="btn-iniciar">Iniciar Simulado</a>
+            </div>
+
+            <div class="simulado-card" style="--cor-tema: #FFD700;">
+                <div class="card-icon">➗</div>
+                <div class="card-content">
+                    <h4>Aritmética Básica</h4>
+                    <p>Simulado rápido para aquecer os cálculos de operações fundamentais.</p>
+                    <div class="card-stats">
+                        <span>📋 Simulado Geral</span>
+                        <span>⏱️ Cronometrado</span>
+                    </div>
+                </div>
+                <a href="/aula?modulo=simulado_aritmetica&fase=1" class="btn-iniciar">Iniciar Simulado</a>
+            </div>
+        </div>
+    </div>
+
+    <audio id="bg-music" src="/audio/musica-fundo.mp3" loop preload="auto"></audio>
+    <button id="music-toggle"
+        style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; background: #1A1A2E; color: #EAEAEA; border: 2px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 10px 20px; font-family: 'Poppins', sans-serif; font-weight: 600; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.3s;">
+        🎵 Música OFF
+    </button>
+
+    <script th:src="@{/js/script-simulados.js}"></script>
+    <script th:src="@{/js/audio-controller.js}"></script>
+</body>
+</html>

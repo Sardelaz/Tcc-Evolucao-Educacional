@@ -45,6 +45,42 @@ async function buscarFase() {
     renderizarQuestoes();
 }
 
+// NOVO: Função para fazer upload direto na tela de edição
+async function fazerUploadEdicao(inputElement, index) {
+    const file = inputElement.files[0];
+    if (!file) return;
+
+    const statusSpan = document.getElementById(`upload_status_${index}`);
+    // Acha o campo de URL da mesma questão (card) que a pessoa clicou
+    const urlInput = inputElement.closest('.questao-card').querySelector('.q-imagem-url');
+
+    statusSpan.textContent = "Enviando...";
+    statusSpan.style.display = "block";
+    statusSpan.style.color = "#FFD700";
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (data.url) {
+            urlInput.value = data.url; // Joga o caminho retornado pro campo de URL
+            statusSpan.textContent = "Upload concluído!";
+            statusSpan.style.color = "#4CAF50";
+        } else {
+            statusSpan.textContent = "Erro no upload.";
+            statusSpan.style.color = "#e74c3c";
+        }
+    } catch (e) {
+        statusSpan.textContent = "Erro de conexão.";
+        statusSpan.style.color = "#e74c3c";
+    }
+}
+
 // Desenha na tela os cards para cada questão existente
 function renderizarQuestoes() {
     const container = document.getElementById('questoes-container');
@@ -87,6 +123,12 @@ function renderizarQuestoes() {
             <div class="form-group">
                 <label>URL da Imagem (Opcional)</label>
                 <input type="text" class="q-imagem-url" placeholder="https://exemplo.com/imagem.png" value="${q.imagemUrl || ''}">
+            </div>
+
+            <div class="form-group">
+                <label style="color: #00A8FF;">Ou Envie do Computador</label>
+                <input type="file" class="q-imagem-file" accept="image/*" style="padding: 8px; background: rgba(0,0,0,0.2);" onchange="fazerUploadEdicao(this, ${index})">
+                <span id="upload_status_${index}" style="font-size: 0.9rem; margin-top: 5px; display: none;"></span>
             </div>
 
             <div class="alternativas-box ${q.tipo === 'dissertativa' ? 'hidden' : ''}">
@@ -164,7 +206,7 @@ function coletarDadosDoForm() {
     cards.forEach(card => {
         const tipo = card.querySelector('.q-tipo').value;
         const enunciado = card.querySelector('.q-enunciado').value;
-        const imagemUrl = card.querySelector('.q-imagem-url').value;
+        const imagemUrl = card.querySelector('.q-imagem-url').value; // Pega o que estiver na URL
         let alternativas = [];
         let resposta = '';
 

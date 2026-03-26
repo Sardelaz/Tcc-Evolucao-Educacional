@@ -42,7 +42,7 @@
 
     <div class="main-content">
         <aside class="special-missions">
-            <a href="#" class="mission-card" id="simulado-card">
+            <a href="/simulados" class="mission-card" id="simulado-card">
                 <h2>Simulado</h2>
                 <p>Teste os seus conhecimentos.</p>
             </a>
@@ -50,7 +50,8 @@
                 <h2>Desafio Diário</h2>
                 <p>Descubra a sua meta de hoje.</p>
             </a>
-            <a href="#" class="mission-card" id="provas-card">
+            
+            <a href="/ranking" class="mission-card" id="provas-card">
                 <h2>Ranking</h2>
                 <p>Analise sua pontuação.</p>
             </a>
@@ -103,7 +104,39 @@
             <h2 class="modal-title">Escolha seu Avatar</h2>
             <p class="modal-desc">Selecione o personagem que mais combina com você!</p>
             <div class="avatar-grid" id="avatar-grid">
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-modal-overlay" id="settings-modal">
+        <div class="settings-modal-content">
+            <button class="modal-close" id="close-settings-btn">✕</button>
+            <div class="modal-icon" style="font-size: 2.5rem; margin-bottom: 5px;">⚙️</div>
+            <h2 class="modal-title" style="font-size: 1.3rem;">Configurações</h2>
+            <p class="modal-subtitle" style="margin-bottom: 20px;">Ajuste as preferências da sua conta</p>
+
+            <form id="settings-form">
+                <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+                    <label for="idioma-select" style="font-size: 0.9rem; color: #aaa;">Linguagem do Sistema</label>
+                    <select id="idioma-select" class="settings-input">
+                        <option value="pt-br" selected>Português (Brasil)</option>
+                        <option value="en">English (US)</option>
+                        <option value="es">Español</option>
+                    </select>
                 </div>
+
+                <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+                    <label for="current-password" style="font-size: 0.9rem; color: #aaa;">Senha Atual</label>
+                    <input type="password" id="current-password" class="settings-input" placeholder="••••••••">
+                </div>
+
+                <div class="form-group" style="text-align: left; margin-bottom: 20px;">
+                    <label for="new-password" style="font-size: 0.9rem; color: #aaa;">Nova Senha</label>
+                    <input type="password" id="new-password" class="settings-input" placeholder="••••••••">
+                </div>
+
+                <button type="submit" id="save-settings-btn">Salvar Alterações</button>
+            </form>
         </div>
     </div>
 
@@ -111,6 +144,10 @@
     <button id="music-toggle"
         style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; background: #1A1A2E; color: #EAEAEA; border: 2px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 10px 20px; font-family: 'Poppins', sans-serif; font-weight: 600; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.3s;">
         🎵 Música OFF
+    </button>
+
+    <button id="settings-toggle" title="Abrir Configurações">
+        ⚙️ Ajustes
     </button>
 
     <script th:src="@{/js/script-home.js}"></script>

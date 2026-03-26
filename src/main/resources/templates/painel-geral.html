@@ -8,6 +8,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" th:href="@{/css/style-painel-geral.css}">
+    <style>
+        .card-editar-simulado:hover {
+            box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3);
+            border-color: #f39c12;
+        }
+    </style>
 </head>
 
 <body>
@@ -42,6 +48,18 @@
                         <div class="icon">✏️</div>
                         <h4>Editar Fase Existente</h4>
                         <p>Modifique, corrija ou exclua questões de fases já cadastradas.</p>
+                    </a>
+
+                    <a href="/admin-simulados" class="action-card card-simulado">
+                        <div class="icon">📝</div>
+                        <h4>Criar Simulado</h4>
+                        <p>Cadastre questões exclusivas para gerar simulados oficiais.</p>
+                    </a>
+
+                    <a href="/admin-editar-simulados" class="action-card card-editar-simulado">
+                        <div class="icon">🛠️</div>
+                        <h4>Editar Simulado</h4>
+                        <p>Altere, corrija ou atualize questões de simulados já cadastrados.</p>
                     </a>
                 </div>
             </section>

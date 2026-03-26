@@ -115,6 +115,11 @@ body {
     color: var(--cor-sutil);
 }
 
+.search-input option {
+    background: #0A0A10;
+    color: #FFF;
+}
+
 .alunos-list {
     list-style: none;
     display: flex;
@@ -215,6 +220,12 @@ body {
 .card-editar:hover {
     box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3);
     border-color: #f39c12;
+}
+
+/* NOVO ESTILO DO CARD DE SIMULADO */
+.card-simulado:hover {
+    box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
+    border-color: var(--cor-erro);
 }
 
 .action-card .icon {
@@ -372,6 +383,61 @@ body {
     height: 100%;
     border-radius: 10px;
     transition: width 0.8s ease-out;
+}
+
+/* NOVO: ESTILOS DO MODAL DO SIMULADO */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none; justify-content: center; align-items: center;
+    z-index: 1000; opacity: 0; transition: opacity 0.3s;
+}
+
+.modal-overlay.active {
+    display: flex; opacity: 1;
+}
+
+.modal-content {
+    background: var(--cor-container);
+    border: 1px solid var(--cor-borda);
+    border-radius: 16px; padding: 40px; width: 90%; max-width: 450px;
+    text-align: center; position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    transform: translateY(-20px); transition: transform 0.3s;
+    backdrop-filter: blur(10px);
+}
+
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+}
+
+.modal-close {
+    position: absolute; top: 15px; right: 15px; background: none; border: none;
+    color: #999; font-size: 1.5rem; cursor: pointer; transition: 0.2s;
+}
+
+.modal-close:hover {
+    color: var(--cor-texto);
+}
+
+.btn-salvar-simulado {
+    background: var(--cor-destaque);
+    color: white; border: none; padding: 15px; border-radius: 8px; width: 100%;
+    font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s;
+    font-family: inherit;
+}
+
+.btn-salvar-simulado:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 168, 255, 0.4);
+}
+
+.btn-salvar-simulado:disabled {
+    background: #555;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
 }
 
 @media (max-width: 1024px) {

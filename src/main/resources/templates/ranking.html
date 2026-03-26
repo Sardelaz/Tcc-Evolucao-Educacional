@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking Global | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-ranking.css}">
+</head>
+<body>
+    <canvas id="art-background"></canvas>
+
+    <div class="top-nav">
+        <h2>🏆 Ranking Global</h2>
+        <a href="/" class="btn-voltar">← Voltar ao Dashboard</a>
+    </div>
+
+    <div class="ranking-layout">
+        <div class="tabs-container">
+            <button class="tab-btn active" data-type="nivel">⭐ Maior Nível / XP</button>
+            <button class="tab-btn" data-type="ofensiva">🔥 Maior Ofensiva</button>
+            <button class="tab-btn" data-type="fases">📚 Fases Concluídas</button>
+        </div>
+
+        <div class="ranking-list" id="ranking-list">
+            </div>
+    </div>
+
+    <audio id="bg-music" src="/audio/musica-fundo.mp3" loop preload="auto"></audio>
+    <button id="music-toggle"
+        style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; background: #1A1A2E; color: #EAEAEA; border: 2px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 10px 20px; font-family: 'Poppins', sans-serif; font-weight: 600; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.3s;">
+        🎵 Música OFF
+    </button>
+
+    <script th:src="@{/js/script-ranking.js}"></script>
+    <script th:src="@{/js/audio-controller.js}"></script>
+</body>
+</html>

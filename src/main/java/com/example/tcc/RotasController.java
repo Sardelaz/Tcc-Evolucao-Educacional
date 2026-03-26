@@ -3,6 +3,9 @@ package com.example.tcc;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 public class RotasController {
@@ -57,9 +60,35 @@ public class RotasController {
     public String adminEditar() {
         return "admin-editar";
     }
-    // Adicione junto das outras rotas no RotasController.java
+
+    // Painel para CADASTRAR Simulados específicos
+    @GetMapping("/admin-simulados")
+    public String adminSimulados() {
+        return "admin-simulados";
+    }
+
+    // NOVO: Painel para EDITAR Simulados específicos
+    @GetMapping("/admin-editar-simulados")
+    public String adminEditarSimulados() {
+        return "admin-editar-simulados";
+    }
+
+    // Painel Geral de Análise
     @GetMapping("/painel-geral")
     public String painelGeral() {
         return "painel-geral";
     }
+
+    // Ranking de Jogadores
+    @GetMapping("/ranking")
+    public String ranking() {
+        return "ranking";
+    }
+
+    // Página de Simulados
+    @GetMapping("/simulados")
+    public String simulados() {
+        return "simulados";
+    }
+
 }

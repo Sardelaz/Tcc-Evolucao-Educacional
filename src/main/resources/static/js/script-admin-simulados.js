@@ -1,6 +1,5 @@
 let questoesEmMemoria = [];
 
-// Esconde ou mostra as alternativas dependendo do tipo de pergunta
 function toggleAlternativas() {
     const tipo = document.getElementById('tipo_pergunta').value;
     const box = document.getElementById('box-alternativas');
@@ -22,7 +21,6 @@ function toggleAlternativas() {
     }
 }
 
-// NOVO: Função para enviar o arquivo pro servidor e preencher a URL
 async function fazerUpload(inputElement) {
     const file = inputElement.files[0];
     if (!file) return;
@@ -42,7 +40,6 @@ async function fazerUpload(inputElement) {
         });
         const data = await response.json();
         if (data.url) {
-            // Coloca a URL que voltou do Java no campo de imagemUrl!
             document.getElementById('imagem_url').value = data.url;
             statusSpan.textContent = "Upload concluído com sucesso!";
             statusSpan.style.color = "#4CAF50";
@@ -56,7 +53,6 @@ async function fazerUpload(inputElement) {
     }
 }
 
-// Atualiza os textos e botões conforme o professor vai criando as questões
 function atualizarInterface() {
     const qtdDesejada = parseInt(document.getElementById('qtd_perguntas').value) || 1;
     const questaoAtual = questoesEmMemoria.length + 1;
@@ -69,23 +65,21 @@ function atualizarInterface() {
 
     if (questaoAtual < qtdDesejada) {
         btnSubmit.textContent = "Salvar Pergunta (Ir para a Próxima)";
-        btnSubmit.style.backgroundColor = "#00A8FF";
+        btnSubmit.style.backgroundColor = "#e74c3c";
     } else if (questaoAtual === qtdDesejada) {
-        btnSubmit.textContent = "Salvar e Finalizar Criação da Fase";
+        btnSubmit.textContent = "Salvar e Publicar Simulado";
         btnSubmit.style.backgroundColor = "#4CAF50";
     }
 
-    // Trava as configurações da fase depois que começou a criar as questões
     const temPerguntaSalva = questoesEmMemoria.length > 0;
-    document.getElementById('modulo').disabled = temPerguntaSalva;
-    document.getElementById('fase').disabled = temPerguntaSalva;
+    document.getElementById('modulo_simulado').disabled = temPerguntaSalva;
     document.getElementById('qtd_perguntas').disabled = temPerguntaSalva;
 }
 
 document.getElementById('qtd_perguntas').addEventListener('input', atualizarInterface);
 window.onload = () => { toggleAlternativas(); atualizarInterface(); };
 
-document.getElementById('form-admin').addEventListener('submit', function (e) {
+document.getElementById('form-admin-simulado').addEventListener('submit', function (e) {
     e.preventDefault();
 
     const qtdDesejada = parseInt(document.getElementById('qtd_perguntas').value);
@@ -108,7 +102,7 @@ document.getElementById('form-admin').addEventListener('submit', function (e) {
     const novaQuestao = {
         tipo: tipo,
         enunciado: document.getElementById('enunciado').value,
-        imagemUrl: document.getElementById('imagem_url').value, // <-- Captura a Imagem (agora pode vir do upload)
+        imagemUrl: document.getElementById('imagem_url').value, 
         alternativas: tipo === 'multipla' ? [
             document.getElementById('alt_a').value,
             document.getElementById('alt_b').value,
@@ -120,12 +114,11 @@ document.getElementById('form-admin').addEventListener('submit', function (e) {
 
     questoesEmMemoria.push(novaQuestao);
 
-    // Se ainda faltam perguntas, limpa os campos e foca no enunciado
     if (questoesEmMemoria.length < qtdDesejada) {
         document.getElementById('enunciado').value = '';
-        document.getElementById('imagem_url').value = ''; // <-- Limpa a Imagem URL
-        document.getElementById('imagem_upload').value = ''; // <-- Limpa o arquivo selecionado
-        document.getElementById('upload_status').style.display = 'none'; // <-- Esconde o status
+        document.getElementById('imagem_url').value = ''; 
+        document.getElementById('imagem_upload').value = ''; 
+        document.getElementById('upload_status').style.display = 'none'; 
         document.getElementById('alt_a').value = '';
         document.getElementById('alt_b').value = '';
         document.getElementById('alt_c').value = '';
@@ -135,30 +128,26 @@ document.getElementById('form-admin').addEventListener('submit', function (e) {
         atualizarInterface();
         document.getElementById('enunciado').focus();
     } else {
-        const modulo = document.getElementById('modulo').value;
-        const fase = parseInt(document.getElementById('fase').value);
+        const modulo = document.getElementById('modulo_simulado').value;
+        const fase = parseInt(document.getElementById('fase_simulado').value);
         const faseObj = { fase: fase, qtd: qtdDesejada, questoes: questoesEmMemoria };
 
-        // === PERSISTÊNCIA NO LOCALSTORAGE ===
-        // Isso salva no seu navegador para não perder os dados se o Java reiniciar
         const chaveLocal = `fases_${modulo}`;
         let fasesLocais = JSON.parse(localStorage.getItem(chaveLocal) || "[]");
-        fasesLocais = fasesLocais.filter(f => f.fase !== fase); // Remove se já existir a mesma fase
+        fasesLocais = fasesLocais.filter(f => f.fase !== fase); 
         fasesLocais.push(faseObj);
         fasesLocais.sort((a, b) => a.fase - b.fase);
         localStorage.setItem(chaveLocal, JSON.stringify(fasesLocais));
 
-        // Envia também para o servidor Java
         fetch(`/api/fases/${modulo}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(faseObj)
         }).then(() => {
-            alert(`🎉 Sucesso! A Fase ${fase} foi salva no navegador e no servidor.`);
+            alert(`🎉 Sucesso! O Simulado de ${modulo.replace('simulado_','').toUpperCase()} foi salvo e já está disponível para os alunos.`);
             questoesEmMemoria = [];
             this.reset();
-            document.getElementById('modulo').disabled = false;
-            document.getElementById('fase').disabled = false;
+            document.getElementById('modulo_simulado').disabled = false;
             document.getElementById('qtd_perguntas').disabled = false;
             document.getElementById('upload_status').style.display = 'none';
             toggleAlternativas();

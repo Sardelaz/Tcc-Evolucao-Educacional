@@ -385,7 +385,6 @@ body {
   transform: none;
 }
 
-/* --- Novos estilos para o Grid de Avatares --- */
 .avatar-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -421,6 +420,112 @@ body {
   transform: scale(1.1);
 }
 
+/* ==========================================
+   NOVOS ESTILOS: BOTÃO E MODAL DE CONFIGURAÇÕES
+   ========================================== */
+
+#settings-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    background: #1A1A2E;
+    color: #EAEAEA;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    transition: 0.3s;
+}
+
+#settings-toggle:hover {
+    background: #252545;
+    transform: scale(1.05);
+    border-color: var(--cor-xp);
+}
+
+.settings-modal-overlay {
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: transparent; 
+    pointer-events: none; 
+    z-index: 10000;
+}
+
+.settings-modal-overlay.active {
+    pointer-events: auto;
+}
+
+.settings-modal-content {
+    position: absolute;
+    bottom: 80px; 
+    right: 20px;
+    background: var(--cor-container);
+    border: 1px solid var(--cor-borda);
+    border-radius: 16px;
+    padding: 30px;
+    width: 320px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    backdrop-filter: blur(10px);
+}
+
+.settings-modal-overlay.active .settings-modal-content {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.settings-input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+    background: rgba(0, 0, 0, 0.5);
+    color: var(--cor-texto);
+    font-family: inherit;
+    outline: none;
+    transition: 0.3s;
+}
+
+.settings-input:focus {
+    border-color: var(--cor-xp);
+    box-shadow: 0 0 8px rgba(28, 176, 246, 0.3);
+}
+
+.settings-input option {
+    background: #1A1A2E;
+    color: var(--cor-texto);
+}
+
+#save-settings-btn {
+    background: var(--cor-xp);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    width: 100%;
+    font-weight: bold;
+    font-size: 1.05rem;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#save-settings-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(28, 176, 246, 0.4);
+}
+
 @media (max-width: 900px) {
   .main-content {
     grid-template-columns: 1fr;
@@ -439,5 +544,15 @@ body {
   
   .avatar-grid {
       grid-template-columns: repeat(3, 1fr);
+  }
+
+  .settings-modal-content {
+      right: 50%;
+      transform: translateX(50%) translateY(20px) scale(0.95);
+      bottom: 80px;
+  }
+  
+  .settings-modal-overlay.active .settings-modal-content {
+      transform: translateX(50%) translateY(0) scale(1);
   }
 }

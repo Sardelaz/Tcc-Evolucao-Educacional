@@ -1,42 +1,42 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Criar Desafio | Evolução Educacional</title>
+    <title>Admin - Criar Simulado | Evolução Educacional</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style-admin.css}">
-
 </head>
 <body>
 
     <div class="admin-container">
-        <h1>Criar Novo Desafio</h1>
+        <h1 style="color: #e74c3c;">Criar Simulado Oficial</h1>
+        <p style="text-align: center; color: #aaa; margin-bottom: 30px;">Cadastre questões exclusivas que aparecerão quando o aluno iniciar um teste de simulado.</p>
         
-        <form id="form-admin">
+        <form id="form-admin-simulado">
             
             <div class="form-group">
-                <label for="modulo">Módulo (Matéria)</label>
-                <select id="modulo" required>
-                    <option value="razao">Razão, Proporção e Escala</option>
-                    <option value="estatistica">Estatística</option>
+                <label for="modulo_simulado">Matéria do Simulado</label>
+                <select id="modulo_simulado" required>
+                    <option value="simulado_razao">Simulado de Razão e Proporção</option>
+                    <option value="simulado_estatistica">Simulado de Estatística</option>
+                    <option value="simulado_probabilidade">Simulado de Probabilidade</option>
+                    <option value="simulado_aritmetica">Simulado de Aritmética</option>
                 </select>
             </div>
 
             <div class="form-row">
-                <div class="form-group">
-                    <label for="fase">Fase do Módulo</label>
-                    <input type="number" id="fase" min="1" value="1" required>
-                </div>
+                <input type="hidden" id="fase_simulado" value="1">
+                
                 <div class="form-group">
                     <label for="qtd_perguntas">Qtd. Total de Perguntas</label>
-                    <input type="number" id="qtd_perguntas" min="1" max="50" value="5" required>
+                    <input type="number" id="qtd_perguntas" min="1" max="100" value="10" required>
                 </div>
             </div>
 
             <hr class="divisor">
             
-            <div id="indicador-questao">Formulando Questão 1 de 5</div>
+            <div id="indicador-questao" style="color: #e74c3c;">Formulando Questão 1 de 10</div>
 
             <div class="form-group">
                 <label for="tipo_pergunta">Tipo de Pergunta</label>
@@ -57,7 +57,7 @@
             </div>
 
             <div class="form-group">
-                <label for="imagem_upload" style="color: #00A8FF;">Ou Envie do Computador</label>
+                <label for="imagem_upload" style="color: #e74c3c;">Ou Envie do Computador</label>
                 <input type="file" id="imagem_upload" accept="image/*" style="padding: 8px; background: rgba(0,0,0,0.2);" onchange="fazerUpload(this)">
                 <span id="upload_status" style="font-size: 0.9rem; margin-top: 5px; display: none;"></span>
             </div>
@@ -82,12 +82,12 @@
                 <input type="text" id="resposta_correta_dissertativa" class="hidden" placeholder="Digite a resposta exata">
             </div>
 
-            <button type="submit" id="btn-submit">Salvar Pergunta (Ir para a Próxima)</button>
+            <button type="submit" id="btn-submit" style="background-color: #e74c3c;">Salvar Pergunta (Ir para a Próxima)</button>
         </form>
 
-        <a href="/" class="back-link">← Voltar para o Dashboard</a>
+        <a href="/painel-geral" class="back-link">← Voltar para o Painel Geral</a>
     </div>
 
-    <script th:src="@{/js/script-admin.js}"></script>  
+    <script th:src="@{/js/script-admin-simulados.js}"></script>  
 </body>
 </html>

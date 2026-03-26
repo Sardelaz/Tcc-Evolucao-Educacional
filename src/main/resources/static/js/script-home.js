@@ -169,6 +169,64 @@ closeAvatarBtn.addEventListener('click', () => {
     avatarModal.classList.remove('active');
 });
 
+// ==========================================
+// LÓGICA DO MODAL DE CONFIGURAÇÕES
+// ==========================================
+const settingsBtn = document.getElementById('settings-toggle');
+const settingsModal = document.getElementById('settings-modal');
+const closeSettingsBtn = document.getElementById('close-settings-btn');
+const settingsForm = document.getElementById('settings-form');
+
+// Abre o modal de configurações
+settingsBtn.addEventListener('click', () => {
+    settingsModal.classList.add('active');
+});
+
+// Fecha o modal pelo botão 'X'
+closeSettingsBtn.addEventListener('click', () => {
+    settingsModal.classList.remove('active');
+});
+
+// Fecha o modal ao clicar fora do conteúdo principal (na área transparente)
+settingsModal.addEventListener('click', (e) => {
+    if (e.target === settingsModal) {
+        settingsModal.classList.remove('active');
+    }
+});
+
+// Simulação de Salvamento do formulário de Configurações
+settingsForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const idiomaSelecionado = document.getElementById('idioma-select').value;
+    const senhaAtual = document.getElementById('current-password').value;
+    const novaSenha = document.getElementById('new-password').value;
+
+    // Verificação básica para simular lógica
+    if (novaSenha !== "" && senhaAtual === "") {
+        alert("Para alterar a senha, digite a sua senha atual!");
+        return;
+    }
+
+    // Como é frontend por enquanto, apenas simulamos o sucesso
+    let msg = "Configurações atualizadas com sucesso!";
+    if (novaSenha !== "") {
+        msg += "\nSua senha foi alterada.";
+    }
+    
+    // Salva preferência de idioma simulada
+    localStorage.setItem('userLang', idiomaSelecionado);
+    
+    alert(msg);
+
+    // Limpa os campos de senha
+    document.getElementById('current-password').value = '';
+    document.getElementById('new-password').value = '';
+    
+    // Fecha o modal
+    settingsModal.classList.remove('active');
+});
+
 
 // ==========================================
 // ANIMAÇÃO DE FUNDO (PARTÍCULAS)

@@ -1,0 +1,214 @@
+:root {
+    --cor-fundo: #0A0A10;
+    --cor-texto: #EAEAEA;
+    --cor-container: rgba(26, 26, 46, 0.7);
+    --cor-borda: rgba(255, 255, 255, 0.15);
+    --cor-destaque: #FFD700;
+    --cor-ofensiva: #FF4500;
+    --cor-xp: #1cb0f6;
+    --cor-fases: #4CAF50;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 50px;
+}
+
+#art-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.top-nav {
+    width: 100%;
+    padding: 20px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--cor-container);
+    border-bottom: 1px solid var(--cor-borda);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 10;
+}
+
+.top-nav h2 {
+    color: var(--cor-destaque);
+    font-size: 1.5rem;
+}
+
+.btn-voltar {
+    color: var(--cor-texto);
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: 0.3s;
+    font-weight: 500;
+}
+
+.btn-voltar:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.ranking-layout {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    position: relative;
+    z-index: 10;
+}
+
+.tabs-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    background: var(--cor-container);
+    color: var(--cor-texto);
+    border: 1px solid var(--cor-borda);
+    padding: 12px 25px;
+    border-radius: 50px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.tab-btn.active[data-type="nivel"] {
+    background: rgba(28, 176, 246, 0.2);
+    border-color: var(--cor-xp);
+    color: var(--cor-xp);
+}
+
+.tab-btn.active[data-type="ofensiva"] {
+    background: rgba(255, 69, 0, 0.2);
+    border-color: var(--cor-ofensiva);
+    color: var(--cor-ofensiva);
+}
+
+.tab-btn.active[data-type="fases"] {
+    background: rgba(76, 175, 80, 0.2);
+    border-color: var(--cor-fases);
+    color: var(--cor-fases);
+}
+
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--cor-container);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 15px 25px;
+    transition: transform 0.2s;
+    backdrop-filter: blur(10px);
+}
+
+.ranking-item:hover {
+    transform: scale(1.02);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.ranking-item.current-user {
+    border-color: var(--cor-destaque);
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.rank-pos {
+    font-size: 1.5rem;
+    font-weight: bold;
+    width: 40px;
+    color: #888;
+}
+
+.rank-1 .rank-pos { color: #FFD700; font-size: 1.8rem; }
+.rank-2 .rank-pos { color: #C0C0C0; font-size: 1.6rem; }
+.rank-3 .rank-pos { color: #CD7F32; font-size: 1.6rem; }
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.avatar { font-size: 2.2rem; }
+
+.user-details h4 {
+    font-size: 1.1rem;
+    color: var(--cor-texto);
+    margin-bottom: 3px;
+}
+
+.user-details span {
+    font-size: 0.85rem;
+    color: #aaa;
+    background: rgba(0,0,0,0.5);
+    padding: 2px 8px;
+    border-radius: 8px;
+}
+
+.score-box {
+    text-align: right;
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+.score-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #888;
+    font-weight: normal;
+    margin-top: 2px;
+    text-transform: uppercase;
+}
+
+@media (max-width: 600px) {
+    .ranking-item {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    .user-info {
+        flex-direction: column;
+    }
+    .score-box {
+        text-align: center;
+    }
+    .rank-pos {
+        text-align: center;
+        width: auto;
+    }
+}

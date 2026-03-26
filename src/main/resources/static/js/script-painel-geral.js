@@ -312,3 +312,126 @@ document.addEventListener("DOMContentLoaded", () => {
     renderizarBarraLateral();
     selecionarAluno('geral', null);
 });
+
+
+// ==========================================
+// 3. LÓGICA DE GERENCIAMENTO DE SIMULADOS
+// ==========================================
+
+window.abrirModalSimulado = function(e) {
+    e.preventDefault();
+    document.getElementById('modal-simulado').classList.add('active');
+    
+    // Reseta o select ao abrir o modal
+    document.getElementById('simulado-modulo').value = "";
+    document.getElementById('lista-fases-disponiveis').innerHTML = '<p style="color:#888; font-size: 0.9rem; text-align: center;">Selecione um módulo primeiro.</p>';
+}
+
+window.fecharModalSimulado = function() {
+    document.getElementById('modal-simulado').classList.remove('active');
+}
+
+window.carregarFasesParaSimulado = async function() {
+    const modulo = document.getElementById('simulado-modulo').value;
+    const container = document.getElementById('lista-fases-disponiveis');
+    
+    if(!modulo) return;
+    
+    container.innerHTML = '<p style="color:#aaa; text-align: center;">Buscando fases do servidor...</p>';
+
+    try {
+        // Busca primeiro no LocalStorage (fallback), depois no servidor
+        let fasesLocais = JSON.parse(localStorage.getItem(`fases_${modulo}`) || "[]");
+        
+        const resp = await fetch(`/api/fases/${modulo}`);
+        let fasesServidor = await resp.json();
+
+        let fasesFinais = fasesServidor.length > 0 ? fasesServidor : fasesLocais;
+
+        if (!fasesFinais || fasesFinais.length === 0) {
+            container.innerHTML = '<p style="color:#e74c3c; font-size: 0.9rem; text-align: center;">Nenhuma fase encontrada neste módulo. Crie fases em "Criar Nova Fase" primeiro.</p>';
+            return;
+        }
+
+        // Armazena temporariamente na janela para construir o simulado depois
+        window.fasesCarregadasTemp = fasesFinais;
+        container.innerHTML = '';
+
+        fasesFinais.forEach(f => {
+            container.innerHTML += `
+                <label style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; cursor: pointer; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                    <input type="checkbox" class="simulado-checkbox" value="${f.fase}" style="width: 18px; height: 18px;">
+                    <span style="font-size: 1rem; color: #EAEAEA;">Fase ${f.fase} <span style="color:#888; font-size: 0.8rem;">(${f.qtd} questões)</span></span>
+                </label>
+            `;
+        });
+
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = '<p style="color:#e74c3c; text-align: center;">Erro de conexão ao buscar fases.</p>';
+    }
+}
+
+window.salvarSimulado = async function() {
+    const modulo = document.getElementById('simulado-modulo').value;
+    const checkboxes = document.querySelectorAll('.simulado-checkbox:checked');
+    
+    if (!modulo) {
+        alert("Por favor, selecione um módulo da matéria.");
+        return;
+    }
+    
+    if (checkboxes.length === 0) {
+        alert("Selecione pelo menos uma fase da lista para compor as questões do simulado.");
+        return;
+    }
+
+    const btnSalvar = document.querySelector('.btn-salvar-simulado');
+    btnSalvar.textContent = "Gerando Simulado...";
+    btnSalvar.disabled = true;
+
+    let questoesSimulado = [];
+    
+    // Mescla todas as questões das fases selecionadas
+    checkboxes.forEach(cb => {
+        const faseNum = parseInt(cb.value);
+        const faseEncontrada = window.fasesCarregadasTemp.find(f => f.fase === faseNum);
+        if(faseEncontrada && faseEncontrada.questoes) {
+            questoesSimulado = questoesSimulado.concat(faseEncontrada.questoes);
+        }
+    });
+
+    // Embaralha as questões para o aluno não decorar a ordem
+    questoesSimulado = questoesSimulado.sort(() => Math.random() - 0.5);
+
+    // O simulado atua como a "Fase 1" de um módulo virtual chamado "simulado_{materia}"
+    const simuladoObj = {
+        fase: 1, 
+        qtd: questoesSimulado.length,
+        questoes: questoesSimulado
+    };
+
+    const nomeModuloSimulado = `simulado_${modulo}`;
+
+    try {
+        // Salva no banco em memória do Java
+        await fetch(`/api/fases/${nomeModuloSimulado}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(simuladoObj)
+        });
+
+        // Salva no LocalStorage como backup
+        const chaveLocal = `fases_${nomeModuloSimulado}`;
+        localStorage.setItem(chaveLocal, JSON.stringify([simuladoObj]));
+
+        alert(`✅ Simulado de ${modulo.toUpperCase()} gerado com sucesso! Contém ${questoesSimulado.length} questões embaralhadas.`);
+        fecharModalSimulado();
+    } catch (e) {
+        console.error(e);
+        alert("Aviso: O simulado foi criado localmente, mas o servidor Java não respondeu.");
+    } finally {
+        btnSalvar.textContent = "Gerar e Salvar Simulado";
+        btnSalvar.disabled = false;
+    }
+}

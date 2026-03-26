@@ -1,6 +1,8 @@
 package com.example.tcc;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.File;
 import java.util.*;
 import java.time.LocalDate;
 
@@ -46,7 +48,7 @@ public class ApiController {
     public static class Questao {
         public String tipo;
         public String enunciado;
-        public String imagemUrl; // <-- NOVO CAMPO PARA IMAGEM
+        public String imagemUrl; // <-- CAMPO PARA IMAGEM
         public List<String> alternativas;
         public String resposta;
     }
@@ -55,6 +57,35 @@ public class ApiController {
         public int acertos;
         public int maxStreak;
         public int totalQuestoes; 
+    }
+
+    // NOVO: Endpoint para fazer o upload da imagem pro computador
+    @PostMapping("/upload")
+    public Map<String, String> uploadImagem(@RequestParam("file") MultipartFile file) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            // Cria a pasta "uploads" na raiz do projeto, caso não exista
+            File dir = new File("uploads");
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            // Gera um nome único para não ter arquivos com nomes iguais conflitando
+            String originalName = file.getOriginalFilename() != null ? file.getOriginalFilename() : "imagem.png";
+            String fileName = System.currentTimeMillis() + "_" + originalName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+            
+            // Salva o arquivo fisicamente na pasta
+            File serverFile = new File(dir.getAbsolutePath() + File.separator + fileName);
+            file.transferTo(serverFile);
+
+            // Devolve a URL que o site vai usar para exibir a imagem
+            response.put("url", "/uploads/" + fileName);
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("erro", "Falha ao fazer upload da imagem");
+            return response;
+        }
     }
 
     @PostMapping("/fases/{modulo}")
@@ -71,7 +102,7 @@ public class ApiController {
         return bancoDeAulas.getOrDefault(modulo, new ArrayList<>());
     }
 
-    // NOVO: Endpoint para buscar uma fase específica para a tela de edição
+    // Endpoint para buscar uma fase específica para a tela de edição
     @GetMapping("/fases/{modulo}/{faseId}")
     public Fase carregarFaseEspecifica(@PathVariable String modulo, @PathVariable int faseId) {
         List<Fase> fases = bancoDeAulas.getOrDefault(modulo, new ArrayList<>());
@@ -184,5 +215,49 @@ public class ApiController {
         resposta.put("xpTotal", userXp);
         resposta.put("nivel", userLevel);
         return resposta;
+    }
+
+    // NOVA ROTA: Dados para a Tela de Ranking
+    @GetMapping("/ranking")
+    public Map<String, List<Map<String, Object>>> carregarRanking(@RequestParam(value = "avatar", defaultValue = "👨‍🎓") String avatar) {
+        verificarResetDiario();
+        
+        List<Map<String, Object>> rankingNivel = new ArrayList<>();
+        List<Map<String, Object>> rankingOfensiva = new ArrayList<>();
+        List<Map<String, Object>> rankingFases = new ArrayList<>();
+
+        // Dados do Usuário Atual (Dinâmico conforme a sessão)
+        Map<String, Object> currentUser = new HashMap<>();
+        currentUser.put("nome", "Você");
+        currentUser.put("avatar", avatar);
+        currentUser.put("nivel", userLevel);
+        currentUser.put("xp", userXp);
+        currentUser.put("ofensiva", streakDiaria);
+        currentUser.put("fases", statusDasFases.size());
+        currentUser.put("isCurrentUser", true);
+
+        // Adiciona dados Mocks de outros usuários para o placar ficar competitivo
+        rankingNivel.add(currentUser);
+        rankingNivel.add(Map.of("nome", "Maria Oliveira", "avatar", "👩‍🎓", "nivel", Math.max(1, userLevel + 2), "xp", userXp + 250, "ofensiva", streakDiaria + 5, "fases", statusDasFases.size() + 2, "isCurrentUser", false));
+        rankingNivel.add(Map.of("nome", "João Sardela", "avatar", "🧑‍💻", "nivel", Math.max(1, userLevel - 1), "xp", Math.max(0, userXp - 150), "ofensiva", Math.max(0, streakDiaria - 2), "fases", Math.max(0, statusDasFases.size() - 1), "isCurrentUser", false));
+        rankingNivel.add(Map.of("nome", "Ana Souza", "avatar", "🦸‍♀️", "nivel", Math.max(1, userLevel + 5), "xp", userXp + 600, "ofensiva", streakDiaria + 12, "fases", statusDasFases.size() + 5, "isCurrentUser", false));
+        rankingNivel.add(Map.of("nome", "Carlos Eduardo", "avatar", "🧙‍♂️", "nivel", userLevel, "xp", Math.max(0, userXp - 50), "ofensiva", streakDiaria + 1, "fases", statusDasFases.size(), "isCurrentUser", false));
+
+        // Clona a lista para os outros rankings
+        rankingOfensiva.addAll(rankingNivel);
+        rankingFases.addAll(rankingNivel);
+
+        // Faz as ordenações decrescentes corretas
+        rankingNivel.sort((a, b) -> Integer.compare((int) b.get("xp"), (int) a.get("xp")));
+        rankingOfensiva.sort((a, b) -> Integer.compare((int) b.get("ofensiva"), (int) a.get("ofensiva")));
+        rankingFases.sort((a, b) -> Integer.compare((int) b.get("fases"), (int) a.get("fases")));
+
+        // Empacota e retorna para o Frontend JS
+        Map<String, List<Map<String, Object>>> response = new HashMap<>();
+        response.put("nivel", rankingNivel);
+        response.put("ofensiva", rankingOfensiva);
+        response.put("fases", rankingFases);
+
+        return response;
     }
 }

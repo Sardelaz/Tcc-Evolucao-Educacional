@@ -1,0 +1,197 @@
+:root {
+    --cor-fundo: #0A0A10;
+    --cor-texto: #EAEAEA;
+    --cor-container: rgba(26, 26, 46, 0.7);
+    --cor-borda: rgba(255, 255, 255, 0.15);
+    --cor-destaque: #e74c3c; /* Vermelho padrão para simulados */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 50px;
+}
+
+#art-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.top-nav {
+    width: 100%;
+    padding: 20px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--cor-container);
+    border-bottom: 1px solid var(--cor-borda);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 10;
+}
+
+.top-nav h2 {
+    color: var(--cor-destaque);
+    font-size: 1.5rem;
+}
+
+.btn-voltar {
+    color: var(--cor-texto);
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: 0.3s;
+    font-weight: 500;
+}
+
+.btn-voltar:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.simulados-layout {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 10;
+}
+
+.simulados-header {
+    text-align: center;
+    margin-bottom: 40px;
+    background: var(--cor-container);
+    padding: 30px;
+    border-radius: 16px;
+    border: 1px solid var(--cor-borda);
+    backdrop-filter: blur(10px);
+}
+
+.simulados-header h3 {
+    font-size: 2rem;
+    color: var(--cor-texto);
+    margin-bottom: 10px;
+}
+
+.simulados-header p {
+    color: #aaa;
+    font-size: 1.1rem;
+}
+
+.modulos-simulado-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.simulado-card {
+    background: var(--cor-container);
+    border: 1px solid var(--cor-borda);
+    border-radius: 16px;
+    padding: 30px 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.simulado-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background-color: var(--cor-tema);
+}
+
+.simulado-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+    border-color: var(--cor-tema);
+}
+
+.card-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    text-shadow: 0 0 15px var(--cor-tema);
+}
+
+.card-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-content h4 {
+    font-size: 1.4rem;
+    color: var(--cor-texto);
+    margin-bottom: 10px;
+}
+
+.card-content p {
+    color: #aaa;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.card-stats {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #ccc;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px 15px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-iniciar {
+    width: 100%;
+    background: transparent;
+    color: var(--cor-texto);
+    border: 2px solid var(--cor-tema);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.btn-iniciar:hover {
+    background: var(--cor-tema);
+    color: #0A0A10;
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    .simulados-header h3 {
+        font-size: 1.6rem;
+    }
+    .modulos-simulado-grid {
+        grid-template-columns: 1fr;
+    }
+}
