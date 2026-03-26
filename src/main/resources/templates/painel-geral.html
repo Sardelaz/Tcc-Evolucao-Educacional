@@ -16,52 +16,72 @@
         <a href="/" class="btn-voltar">← Voltar ao Dashboard Inicial</a>
     </div>
 
-    <div class="dashboard-container">
-        
-        <section class="actions-section">
-            <h3 class="section-title">Gerenciamento de Conteúdo</h3>
-            <div class="cards-grid">
-                <a href="/admin" class="action-card card-criar">
-                    <div class="icon">➕</div>
-                    <h4>Criar Nova Fase</h4>
-                    <p>Adicione novas perguntas, módulos e desafios para os alunos.</p>
-                </a>
-                
-                <a href="/admin-editar" class="action-card card-editar">
-                    <div class="icon">✏️</div>
-                    <h4>Editar Fase Existente</h4>
-                    <p>Modifique, corrija ou exclua questões de fases já cadastradas.</p>
-                </a>
-            </div>
-        </section>
+    <div class="painel-layout">
+        <aside class="sidebar-alunos">
+            <h3 class="sidebar-title">Alunos Cadastrados</h3>
+            <p class="sidebar-subtitle">Selecione para ver a análise</p>
+            
+            <input type="text" id="busca-aluno" class="search-input" placeholder="🔍 Buscar aluno pelo nome...">
 
-        <section class="charts-section">
-            <h3 class="section-title">Análise de Desempenho: Dificuldade por Matéria</h3>
-            <div class="chart-container">
-                <canvas id="graficoDificuldade"></canvas>
-            </div>
-        </section>
+            <ul id="lista-alunos" class="alunos-list">
+                </ul>
+        </aside>
 
-        <section class="questions-stats-section">
-            <div class="stats-grid">
-                
-                <div class="stats-card erro-card">
-                    <h3 class="card-title">❌ Questões Mais Erradas</h3>
-                    <p class="card-subtitle">Focos que precisam de revisão</p>
-                    <ul id="lista-mais-erradas" class="question-list">
-                        </ul>
+        <main class="dashboard-container">
+            
+            <section class="actions-section">
+                <h3 class="section-title">Gerenciamento de Conteúdo</h3>
+                <div class="cards-grid">
+                    <a href="/admin" class="action-card card-criar">
+                        <div class="icon">➕</div>
+                        <h4>Criar Nova Fase</h4>
+                        <p>Adicione novas perguntas, módulos e desafios para os alunos.</p>
+                    </a>
+                    
+                    <a href="/admin-editar" class="action-card card-editar">
+                        <div class="icon">✏️</div>
+                        <h4>Editar Fase Existente</h4>
+                        <p>Modifique, corrija ou exclua questões de fases já cadastradas.</p>
+                    </a>
                 </div>
+            </section>
 
-                <div class="stats-card acerto-card">
-                    <h3 class="card-title">✅ Questões Mais Acertadas</h3>
-                    <p class="card-subtitle">Conteúdos já dominados pelos alunos</p>
-                    <ul id="lista-mais-acertadas" class="question-list">
-                        </ul>
+            <h3 class="section-title destaque-aluno" id="titulo-analise">Análise Geral (Todos os Alunos)</h3>
+
+            <section class="progress-section" id="secao-progresso" style="display: none;">
+                <h3 class="section-title" style="border: none; margin-bottom: 0; font-size: 1.1rem; color: #888;">Progresso nos Módulos</h3>
+                <div class="modulos-grid" id="lista-progresso-modulos">
+                    </div>
+            </section>
+
+            <section class="charts-section">
+                <h3 class="section-title" style="border: none; margin-bottom: 0; font-size: 1.1rem; color: #888;">Taxa de Dificuldade por Matéria (%)</h3>
+                <div class="chart-container">
+                    <canvas id="graficoDificuldade"></canvas>
                 </div>
+            </section>
 
-            </div>
-        </section>
+            <section class="questions-stats-section">
+                <div class="stats-grid">
+                    
+                    <div class="stats-card erro-card">
+                        <h3 class="card-title">❌ Questões Mais Erradas</h3>
+                        <p class="card-subtitle">Focos que precisam de revisão</p>
+                        <ul id="lista-mais-erradas" class="question-list">
+                            </ul>
+                    </div>
 
+                    <div class="stats-card acerto-card">
+                        <h3 class="card-title" id="titulo-acertos">🌟 Fases Perfeitas</h3>
+                        <p class="card-subtitle" id="subtitulo-acertos">Fases concluídas com 100% de acerto</p>
+                        <ul id="lista-fases-perfeitas" class="question-list">
+                            </ul>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
     </div>
 
     <script th:src="@{/js/script-painel-geral.js}"></script>

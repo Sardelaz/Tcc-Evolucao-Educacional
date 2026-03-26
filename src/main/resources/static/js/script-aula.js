@@ -58,6 +58,16 @@ function carregarQuestao() {
     respostaCorreta = questao.resposta;
     respostaUsuario = "";
 
+    // LÓGICA DA IMAGEM
+    const imgElement = document.getElementById('imagem-pergunta');
+    if (questao.imagemUrl && questao.imagemUrl.trim() !== '') {
+        imgElement.src = questao.imagemUrl;
+        imgElement.style.display = 'block';
+    } else {
+        imgElement.src = '';
+        imgElement.style.display = 'none';
+    }
+
     const barraProgress = (questaoIndex / faseAtual.questoes.length) * 100;
     document.querySelector('.progress-bar').style.width = barraProgress + '%';
 

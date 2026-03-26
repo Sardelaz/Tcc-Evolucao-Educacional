@@ -84,6 +84,11 @@ function renderizarQuestoes() {
                 <textarea class="q-enunciado" rows="3" required>${q.enunciado || ''}</textarea>
             </div>
 
+            <div class="form-group">
+                <label>URL da Imagem (Opcional)</label>
+                <input type="text" class="q-imagem-url" placeholder="https://exemplo.com/imagem.png" value="${q.imagemUrl || ''}">
+            </div>
+
             <div class="alternativas-box ${q.tipo === 'dissertativa' ? 'hidden' : ''}">
                 <p style="margin-bottom: 10px; font-size: 0.9rem; color: #888;">Alternativas:</p>
                 <div class="form-group"><input type="text" class="q-alt-a" placeholder="Alternativa A" value="${alts[0]}"></div>
@@ -136,6 +141,7 @@ function adicionarQuestao() {
     faseAtualEditando.questoes.push({
         tipo: 'multipla',
         enunciado: '',
+        imagemUrl: '',
         alternativas: ['', '', '', ''],
         resposta: ''
     });
@@ -158,6 +164,7 @@ function coletarDadosDoForm() {
     cards.forEach(card => {
         const tipo = card.querySelector('.q-tipo').value;
         const enunciado = card.querySelector('.q-enunciado').value;
+        const imagemUrl = card.querySelector('.q-imagem-url').value;
         let alternativas = [];
         let resposta = '';
 
@@ -180,6 +187,7 @@ function coletarDadosDoForm() {
         novasQuestoes.push({
             tipo: tipo,
             enunciado: enunciado,
+            imagemUrl: imagemUrl,
             alternativas: alternativas,
             resposta: resposta
         });

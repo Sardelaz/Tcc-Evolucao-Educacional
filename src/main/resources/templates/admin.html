@@ -51,6 +51,11 @@
                 <textarea id="enunciado" rows="3" required></textarea>
             </div>
 
+            <div class="form-group">
+                <label for="imagem_url">URL da Imagem (Opcional)</label>
+                <input type="text" id="imagem_url" placeholder="Ex: https://i.imgur.com/suaimagem.png">
+            </div>
+
             <div id="box-alternativas" class="alternativas-box">
                 <p style="margin-bottom: 10px; font-size: 0.9rem; color: #888;">Preencha as alternativas:</p>
                 <div class="form-group"><input type="text" id="alt_a" placeholder="Alternativa A"></div>
@@ -76,7 +81,6 @@
 
         <a href="/" class="back-link">← Voltar para o Dashboard</a>
     </div>
-
 
     <script th:src="@{/js/script-admin.js}"></script>  
 </body>

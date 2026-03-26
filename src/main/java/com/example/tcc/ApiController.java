@@ -46,6 +46,7 @@ public class ApiController {
     public static class Questao {
         public String tipo;
         public String enunciado;
+        public String imagemUrl; // <-- NOVO CAMPO PARA IMAGEM
         public List<String> alternativas;
         public String resposta;
     }

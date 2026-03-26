@@ -74,6 +74,7 @@ document.getElementById('form-admin').addEventListener('submit', function (e) {
     const novaQuestao = {
         tipo: tipo,
         enunciado: document.getElementById('enunciado').value,
+        imagemUrl: document.getElementById('imagem_url').value, // <-- Captura a Imagem
         alternativas: tipo === 'multipla' ? [
             document.getElementById('alt_a').value,
             document.getElementById('alt_b').value,
@@ -88,6 +89,7 @@ document.getElementById('form-admin').addEventListener('submit', function (e) {
     // Se ainda faltam perguntas, limpa os campos e foca no enunciado
     if (questoesEmMemoria.length < qtdDesejada) {
         document.getElementById('enunciado').value = '';
+        document.getElementById('imagem_url').value = ''; // <-- Limpa a Imagem
         document.getElementById('alt_a').value = '';
         document.getElementById('alt_b').value = '';
         document.getElementById('alt_c').value = '';
