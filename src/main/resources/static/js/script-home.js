@@ -2,6 +2,7 @@ const btnCheckin = document.getElementById('checkin-btn');
 const countStreak = document.getElementById('day-streak-count');
 let desafioJaConcluidoHoje = false;
 
+// Busca dados do perfil no backend
 fetch('/api/perfil')
     .then(res => res.json())
     .then(perfil => {
@@ -15,6 +16,7 @@ fetch('/api/perfil')
     })
     .catch(err => console.error("Erro ao carregar perfil:", err));
 
+// Lógica de Check-in
 btnCheckin.addEventListener('click', () => {
     fetch('/api/checkin', { method: 'POST' })
         .then(res => res.json())
@@ -30,6 +32,7 @@ btnCheckin.addEventListener('click', () => {
         });
 });
 
+// Lógica do Modal de Desafio Diário
 const modal = document.getElementById('daily-modal');
 const btnDesafioCard = document.getElementById('desafio-card');
 const btnCloseModal = document.getElementById('close-modal-btn');
@@ -108,6 +111,68 @@ btnClaim.addEventListener('click', () => {
         });
 });
 
+// ==========================================
+// LÓGICA DE SELEÇÃO DE AVATAR (LocalStorage)
+// ==========================================
+const avataresPadrao = [
+    '👨‍🎓', '👩‍🎓', '🧑‍💻', '👩‍💻', 
+    '🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀️', 
+    '🤖', '👽', '🦊', '🐱', 
+    '🦁', '🐼', '🦄', '🐲'
+];
+
+const currentAvatarIcon = document.getElementById('current-avatar-icon');
+const profileAvatar = document.getElementById('profile-avatar');
+const avatarModal = document.getElementById('avatar-modal');
+const closeAvatarBtn = document.getElementById('close-avatar-btn');
+const avatarGrid = document.getElementById('avatar-grid');
+
+// Carregar avatar salvo ou definir padrão
+const savedAvatar = localStorage.getItem('userAvatar') || '👨‍🎓';
+currentAvatarIcon.textContent = savedAvatar;
+
+// Gerar as opções de avatar dinamicamente no modal
+avataresPadrao.forEach(emoji => {
+    const opt = document.createElement('div');
+    opt.className = 'avatar-option';
+    if(emoji === savedAvatar) {
+        opt.classList.add('selected');
+    }
+    opt.textContent = emoji;
+    
+    opt.onclick = () => {
+        // Remove a classe 'selected' de todos
+        document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+        // Adiciona a classe 'selected' no clicado
+        opt.classList.add('selected');
+        
+        // Atualiza a tela e salva no LocalStorage
+        currentAvatarIcon.textContent = emoji;
+        localStorage.setItem('userAvatar', emoji);
+        
+        // Fecha o modal após um breve delay
+        setTimeout(() => { 
+            avatarModal.classList.remove('active'); 
+        }, 200);
+    };
+    
+    avatarGrid.appendChild(opt);
+});
+
+// Abrir modal de avatar
+profileAvatar.addEventListener('click', () => {
+    avatarModal.classList.add('active');
+});
+
+// Fechar modal de avatar
+closeAvatarBtn.addEventListener('click', () => {
+    avatarModal.classList.remove('active');
+});
+
+
+// ==========================================
+// ANIMAÇÃO DE FUNDO (PARTÍCULAS)
+// ==========================================
 const canvas = document.getElementById('art-background'); const ctx = canvas.getContext('2d'); let particlesArray;
 function setCanvasSize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; } setCanvasSize();
 class Particle { constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 1.5 + 0.5; this.speedX = Math.random() * 1 - 0.5; this.speedY = Math.random() * 1 - 0.5; this.color = `hsl(${Math.random() * 60 + 200}, 70%, 50%)`; } update() { this.x += this.speedX; this.y += this.speedY; if (this.x > canvas.width || this.x < 0) this.speedX *= -1; if (this.y > canvas.height || this.y < 0) this.speedY *= -1; } draw() { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } }

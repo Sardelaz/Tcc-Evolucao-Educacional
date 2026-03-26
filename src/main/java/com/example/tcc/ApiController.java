@@ -56,8 +56,6 @@ public class ApiController {
         public int totalQuestoes; 
     }
 
-    // O bloco static que criava fases de razão foi removido para o app começar limpo
-
     @PostMapping("/fases/{modulo}")
     public void salvarFase(@PathVariable String modulo, @RequestBody Fase novaFase) {
         bancoDeAulas.putIfAbsent(modulo, new ArrayList<>());
@@ -70,6 +68,13 @@ public class ApiController {
     @GetMapping("/fases/{modulo}")
     public List<Fase> carregarFases(@PathVariable String modulo) {
         return bancoDeAulas.getOrDefault(modulo, new ArrayList<>());
+    }
+
+    // NOVO: Endpoint para buscar uma fase específica para a tela de edição
+    @GetMapping("/fases/{modulo}/{faseId}")
+    public Fase carregarFaseEspecifica(@PathVariable String modulo, @PathVariable int faseId) {
+        List<Fase> fases = bancoDeAulas.getOrDefault(modulo, new ArrayList<>());
+        return fases.stream().filter(f -> f.fase == faseId).findFirst().orElse(null);
     }
 
     @PostMapping("/progresso/{lessonId}")

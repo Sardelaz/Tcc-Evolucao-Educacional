@@ -14,7 +14,10 @@
 
     <div class="profile-panel">
         <div class="user-info">
-            <div class="avatar">👨‍🎓</div>
+            <div class="avatar" id="profile-avatar" title="Mudar Avatar">
+                <span id="current-avatar-icon">👨‍🎓</span>
+                <div class="edit-icon">✏️</div>
+            </div>
             <div>
                 <div class="level-badge" id="user-level-badge">Nível 1</div>
                 <h3 style="margin:0; font-size: 1.1rem;">Aluno Evolução</h3>
@@ -90,6 +93,17 @@
             <p class="modal-desc" id="modal-desc">Descrição do desafio.</p>
             <span class="modal-reward" id="modal-reward">+0 XP</span>
             <button id="claim-reward-btn">Verificar Conclusão</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="avatar-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="modal-close" id="close-avatar-btn">✕</button>
+            <div class="modal-icon">👤</div>
+            <h2 class="modal-title">Escolha seu Avatar</h2>
+            <p class="modal-desc">Selecione o personagem que mais combina com você!</p>
+            <div class="avatar-grid" id="avatar-grid">
+                </div>
         </div>
     </div>
 

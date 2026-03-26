@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Editar Fase | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-admin-editar.css}">
+</head>
+
+<body>
+    <div class="admin-container">
+        <h1>Editar Fase Existente</h1>
+        
+        <div class="top-actions">
+            <a href="/admin" class="back-link">← Ir para Criar Nova Fase</a>
+            <a href="/" class="back-link">← Voltar para Dashboard</a>
+        </div>
+        
+        <!-- Formulário para buscar a fase -->
+        <div class="search-box">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="busca-modulo">Módulo (Matéria)</label>
+                    <select id="busca-modulo">
+                        <option value="razao">Razão, Proporção e Escala</option>
+                        <option value="estatistica">Estatística</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="busca-fase">Número da Fase</label>
+                    <input type="number" id="busca-fase" min="1" value="1">
+                </div>
+            </div>
+            <button id="btn-buscar" onclick="buscarFase()">Carregar Dados da Fase</button>
+        </div>
+
+        <hr class="divisor">
+
+        <!-- Área onde as questões aparecem após a busca -->
+        <div id="editor-area" class="hidden">
+            <h2 id="fase-title" style="text-align: center; color: var(--cor-xp); margin-bottom: 20px;">Fase X</h2>
+            
+            <div id="questoes-container">
+                <!-- Os cards das questões serão injetados via JavaScript aqui -->
+            </div>
+
+            <button class="btn-adicionar" onclick="adicionarQuestao()">+ Adicionar Nova Questão</button>
+            
+            <hr class="divisor">
+            
+            <button class="btn-salvar-tudo" onclick="salvarEdicao()">Salvar Todas as Alterações</button>
+        </div>
+    </div>
+
+    <script th:src="@{/js/script-admin-editar.js}"></script>
+</body>
+
+</html>

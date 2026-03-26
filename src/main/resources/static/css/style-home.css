@@ -74,6 +74,29 @@ body {
   align-items: center;
   font-size: 1.5rem;
   border: 2px solid var(--cor-xp);
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(28, 176, 246, 0.5);
+}
+
+.edit-icon {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background: var(--cor-ranking);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
 
 .level-badge {
@@ -294,7 +317,7 @@ body {
   right: 15px;
   background: none;
   border: none;
-  color: var(--cor-sutil);
+  color: #999;
   font-size: 1.5rem;
   cursor: pointer;
   transition: 0.2s;
@@ -316,7 +339,7 @@ body {
 }
 
 .modal-subtitle {
-  color: var(--cor-sutil);
+  color: #999;
   margin-bottom: 15px;
   font-size: 0.9rem;
   text-transform: capitalize;
@@ -362,6 +385,42 @@ body {
   transform: none;
 }
 
+/* --- Novos estilos para o Grid de Avatares --- */
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.avatar-option {
+  font-size: 2rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--cor-borda);
+  border-radius: 50%;
+  width: 65px;
+  height: 65px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0 auto;
+}
+
+.avatar-option:hover {
+  border-color: var(--cor-xp);
+  transform: scale(1.1);
+  background: rgba(28, 176, 246, 0.1);
+}
+
+.avatar-option.selected {
+  border-color: var(--cor-ranking);
+  background: rgba(255, 215, 0, 0.2);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+  transform: scale(1.1);
+}
+
 @media (max-width: 900px) {
   .main-content {
     grid-template-columns: 1fr;
@@ -376,5 +435,9 @@ body {
   .profile-panel {
     flex-direction: column;
     text-align: center;
+  }
+  
+  .avatar-grid {
+      grid-template-columns: repeat(3, 1fr);
   }
 }

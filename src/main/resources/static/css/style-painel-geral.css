@@ -1,0 +1,224 @@
+:root {
+    --cor-fundo: #0A0A10;
+    --cor-texto: #EAEAEA;
+    --cor-container: rgba(26, 26, 46, 0.7);
+    --cor-borda: rgba(255, 255, 255, 0.15);
+    --cor-destaque: #00A8FF;
+    --cor-salvar: #4CAF50;
+    --cor-erro: #e74c3c;
+    --cor-sutil: #888;
+    --cor-card-bg: rgba(0, 0, 0, 0.3);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding-bottom: 50px;
+}
+
+.top-nav {
+    width: 100%;
+    padding: 20px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--cor-container);
+    border-bottom: 1px solid var(--cor-borda);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    margin-bottom: 40px;
+}
+
+.top-nav h2 {
+    color: var(--cor-destaque);
+    font-size: 1.5rem;
+}
+
+.btn-voltar {
+    color: var(--cor-texto);
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: 0.3s;
+    font-weight: 500;
+}
+
+.btn-voltar:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.dashboard-container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.section-title {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: var(--cor-texto);
+    border-bottom: 2px solid var(--cor-borda);
+    padding-bottom: 10px;
+}
+
+/* CARDS DE AÇÃO (CRIAR E EDITAR) */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.action-card {
+    background: var(--cor-container);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--cor-texto);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.action-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-criar:hover {
+    box-shadow: 0 10px 30px rgba(0, 168, 255, 0.3);
+    border-color: var(--cor-destaque);
+}
+
+.card-editar:hover {
+    box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3);
+    border-color: #f39c12;
+}
+
+.action-card .icon {
+    font-size: 3rem;
+}
+
+.action-card h4 {
+    font-size: 1.4rem;
+}
+
+.action-card p {
+    color: var(--cor-sutil);
+    font-size: 0.95rem;
+}
+
+/* GRÁFICOS */
+.charts-section {
+    background: var(--cor-container);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid var(--cor-borda);
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    background: var(--cor-card-bg);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+/* LISTAS DE QUESTÕES */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 30px;
+}
+
+.stats-card {
+    background: var(--cor-container);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 25px;
+}
+
+.erro-card {
+    border-top: 5px solid var(--cor-erro);
+}
+
+.acerto-card {
+    border-top: 5px solid var(--cor-salvar);
+}
+
+.card-title {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.card-subtitle {
+    font-size: 0.9rem;
+    color: var(--cor-sutil);
+    margin-bottom: 20px;
+}
+
+.question-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.question-item {
+    background: var(--cor-card-bg);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.question-info {
+    flex: 1;
+}
+
+.question-module {
+    font-size: 0.8rem;
+    color: var(--cor-destaque);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.question-text {
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.question-stat {
+    font-weight: 700;
+    font-size: 1.2rem;
+    padding-left: 15px;
+    text-align: right;
+}
+
+.stat-erro { color: var(--cor-erro); }
+.stat-acerto { color: var(--cor-salvar); }
+
+@media (max-width: 768px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .chart-container { height: 300px; }
+}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-login.css}">
+</head>
+
+<body>
+    <!-- Fundo animado com partículas -->
+    <canvas id="art-background"></canvas>
+
+    <div class="auth-container">
+        <!-- SEÇÃO DE LOGIN -->
+        <div id="login-section" class="auth-section active">
+            <div class="auth-header">
+                <div class="logo-icon">🎓</div>
+                <h2>Bem-vindo de volta!</h2>
+                <p>Continue sua evolução diária.</p>
+            </div>
+            
+            <form id="login-form" action="/home" method="GET">
+                <div class="input-group">
+                    <label for="login-email">E-mail</label>
+                    <input type="email" id="login-email" placeholder="seu@email.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Senha</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <div class="forgot-link">
+                    <a href="#" onclick="switchForm('forgot-section'); return false;">Esqueceu a senha?</a>
+                </div>
+                <button type="submit" class="auth-btn btn-primary">Entrar</button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Ainda não tem uma conta? <a href="#" onclick="switchForm('register-section'); return false;">Criar conta</a></p>
+            </div>
+        </div>
+
+        <!-- SEÇÃO DE CADASTRO -->
+        <div id="register-section" class="auth-section">
+            <div class="auth-header">
+                <div class="logo-icon">🚀</div>
+                <h2>Comece sua jornada</h2>
+                <p>Crie sua conta e evolua conosco.</p>
+            </div>
+            
+            <form id="register-form" action="/home" method="GET">
+                <div class="input-group">
+                    <label for="reg-name">Nome Completo</label>
+                    <input type="text" id="reg-name" placeholder="Como quer ser chamado?" required>
+                </div>
+                <div class="input-group">
+                    <label for="reg-email">E-mail</label>
+                    <input type="email" id="reg-email" placeholder="seu@email.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="reg-password">Senha</label>
+                    <input type="password" id="reg-password" placeholder="Crie uma senha forte" required>
+                </div>
+                <button type="submit" class="auth-btn btn-primary" style="background-color: var(--cor-xp);">Cadastrar</button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Já possui conta? <a href="#" onclick="switchForm('login-section'); return false;">Fazer login</a></p>
+            </div>
+        </div>
+
+        <!-- SEÇÃO DE ESQUECI A SENHA -->
+        <div id="forgot-section" class="auth-section">
+            <div class="auth-header">
+                <div class="logo-icon">🔑</div>
+                <h2>Recuperar Senha</h2>
+                <p>Enviaremos as instruções para o seu e-mail.</p>
+            </div>
+            
+            <form id="forgot-form" onsubmit="enviarRecuperacao(event)">
+                <div class="input-group">
+                    <label for="forgot-email">E-mail cadastrado</label>
+                    <input type="email" id="forgot-email" placeholder="seu@email.com" required>
+                </div>
+                <button type="submit" class="auth-btn btn-primary" style="background-color: var(--cor-ofensiva);">Enviar instruções</button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Lembrou a senha? <a href="#" onclick="switchForm('login-section'); return false;">Voltar ao login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Sucesso para Recuperação de Senha -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal-content">
+            <div class="modal-icon">✅</div>
+            <h2 class="modal-title">E-mail Enviado!</h2>
+            <p class="modal-desc">Verifique sua caixa de entrada para redefinir sua senha.</p>
+            <button class="auth-btn btn-primary" onclick="fecharModalSucesso()">Voltar ao Login</button>
+        </div>
+    </div>
+
+    <script th:src="@{/js/script-login.js}"></script>
+</body>
+
+</html>

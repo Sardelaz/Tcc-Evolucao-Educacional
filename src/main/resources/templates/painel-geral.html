@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Geral | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" th:href="@{/css/style-painel-geral.css}">
+</head>
+
+<body>
+    <div class="top-nav">
+        <h2>Painel de Controle e Desempenho</h2>
+        <a href="/" class="btn-voltar">← Voltar ao Dashboard Inicial</a>
+    </div>
+
+    <div class="dashboard-container">
+        
+        <section class="actions-section">
+            <h3 class="section-title">Gerenciamento de Conteúdo</h3>
+            <div class="cards-grid">
+                <a href="/admin" class="action-card card-criar">
+                    <div class="icon">➕</div>
+                    <h4>Criar Nova Fase</h4>
+                    <p>Adicione novas perguntas, módulos e desafios para os alunos.</p>
+                </a>
+                
+                <a href="/admin-editar" class="action-card card-editar">
+                    <div class="icon">✏️</div>
+                    <h4>Editar Fase Existente</h4>
+                    <p>Modifique, corrija ou exclua questões de fases já cadastradas.</p>
+                </a>
+            </div>
+        </section>
+
+        <section class="charts-section">
+            <h3 class="section-title">Análise de Desempenho: Dificuldade por Matéria</h3>
+            <div class="chart-container">
+                <canvas id="graficoDificuldade"></canvas>
+            </div>
+        </section>
+
+        <section class="questions-stats-section">
+            <div class="stats-grid">
+                
+                <div class="stats-card erro-card">
+                    <h3 class="card-title">❌ Questões Mais Erradas</h3>
+                    <p class="card-subtitle">Focos que precisam de revisão</p>
+                    <ul id="lista-mais-erradas" class="question-list">
+                        </ul>
+                </div>
+
+                <div class="stats-card acerto-card">
+                    <h3 class="card-title">✅ Questões Mais Acertadas</h3>
+                    <p class="card-subtitle">Conteúdos já dominados pelos alunos</p>
+                    <ul id="lista-mais-acertadas" class="question-list">
+                        </ul>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <script th:src="@{/js/script-painel-geral.js}"></script>
+</body>
+
+</html>
