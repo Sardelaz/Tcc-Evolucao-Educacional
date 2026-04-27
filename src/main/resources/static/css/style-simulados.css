@@ -3,7 +3,7 @@
     --cor-texto: #EAEAEA;
     --cor-container: rgba(26, 26, 46, 0.7);
     --cor-borda: rgba(255, 255, 255, 0.15);
-    --cor-destaque: #e74c3c; /* Vermelho padrão para simulados */
+    --cor-destaque: #e74c3c;
 }
 
 * {
@@ -16,7 +16,7 @@ body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--cor-fundo);
     color: var(--cor-texto);
-    min-height: 100vh;
+    min-height: 100dvh;
     overflow-x: hidden;
     padding-bottom: 50px;
 }
@@ -32,7 +32,7 @@ body {
 
 .top-nav {
     width: 100%;
-    padding: 20px 5%;
+    padding: clamp(15px, 3vw, 20px) 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -41,21 +41,24 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     position: relative;
     z-index: 10;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .top-nav h2 {
     color: var(--cor-destaque);
-    font-size: 1.5rem;
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
 }
 
 .btn-voltar {
     color: var(--cor-texto);
     text-decoration: none;
     background: rgba(255, 255, 255, 0.1);
-    padding: 10px 20px;
+    padding: clamp(8px, 2vw, 10px) clamp(15px, 3vw, 20px);
     border-radius: 8px;
     transition: 0.3s;
     font-weight: 500;
+    font-size: clamp(0.9rem, 2vw, 1rem);
 }
 
 .btn-voltar:hover {
@@ -64,44 +67,45 @@ body {
 
 .simulados-layout {
     max-width: 1000px;
-    margin: 40px auto;
-    padding: 0 20px;
+    margin: clamp(20px, 5vw, 40px) auto;
+    padding: 0 clamp(15px, 3vw, 20px);
     position: relative;
     z-index: 10;
 }
 
 .simulados-header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: clamp(25px, 5vw, 40px);
     background: var(--cor-container);
-    padding: 30px;
+    padding: clamp(20px, 4vw, 30px);
     border-radius: 16px;
     border: 1px solid var(--cor-borda);
     backdrop-filter: blur(10px);
 }
 
 .simulados-header h3 {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
     color: var(--cor-texto);
     margin-bottom: 10px;
 }
 
 .simulados-header p {
     color: #aaa;
-    font-size: 1.1rem;
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
 }
 
 .modulos-simulado-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+    /* Grid fluid com segurança para telas muito pequenas */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: clamp(20px, 4vw, 30px);
 }
 
 .simulado-card {
     background: var(--cor-container);
     border: 1px solid var(--cor-borda);
     border-radius: 16px;
-    padding: 30px 25px;
+    padding: clamp(20px, 4vw, 30px) clamp(15px, 3vw, 25px);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -129,7 +133,7 @@ body {
 }
 
 .card-icon {
-    font-size: 4rem;
+    font-size: clamp(3rem, 6vw, 4rem);
     margin-bottom: 15px;
     text-shadow: 0 0 15px var(--cor-tema);
 }
@@ -141,14 +145,14 @@ body {
 }
 
 .card-content h4 {
-    font-size: 1.4rem;
+    font-size: clamp(1.2rem, 3vw, 1.4rem);
     color: var(--cor-texto);
     margin-bottom: 10px;
 }
 
 .card-content p {
     color: #aaa;
-    font-size: 0.95rem;
+    font-size: clamp(0.85rem, 2vw, 0.95rem);
     margin-bottom: 20px;
     line-height: 1.5;
 }
@@ -158,7 +162,7 @@ body {
     justify-content: center;
     gap: 15px;
     margin-bottom: 25px;
-    font-size: 0.85rem;
+    font-size: clamp(0.75rem, 1.5vw, 0.85rem);
     font-weight: 600;
     color: #ccc;
     background: rgba(0, 0, 0, 0.4);
@@ -172,10 +176,10 @@ body {
     background: transparent;
     color: var(--cor-texto);
     border: 2px solid var(--cor-tema);
-    padding: 12px 20px;
+    padding: clamp(10px, 2vw, 12px) 20px;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 1.05rem;
+    font-size: clamp(0.95rem, 2vw, 1.05rem);
     text-decoration: none;
     transition: all 0.3s ease;
     font-family: inherit;
@@ -187,11 +191,9 @@ body {
     box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
 }
 
-@media (max-width: 768px) {
-    .simulados-header h3 {
-        font-size: 1.6rem;
-    }
-    .modulos-simulado-grid {
-        grid-template-columns: 1fr;
+@media (max-width: 480px) {
+    .top-nav {
+        flex-direction: column;
+        text-align: center;
     }
 }

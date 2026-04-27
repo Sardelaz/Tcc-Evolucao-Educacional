@@ -23,8 +23,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
-    padding: 30px 20px;
+    min-height: 100dvh;
+    padding: clamp(15px, 3vw, 30px) clamp(10px, 2vw, 20px);
 }
 
 #art-background {
@@ -41,21 +41,21 @@ body {
     max-width: 1200px;
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: clamp(15px, 2vw, 25px);
 }
 
 /* ==========================================
-   PAINEL DE PERFIL (Escala Ampliada)
+   PAINEL DE PERFIL
    ========================================== */
 .profile-panel {
     display: flex;
     flex-wrap: wrap;
-    gap: 25px;
+    gap: clamp(15px, 2vw, 25px);
     align-items: center;
     justify-content: space-between;
     background: var(--cor-container);
-    padding: 25px 35px;
-    border-radius: 24px;
+    padding: clamp(15px, 3vw, 25px) clamp(15px, 4vw, 35px);
+    border-radius: clamp(16px, 2vw, 24px);
     border: 1px solid var(--cor-borda);
     backdrop-filter: blur(15px);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
@@ -64,18 +64,20 @@ body {
 .user-info {
     display: flex;
     align-items: center;
-    gap: 25px;
+    flex-wrap: wrap;
+    gap: clamp(15px, 2vw, 25px);
+    justify-content: center;
 }
 
 .avatar {
-    width: 85px;
-    height: 85px;
+    width: clamp(60px, 8vw, 85px);
+    height: clamp(60px, 8vw, 85px);
     background: rgba(255, 255, 255, 0.05);
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2.2rem;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
     border: 3px solid var(--cor-primaria);
     position: relative;
     cursor: pointer;
@@ -93,19 +95,20 @@ body {
     right: 0px;
     background: var(--cor-ranking);
     border-radius: 50%;
-    width: 26px;
-    height: 26px;
+    width: clamp(20px, 3vw, 26px);
+    height: clamp(20px, 3vw, 26px);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: clamp(10px, 1.5vw, 12px);
     border: 2px solid var(--cor-fundo);
 }
 
 .user-details h3 {
-    font-size: 1.45rem;
+    font-size: clamp(1.1rem, 2vw, 1.45rem);
     font-weight: 700;
     margin: 4px 0;
+    text-align: left;
 }
 
 .badges-row {
@@ -120,7 +123,7 @@ body {
     color: white;
     padding: 3px 10px;
     border-radius: 12px;
-    font-size: 0.85rem;
+    font-size: clamp(0.75rem, 1.5vw, 0.85rem);
     font-weight: 800;
     text-transform: uppercase;
 }
@@ -128,7 +131,7 @@ body {
 .liga-text {
     color: var(--cor-ranking);
     font-weight: 800;
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 1.5vw, 0.9rem);
     letter-spacing: 1px;
 }
 
@@ -136,7 +139,7 @@ body {
 .mini-stats-row {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: clamp(10px, 2vw, 20px);
     margin-top: 8px;
     flex-wrap: wrap;
 }
@@ -148,14 +151,14 @@ body {
 }
 
 .xp-mini-container span {
-    font-size: 0.95rem;
+    font-size: clamp(0.85rem, 1.5vw, 0.95rem);
     font-weight: 700;
     color: var(--cor-primaria);
 }
 
 .xp-bar-bg {
-    width: 140px;
-    height: 12px;
+    width: clamp(80px, 10vw, 140px);
+    height: clamp(8px, 1.5vw, 12px);
     background: rgba(0, 0, 0, 0.6);
     border-radius: 10px;
     border: 1px solid var(--cor-borda);
@@ -171,7 +174,7 @@ body {
 
 .streak-mini,
 .coins-mini {
-    font-size: 1.15rem;
+    font-size: clamp(0.95rem, 2vw, 1.15rem);
     font-weight: 800;
 }
 
@@ -180,20 +183,21 @@ body {
    ========================================== */
 .action-group {
     display: flex;
-    gap: 15px;
+    gap: clamp(10px, 2vw, 15px);
     align-items: center;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .mini-action-btn {
-    width: 52px;
-    height: 52px;
+    width: clamp(44px, 6vw, 52px);
+    height: clamp(44px, 6vw, 52px);
     background: var(--cor-container);
     border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.6rem;
+    font-size: clamp(1.3rem, 2.5vw, 1.6rem);
     text-decoration: none;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -224,14 +228,14 @@ body {
     background: var(--cor-ranking);
     color: #000;
     border: none;
-    padding: 0 25px;
+    padding: 0 clamp(16px, 3vw, 25px);
     border-radius: 14px;
     font-weight: 700;
     cursor: pointer;
     box-shadow: 0 4px 0 #B8860B;
     transition: 0.2s;
-    height: 52px;
-    font-size: 1rem;
+    height: clamp(44px, 6vw, 52px);
+    font-size: clamp(0.88rem, 2vw, 1rem);
     white-space: nowrap;
 }
 
@@ -245,15 +249,9 @@ body {
 }
 
 @keyframes pulse-target {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-    100% {
-        transform: scale(1);
-    }
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
 }
 
 /* ==========================================
@@ -261,8 +259,8 @@ body {
    ========================================== */
 .main-layout {
     display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 25px;
+    grid-template-columns: clamp(250px, 25%, 300px) 1fr;
+    gap: clamp(15px, 2vw, 25px);
     align-items: start;
 }
 
@@ -276,7 +274,7 @@ body {
     background: var(--cor-container);
     border: 1px solid var(--cor-borda);
     border-radius: 18px;
-    padding: 20px;
+    padding: clamp(14px, 2vw, 20px);
     text-decoration: none;
     color: var(--cor-texto);
     transition: all 0.3s ease;
@@ -284,13 +282,13 @@ body {
 }
 
 .nav-card h2 {
-    font-size: 1.1rem;
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
     font-weight: 700;
     margin-bottom: 5px;
 }
 
 .nav-card p {
-    font-size: 0.85rem;
+    font-size: clamp(0.78rem, 1.2vw, 0.85rem);
     color: #888;
     line-height: 1.4;
 }
@@ -304,38 +302,38 @@ body {
     background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(243, 156, 18, 0.05));
     border: 2px dashed #f39c12;
     border-radius: 20px;
-    padding: 25px;
+    padding: clamp(15px, 3vw, 25px);
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: clamp(15px, 2vw, 20px);
     text-decoration: none;
-    margin-bottom: 25px;
+    margin-bottom: clamp(15px, 3vw, 25px);
     flex-wrap: wrap;
 }
 
 .subjects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+    gap: clamp(12px, 2vw, 20px);
 }
 
 .module-card {
     background: var(--cor-container);
     border: 1px solid var(--cor-borda);
     border-radius: 20px;
-    padding: 40px 20px;
+    padding: clamp(20px, 4vw, 40px) clamp(10px, 2vw, 20px);
     text-decoration: none;
     color: var(--cor-texto);
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 15px;
+    gap: clamp(8px, 1.5vw, 15px);
     transition: 0.3s;
 }
 
 .module-card .icon {
-    font-size: 3.8rem;
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
 }
 
 .module-card:hover {
@@ -344,14 +342,14 @@ body {
 }
 
 /* ==========================================
-   MODAIS (REESTILIZADOS E AMPLIADOS)
+   MODAIS
    ========================================== */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100dvh;
     background: rgba(0, 0, 0, 0.85);
     display: none;
     justify-content: center;
@@ -359,7 +357,7 @@ body {
     z-index: 1000;
     opacity: 0;
     transition: opacity 0.3s;
-    padding: 20px;
+    padding: clamp(15px, 3vw, 20px);
 }
 
 .modal-overlay.active {
@@ -370,8 +368,8 @@ body {
 .modal-content {
     background: #1a1a2e;
     border: 1px solid var(--cor-borda);
-    border-radius: 24px;
-    padding: 50px 40px;
+    border-radius: clamp(16px, 3vw, 24px);
+    padding: clamp(30px, 5vw, 50px) clamp(20px, 4vw, 40px);
     width: 100%;
     max-width: 550px;
     text-align: center;
@@ -380,7 +378,7 @@ body {
     transform: translateY(-30px);
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     backdrop-filter: blur(20px);
-    max-height: 90vh;
+    max-height: 90dvh;
     overflow-y: auto;
 }
 
@@ -390,12 +388,12 @@ body {
 
 .modal-close {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: clamp(15px, 3vw, 20px);
+    right: clamp(15px, 3vw, 20px);
     background: none;
     border: none;
     color: #666;
-    font-size: 1.8rem;
+    font-size: clamp(1.5rem, 3vw, 1.8rem);
     cursor: pointer;
     transition: 0.2s;
 }
@@ -406,24 +404,24 @@ body {
 }
 
 .modal-icon-wrapper {
-    width: 100px;
-    height: 100px;
+    width: clamp(70px, 10vw, 100px);
+    height: clamp(70px, 10vw, 100px);
     background: rgba(255, 255, 255, 0.05);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 20px;
+    margin: 0 auto clamp(15px, 3vw, 20px);
     border: 2px solid var(--cor-primaria);
 }
 
 .modal-icon {
-    font-size: 4rem;
+    font-size: clamp(2.5rem, 5vw, 4rem);
 }
 
 .modal-title {
     color: var(--cor-ranking);
-    font-size: 2.2rem;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
     font-weight: 800;
     margin-bottom: 5px;
     text-transform: uppercase;
@@ -431,33 +429,33 @@ body {
 
 .modal-subtitle {
     color: var(--cor-primaria);
-    font-size: 1.1rem;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
     font-weight: 600;
-    margin-bottom: 25px;
+    margin-bottom: clamp(18px, 4vw, 25px);
     letter-spacing: 1px;
 }
 
 .challenge-info-box {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 16px;
-    padding: 25px;
-    margin-bottom: 35px;
+    padding: clamp(15px, 3vw, 25px);
+    margin-bottom: clamp(20px, 4vw, 35px);
     border: 1px solid var(--cor-borda);
 }
 
 .modal-desc {
     color: #ccc;
-    font-size: 1.15rem;
+    font-size: clamp(0.95rem, 2vw, 1.15rem);
     line-height: 1.6;
-    margin-bottom: 20px;
+    margin-bottom: clamp(15px, 3vw, 20px);
 }
 
 .reward-tag {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: clamp(8px, 1.5vw, 12px);
     background: rgba(28, 176, 246, 0.15);
-    padding: 10px 20px;
+    padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 20px);
     border-radius: 50px;
     border: 1px solid var(--cor-primaria);
     flex-wrap: wrap;
@@ -465,7 +463,7 @@ body {
 }
 
 .reward-tag .label {
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 1.5vw, 0.9rem);
     font-weight: 800;
     color: var(--cor-primaria);
 }
@@ -473,17 +471,17 @@ body {
 .modal-reward {
     font-weight: 900;
     color: #fff;
-    font-size: 1.4rem;
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
 }
 
 .primary-modal-btn {
     background: var(--cor-ranking);
     color: #000;
     border: none;
-    padding: 18px 40px;
+    padding: clamp(14px, 3vw, 18px) clamp(25px, 5vw, 40px);
     border-radius: 16px;
     font-weight: 800;
-    font-size: 1.2rem;
+    font-size: clamp(1rem, 2vw, 1.2rem);
     cursor: pointer;
     width: 100%;
     transition: 0.3s;
@@ -501,21 +499,20 @@ body {
     box-shadow: 0 0 0 #B8860B;
 }
 
-/* Avatar Grid no Modal */
 .avatar-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    margin-top: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 60px), 1fr));
+    gap: clamp(8px, 2vw, 15px);
+    margin-top: clamp(20px, 4vw, 30px);
 }
 
 .avatar-option {
-    font-size: 2.5rem;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid var(--cor-borda);
     border-radius: 50%;
-    width: 75px;
-    height: 75px;
+    width: clamp(50px, 10vw, 75px);
+    height: clamp(50px, 10vw, 75px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -529,764 +526,48 @@ body {
 }
 
 /* ==========================================
-   RESPONSIVIDADE MELHORADA
+   BREAKPOINTS ESTRUTURAIS 
    ========================================== */
-
-/* Tablets grandes */
-@media (max-width: 1200px) {
-    .wrapper {
-        gap: 20px;
-    }
-
-    .main-layout {
-        grid-template-columns: 260px 1fr;
-        gap: 20px;
-    }
-
-    .profile-panel {
-        padding: 22px 28px;
-    }
-
-    .subjects-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    }
-}
-
-/* Tablets */
 @media (max-width: 1024px) {
-    body {
-        padding: 25px 15px;
-    }
-
     .main-layout {
         grid-template-columns: 1fr;
     }
-
     .sidebar {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    }
-
-    .profile-panel {
-        padding: 20px 25px;
-        gap: 20px;
-    }
-
-    .user-info {
-        gap: 20px;
-    }
-
-    .avatar {
-        width: 75px;
-        height: 75px;
-        font-size: 2rem;
-    }
-
-    .user-details h3 {
-        font-size: 1.3rem;
-    }
-
-    .mini-stats-row {
-        gap: 15px;
-    }
-
-    .xp-bar-bg {
-        width: 120px;
-    }
-
-    .admin-banner {
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-    .subjects-grid {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 15px;
-    }
-
-    .module-card {
-        padding: 30px 15px;
-    }
-
-    .module-card .icon {
-        font-size: 3.2rem;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
     }
 }
 
-/* Tablets menores */
 @media (max-width: 768px) {
-    body {
-        padding: 20px 12px;
-    }
-
-    .wrapper {
-        gap: 18px;
-    }
-
     .profile-panel {
-        padding: 18px 20px;
         flex-direction: column;
         text-align: center;
-        border-radius: 20px;
     }
-
-    .user-info {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .avatar {
-        width: 70px;
-        height: 70px;
-        font-size: 1.8rem;
-    }
-
-    .edit-icon {
-        width: 22px;
-        height: 22px;
-        font-size: 10px;
-    }
-
     .user-details h3 {
-        font-size: 1.2rem;
+        text-align: center;
     }
-
     .badges-row {
         justify-content: center;
     }
-
-    .level-badge {
-        font-size: 0.8rem;
-        padding: 2px 8px;
-    }
-
-    .liga-text {
-        font-size: 0.85rem;
-    }
-
     .mini-stats-row {
         justify-content: center;
-        gap: 12px;
     }
-
-    .xp-mini-container span {
-        font-size: 0.88rem;
-    }
-
-    .xp-bar-bg {
-        width: 100px;
-        height: 10px;
-    }
-
-    .streak-mini,
-    .coins-mini {
-        font-size: 1rem;
-    }
-
-    .action-group {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .mini-action-btn {
-        width: 48px;
-        height: 48px;
-        font-size: 1.4rem;
-    }
-
-    #checkin-btn {
-        height: 48px;
-        padding: 0 20px;
-        font-size: 0.95rem;
-    }
-
-    .sidebar {
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-
-    .nav-card {
-        padding: 16px;
-        border-radius: 14px;
-    }
-
-    .nav-card h2 {
-        font-size: 1rem;
-    }
-
-    .nav-card p {
-        font-size: 0.8rem;
-    }
-
     .admin-banner {
         flex-direction: column;
         text-align: center;
-        padding: 18px;
-        gap: 15px;
-    }
-
-    .subjects-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-    }
-
-    .module-card {
-        padding: 25px 12px;
-        border-radius: 16px;
-        gap: 10px;
-    }
-
-    .module-card .icon {
-        font-size: 2.8rem;
-    }
-
-    .modal-content {
-        padding: 40px 25px;
-        border-radius: 20px;
-    }
-
-    .modal-icon-wrapper {
-        width: 80px;
-        height: 80px;
-    }
-
-    .modal-icon {
-        font-size: 3rem;
-    }
-
-    .modal-title {
-        font-size: 1.8rem;
-    }
-
-    .modal-subtitle {
-        font-size: 1rem;
-        margin-bottom: 20px;
-    }
-
-    .challenge-info-box {
-        padding: 20px;
-        margin-bottom: 25px;
-    }
-
-    .modal-desc {
-        font-size: 1rem;
-    }
-
-    .reward-tag {
-        padding: 8px 15px;
-        gap: 10px;
-    }
-
-    .modal-reward {
-        font-size: 1.2rem;
-    }
-
-    .primary-modal-btn {
-        padding: 15px 30px;
-        font-size: 1.1rem;
-    }
-
-    .avatar-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 12px;
-    }
-
-    .avatar-option {
-        width: 60px;
-        height: 60px;
-        font-size: 2rem;
     }
 }
 
-/* Smartphones grandes */
-@media (max-width: 576px) {
-    body {
-        padding: 15px 10px;
-    }
-
-    .wrapper {
-        gap: 15px;
-    }
-
-    .profile-panel {
-        padding: 15px 16px;
-        gap: 15px;
-        border-radius: 16px;
-    }
-
-    .avatar {
-        width: 62px;
-        height: 62px;
-        font-size: 1.6rem;
-        border-width: 2px;
-    }
-
-    .edit-icon {
-        width: 20px;
-        height: 20px;
-        font-size: 9px;
-    }
-
-    .user-details h3 {
-        font-size: 1.1rem;
-    }
-
-    .level-badge {
-        font-size: 0.75rem;
-    }
-
-    .liga-text {
-        font-size: 0.8rem;
-    }
-
-    .mini-stats-row {
-        gap: 10px;
-    }
-
-    .xp-mini-container span {
-        font-size: 0.82rem;
-    }
-
-    .xp-bar-bg {
-        width: 80px;
-        height: 8px;
-    }
-
-    .streak-mini,
-    .coins-mini {
-        font-size: 0.95rem;
-    }
-
-    .action-group {
-        gap: 10px;
-    }
-
-    .mini-action-btn {
-        width: 44px;
-        height: 44px;
-        font-size: 1.3rem;
-        border-radius: 12px;
-    }
-
-    #checkin-btn {
-        height: 44px;
-        padding: 0 16px;
-        font-size: 0.88rem;
-        border-radius: 12px;
-    }
-
-    .sidebar {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .nav-card {
-        padding: 14px;
-        border-radius: 12px;
-    }
-
-    .nav-card h2 {
-        font-size: 0.95rem;
-    }
-
-    .nav-card p {
-        font-size: 0.78rem;
-    }
-
-    .nav-card:hover {
-        transform: none;
-    }
-
-    .admin-banner {
-        padding: 15px;
-        margin-bottom: 15px;
-        border-radius: 14px;
-    }
-
-    .subjects-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-
-    .module-card {
-        padding: 20px 10px;
-        border-radius: 14px;
-        gap: 8px;
-    }
-
-    .module-card .icon {
-        font-size: 2.4rem;
-    }
-
-    .module-card:hover {
-        transform: none;
-    }
-
-    .modal-overlay {
-        padding: 15px;
-    }
-
-    .modal-content {
-        padding: 30px 18px;
-        border-radius: 16px;
-    }
-
-    .modal-close {
-        top: 15px;
-        right: 15px;
-        font-size: 1.5rem;
-    }
-
-    .modal-icon-wrapper {
-        width: 70px;
-        height: 70px;
-        margin-bottom: 15px;
-    }
-
-    .modal-icon {
-        font-size: 2.5rem;
-    }
-
-    .modal-title {
-        font-size: 1.5rem;
-    }
-
-    .modal-subtitle {
-        font-size: 0.9rem;
-        margin-bottom: 18px;
-    }
-
-    .challenge-info-box {
-        padding: 15px;
-        margin-bottom: 20px;
-        border-radius: 12px;
-    }
-
-    .modal-desc {
-        font-size: 0.92rem;
-        margin-bottom: 15px;
-    }
-
-    .reward-tag {
-        padding: 6px 12px;
-        gap: 8px;
-    }
-
-    .reward-tag .label {
-        font-size: 0.8rem;
-    }
-
-    .modal-reward {
-        font-size: 1.1rem;
-    }
-
-    .primary-modal-btn {
-        padding: 14px 25px;
-        font-size: 1rem;
-        border-radius: 12px;
-    }
-
-    .avatar-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-        margin-top: 20px;
-    }
-
-    .avatar-option {
-        width: 52px;
-        height: 52px;
-        font-size: 1.7rem;
-    }
-}
-
-/* Smartphones pequenos */
-@media (max-width: 400px) {
-    body {
-        padding: 12px 8px;
-    }
-
-    .profile-panel {
-        padding: 12px 14px;
-    }
-
-    .avatar {
-        width: 55px;
-        height: 55px;
-        font-size: 1.4rem;
-    }
-
-    .user-details h3 {
-        font-size: 1rem;
-    }
-
-    .level-badge {
-        font-size: 0.7rem;
-        padding: 2px 6px;
-    }
-
-    .xp-bar-bg {
-        width: 70px;
-    }
-
-    .streak-mini,
-    .coins-mini {
-        font-size: 0.88rem;
-    }
-
-    .mini-action-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-    }
-
-    #checkin-btn {
-        height: 40px;
-        padding: 0 12px;
-        font-size: 0.82rem;
-    }
-
-    .nav-card {
-        padding: 12px;
-    }
-
-    .nav-card h2 {
-        font-size: 0.9rem;
-    }
-
-    .subjects-grid {
-        gap: 8px;
-    }
-
-    .module-card {
-        padding: 18px 8px;
-    }
-
-    .module-card .icon {
-        font-size: 2rem;
-    }
-
-    .modal-content {
-        padding: 25px 14px;
-    }
-
-    .modal-title {
-        font-size: 1.3rem;
-    }
-
-    .modal-subtitle {
-        font-size: 0.85rem;
-    }
-
-    .modal-desc {
-        font-size: 0.85rem;
-    }
-
-    .primary-modal-btn {
-        padding: 12px 20px;
-        font-size: 0.95rem;
-    }
-
-    .avatar-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-    }
-
-    .avatar-option {
-        width: 48px;
-        height: 48px;
-        font-size: 1.5rem;
-    }
-}
-
-/* Smartphones muito pequenos */
-@media (max-width: 320px) {
-    .profile-panel {
-        padding: 10px 12px;
-    }
-
-    .avatar {
-        width: 50px;
-        height: 50px;
-        font-size: 1.3rem;
-    }
-
-    .user-details h3 {
-        font-size: 0.95rem;
-    }
-
-    .xp-bar-bg {
-        width: 60px;
-    }
-
-    .mini-action-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 1.1rem;
-    }
-
-    #checkin-btn {
-        height: 36px;
-        padding: 0 10px;
-        font-size: 0.78rem;
-    }
-
-    .subjects-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .module-card .icon {
-        font-size: 1.8rem;
-    }
-}
-
-/* Modo paisagem em dispositivos móveis */
-@media (max-height: 500px) and (orientation: landscape) {
-    body {
-        padding: 10px 15px;
-    }
-
-    .profile-panel {
-        flex-direction: row;
-        flex-wrap: nowrap;
-        text-align: left;
-        padding: 15px 20px;
-    }
-
-    .user-info {
-        flex-direction: row;
-    }
-
-    .mini-stats-row {
-        justify-content: flex-start;
-    }
-
-    .main-layout {
-        grid-template-columns: 200px 1fr;
-    }
-
-    .sidebar {
-        flex-direction: column;
-    }
-
-    .subjects-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    }
-
-    .module-card {
-        padding: 15px 10px;
-    }
-
-    .modal-content {
-        padding: 25px;
-        max-height: 85vh;
-    }
-
-    .modal-icon-wrapper {
-        width: 60px;
-        height: 60px;
-        margin-bottom: 10px;
-    }
-
-    .modal-icon {
-        font-size: 2.2rem;
-    }
-
-    .modal-title {
-        font-size: 1.4rem;
-    }
-
-    .challenge-info-box {
-        padding: 15px;
-        margin-bottom: 15px;
-    }
-}
-
-/* Suporte para touch em dispositivos móveis */
+/* Touch optimizations */
 @media (hover: none) and (pointer: coarse) {
-    .avatar:hover {
+    .nav-card:hover, .module-card:hover, .avatar:hover, .mini-action-btn:hover {
         transform: none;
-    }
-
-    .avatar:active {
-        transform: scale(0.95);
-    }
-
-    .mini-action-btn:hover {
-        transform: none;
-    }
-
-    .mini-action-btn:active {
-        transform: scale(0.95);
-    }
-
-    #checkin-btn:hover {
-        transform: none;
-    }
-
-    #checkin-btn:active {
-        transform: scale(0.97);
-    }
-
-    .nav-card:hover {
-        transform: none;
-        border-color: var(--cor-borda);
-    }
-
-    .nav-card:active {
-        border-color: var(--cor-primaria);
-    }
-
-    .module-card:hover {
-        transform: none;
-        background: var(--cor-container);
-    }
-
-    .module-card:active {
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .modal-close:hover {
-        transform: none;
-    }
-
-    .primary-modal-btn:hover {
-        transform: none;
-        box-shadow: 0 6px 0 #B8860B;
-    }
-
-    .primary-modal-btn:active {
-        transform: translateY(3px);
-        box-shadow: none;
-    }
-
-    .avatar-option:hover {
-        transform: none;
-        border-color: var(--cor-borda);
-    }
-
-    .avatar-option:active {
-        border-color: var(--cor-primaria);
-        transform: scale(0.95);
     }
 }
 
-/* Acessibilidade - Reduzir movimento */
 @media (prefers-reduced-motion: reduce) {
-    .avatar,
-    .mini-action-btn,
-    #checkin-btn,
-    .nav-card,
-    .module-card,
-    .modal-overlay,
-    .modal-content,
-    .modal-close,
-    .primary-modal-btn,
-    .avatar-option,
-    .xp-bar-fill {
-        transition: none;
-    }
-
-    .mini-desafio {
-        animation: none;
+    * {
+        animation: none !important;
+        transition: none !important;
     }
 }
