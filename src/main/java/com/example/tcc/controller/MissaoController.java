@@ -28,10 +28,9 @@ public class MissaoController {
     public ResponseEntity<List<UsuarioMissao>> buscarMissoesDoUsuario() {
         Usuario currentUser = usuarioService.getCurrentUser();
         
-        // Gatilho para garantir que as missões existam antes de retornar a lista
+        // Agora o método atribuirMissoesSeVazio é public no GamificacaoService
         gamificacaoService.atribuirMissoesSeVazio(currentUser);
         
-        // Retorna TODAS as missões (concluidas ou não) para o frontend mostrar o progresso
         List<UsuarioMissao> missoes = usuarioMissaoRepository.findByUsuario(currentUser);
         return ResponseEntity.ok(missoes);
     }

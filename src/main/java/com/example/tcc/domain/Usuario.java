@@ -21,7 +21,7 @@ public class Usuario {
     private String senha;
     private String avatar;
     
-    private int xp;
+    private int xp; // XP Vitalício
     private int nivel;
     private int streakDiaria;
     private String role = "ROLE_ALUNO";
@@ -29,7 +29,7 @@ public class Usuario {
     private int moedas = 0; 
     private String liga = "FERRO"; 
     
-    // Experiência acumulada apenas no ciclo atual de 7 dias
+    // XP acumulado apenas na semana atual
     private int xpTemporada = 0;
 
     @ElementCollection(fetch = FetchType.LAZY)

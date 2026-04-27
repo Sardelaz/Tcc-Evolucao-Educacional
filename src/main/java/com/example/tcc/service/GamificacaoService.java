@@ -76,8 +76,8 @@ public class GamificacaoService {
         }
     }
 
-    @Scheduled(cron = "0 0 0 1 * ?")
-    public void resetarTemporada() {
+    @Scheduled(cron = "0 0 0 * * MON")
+    public void resetarTemporadaSemanal() {
         usuarioRepository.findAll().forEach(u -> {
             u.setXpTemporada(0);
             usuarioRepository.save(u);

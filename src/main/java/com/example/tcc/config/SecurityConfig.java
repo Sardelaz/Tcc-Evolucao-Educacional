@@ -23,8 +23,7 @@ public class SecurityConfig {
                 .requestMatchers("/error", "/login", "/api/auth/**", "/css/**", "/js/**", "/audio/**", "/uploads/**", "/api/upload").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/modulos").permitAll()
                 .requestMatchers("/admin/**", "/painel-geral", "/admin-video", "/admin-conquistas", "/admin-modulos").hasAnyRole("ADMIN", "PROFESSOR")
-                // Correção: Adicionado /api/progresso (base) e /api/fases/** para permitir o carregamento da trilha
-                .requestMatchers("/api/ranking/**", "/api/perfil", "/api/progresso", "/api/progresso/**", "/api/fases/**", "/api/usuario/**", "/api/checkin", "/api/desafio-diario").authenticated()
+                .requestMatchers("/api/missoes/**", "/api/ranking/**", "/api/perfil", "/api/progresso", "/api/progresso/**", "/api/fases/**", "/api/usuario/**", "/api/checkin", "/api/desafio-diario").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

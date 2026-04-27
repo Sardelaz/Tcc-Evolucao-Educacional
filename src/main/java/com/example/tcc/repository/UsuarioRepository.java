@@ -12,21 +12,20 @@ import java.util.Optional;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, String> {
-    
+
     Optional<Usuario> findByEmail(String email);
 
     List<Usuario> findTop50ByOrderByXpDesc();
-    
+
     List<Usuario> findTop50ByOrderByStreakDiariaDesc();
-    
+
     @Query("SELECT u FROM Usuario u ORDER BY SIZE(u.statusDasFases) DESC LIMIT 50")
     List<Usuario> findTop50ByOrderByFasesConcluidasDesc();
 
-// Busca usuários da mesma liga ordenados pelo XP acumulado na temporada atual
+    // Busca usuários da mesma liga ordenados pelo XP da temporada semanal (XP que
+    // aparece no ranking)
     Page<Usuario> findByLigaOrderByXpTemporadaDesc(String liga, Pageable pageable);
-    
-    // Busca por XP vitalício (histórico)
+
     Page<Usuario> findByLigaOrderByXpDesc(String liga, Pageable pageable);
 
-    
 }

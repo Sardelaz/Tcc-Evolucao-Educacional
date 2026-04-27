@@ -25,54 +25,37 @@ public class FaseService {
     @Transactional
     public void salvarFase(String modulo, Fase novaFase) {
         log.info("Iniciando processo de salvamento da fase {} do módulo {}", novaFase.getFase(), modulo);
-        
         validarQuestoes(novaFase.getQuestoes());
-
         novaFase.setModulo(modulo);
-        
-        // A sanitização ocorre no momento do salvamento para manter o banco limpo
         sanitizarDadosFase(novaFase);
 
         faseRepository.findByModuloAndFase(modulo, novaFase.getFase())
                 .ifPresent(faseExistente -> {
-                    log.info("Fase {} já existente no módulo {}. Deletando versão antiga para atualizar.", novaFase.getFase(), modulo);
+                    log.info("Deletando versão antiga da fase {} para atualização.", novaFase.getFase());
                     faseRepository.delete(faseExistente);
                     faseRepository.flush(); 
                 });
         
         faseRepository.save(novaFase);
-        log.info("Fase {} do módulo {} salva com sucesso!", novaFase.getFase(), modulo);
+        log.info("Fase {} salva com sucesso!", novaFase.getFase());
     }
 
     @Transactional(readOnly = true)
     public int buscarProximaFase(String modulo) {
         List<Fase> fases = faseRepository.findByModuloOrderByFaseAsc(modulo);
-        if (fases.isEmpty()) {
-            return 1;
-        }
-        int ultimaFase = fases.get(fases.size() - 1).getFase();
-        return ultimaFase + 1;
+        if (fases.isEmpty()) return 1;
+        return fases.get(fases.size() - 1).getFase() + 1;
     }
 
     private void validarQuestoes(List<Questao> questoes) {
         if (questoes == null || questoes.isEmpty()) return;
-        
         for (Questao q : questoes) {
             if ("discursiva".equalsIgnoreCase(q.getTipo())) continue;
-
-            Set<String> alternativasUnicas = new HashSet<>();
-            int preenchidas = 0;
-
+            Set<String> unicas = new HashSet<>();
             String[] opcoes = {q.getAlternativaA(), q.getAlternativaB(), q.getAlternativaC(), q.getAlternativaD()};
-            for (String opcao : opcoes) {
-                if (opcao != null && !opcao.trim().isEmpty()) {
-                    preenchidas++;
-                    alternativasUnicas.add(opcao.trim().toLowerCase());
-                }
-            }
-
-            if (alternativasUnicas.size() < preenchidas) {
-                throw new IllegalArgumentException("A questão '" + q.getEnunciado() + "' contém alternativas repetidas.");
+            for (String o : opcoes) if (o != null && !o.trim().isEmpty()) unicas.add(o.trim().toLowerCase());
+            if (unicas.size() < 2 && !"discursiva".equalsIgnoreCase(q.getTipo())) {
+                 log.warn("Questão com alternativas insuficientes: {}", q.getEnunciado());
             }
         }
     }
@@ -91,20 +74,14 @@ public class FaseService {
         if (fase == null) return;
         if (fase.getQuestoes() != null) {
             fase.getQuestoes().forEach(q -> {
-                if (q.getImagemUrl() != null) {
-                    q.setImagemUrl(sanitizarUrl(q.getImagemUrl()));
-                }
+                if (q.getImagemUrl() != null) q.setImagemUrl(sanitizarUrl(q.getImagemUrl()));
             });
         }
     }
 
     private String sanitizarUrl(String url) {
         if (url == null || url.isEmpty()) return null;
-        return url.replace("\"", "")
-                  .replace("{", "")
-                  .replace("}", "")
-                  .replace("url:", "")
-                  .trim();
+        return url.replace("\"", "").replace("{", "").replace("}", "").replace("url:", "").trim();
     }
 
     @Transactional
@@ -112,21 +89,14 @@ public class FaseService {
         faseRepository.findByModuloAndFase(modulo, faseNum).ifPresent(faseRepository::delete);
     }
 
-    /**
-     * Verifica a similaridade entre a resposta do usuário e a resposta correta
-     * utilizando a distância de Levenshtein.
-     */
     public boolean verificarSimilaridade(String respostaUsuario, String respostaCorreta, double limite) {
         if (respostaUsuario == null || respostaCorreta == null) return false;
-        
         String s1 = normalizarTexto(respostaUsuario);
         String s2 = normalizarTexto(respostaCorreta);
-        
         if (s1.equals(s2)) return true;
         
         int distancia = calcularLevenshtein(s1, s2);
         int maiorTamanho = Math.max(s1.length(), s2.length());
-        
         if (maiorTamanho == 0) return true;
         
         double similaridade = 1.0 - ((double) distancia / maiorTamanho);
@@ -135,7 +105,6 @@ public class FaseService {
 
     private String normalizarTexto(String texto) {
         if (texto == null) return "";
-        // Remove acentos e converte para minúsculas
         String nfdNormalizedString = Normalizer.normalize(texto.trim().toLowerCase(), Normalizer.Form.NFD);
         return nfdNormalizedString.replaceAll("[\\u0300-\\u036f]", "");
     }
@@ -148,8 +117,7 @@ public class FaseService {
                 else if (j == 0) dp[i][j] = i;
                 else {
                     int custo = (s1.charAt(i - 1) == s2.charAt(j - 1)) ? 0 : 1;
-                    dp[i][j] = Math.min(dp[i - 1][j - 1] + custo, 
-                                        Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1));
+                    dp[i][j] = Math.min(dp[i - 1][j - 1] + custo, Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1));
                 }
             }
         }

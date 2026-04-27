@@ -3,13 +3,11 @@ package com.example.tcc.controller;
 import com.example.tcc.dto.ResultadoFaseDTO;
 import com.example.tcc.service.GamificacaoService;
 import com.example.tcc.service.UsuarioService;
+import com.example.tcc.service.RankingService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -18,10 +16,12 @@ public class GamificacaoController {
 
     private final UsuarioService usuarioService;
     private final GamificacaoService gamificacaoService;
+    private final RankingService rankingService;
 
-    public GamificacaoController(UsuarioService usuarioService, GamificacaoService gamificacaoService) {
+    public GamificacaoController(UsuarioService usuarioService, GamificacaoService gamificacaoService, RankingService rankingService) {
         this.usuarioService = usuarioService;
         this.gamificacaoService = gamificacaoService;
+        this.rankingService = rankingService;
     }
 
     @GetMapping("/perfil")
@@ -39,29 +39,8 @@ public class GamificacaoController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String avatar) {
-        
-        Map<String, List<Map<String, Object>>> rankings = usuarioService.carregarRanking(avatar);
-        List<Map<String, Object>> listaCompleta = rankings.getOrDefault("nivel", new ArrayList<>());
-        
-        int totalUsuarios = listaCompleta.size();
-        int totalPages = (int) Math.ceil((double) totalUsuarios / size);
-        int start = Math.min(page * size, totalUsuarios);
-        int end = Math.min(start + size, totalUsuarios);
-        
-        List<Map<String, Object>> usuariosPaginados = listaCompleta.subList(start, end);
-        
-        String ligaUsuario = listaCompleta.stream()
-                .filter(u -> Boolean.TRUE.equals(u.get("isCurrentUser")))
-                .map(u -> (String) u.get("liga"))
-                .findFirst().orElse("FERRO");
-
-        Map<String, Object> resposta = new HashMap<>();
-        resposta.put("usuarios", usuariosPaginados);
-        resposta.put("currentPage", page);
-        resposta.put("totalPages", totalPages == 0 ? 1 : totalPages);
-        resposta.put("liga", ligaUsuario);
-
-        return ResponseEntity.ok(resposta);
+        // CORREÇÃO: Utiliza o RankingService para retornar requisitos e cronômetro
+        return ResponseEntity.ok(rankingService.carregarRankingPaginado(page, size, avatar));
     }
 
     @GetMapping("/progresso")
