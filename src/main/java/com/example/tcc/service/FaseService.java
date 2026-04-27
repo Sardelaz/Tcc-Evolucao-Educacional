@@ -11,7 +11,6 @@ import java.text.Normalizer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -24,38 +23,35 @@ public class FaseService {
 
     @Transactional
     public void salvarFase(String modulo, Fase novaFase) {
-        log.info("Iniciando processo de salvamento da fase {} do módulo {}", novaFase.getFase(), modulo);
+        log.info("Processando salvamento da fase {} do módulo {}", novaFase.getFase(), modulo);
         validarQuestoes(novaFase.getQuestoes());
         novaFase.setModulo(modulo);
         sanitizarDadosFase(novaFase);
 
         faseRepository.findByModuloAndFase(modulo, novaFase.getFase())
                 .ifPresent(faseExistente -> {
-                    log.info("Deletando versão antiga da fase {} para atualização.", novaFase.getFase());
                     faseRepository.delete(faseExistente);
                     faseRepository.flush(); 
                 });
         
         faseRepository.save(novaFase);
-        log.info("Fase {} salva com sucesso!", novaFase.getFase());
     }
 
     @Transactional(readOnly = true)
     public int buscarProximaFase(String modulo) {
         List<Fase> fases = faseRepository.findByModuloOrderByFaseAsc(modulo);
-        if (fases.isEmpty()) return 1;
-        return fases.get(fases.size() - 1).getFase() + 1;
+        return fases.isEmpty() ? 1 : fases.get(fases.size() - 1).getFase() + 1;
     }
 
     private void validarQuestoes(List<Questao> questoes) {
-        if (questoes == null || questoes.isEmpty()) return;
+        if (questoes == null) return;
         for (Questao q : questoes) {
             if ("discursiva".equalsIgnoreCase(q.getTipo())) continue;
             Set<String> unicas = new HashSet<>();
             String[] opcoes = {q.getAlternativaA(), q.getAlternativaB(), q.getAlternativaC(), q.getAlternativaD()};
             for (String o : opcoes) if (o != null && !o.trim().isEmpty()) unicas.add(o.trim().toLowerCase());
             if (unicas.size() < 2 && !"discursiva".equalsIgnoreCase(q.getTipo())) {
-                 log.warn("Questão com alternativas insuficientes: {}", q.getEnunciado());
+                 log.warn("Alternativas repetidas ou insuficientes.");
             }
         }
     }
@@ -71,8 +67,7 @@ public class FaseService {
     }
 
     private void sanitizarDadosFase(Fase fase) {
-        if (fase == null) return;
-        if (fase.getQuestoes() != null) {
+        if (fase != null && fase.getQuestoes() != null) {
             fase.getQuestoes().forEach(q -> {
                 if (q.getImagemUrl() != null) q.setImagemUrl(sanitizarUrl(q.getImagemUrl()));
             });
@@ -80,7 +75,7 @@ public class FaseService {
     }
 
     private String sanitizarUrl(String url) {
-        if (url == null || url.isEmpty()) return null;
+        if (url == null) return null;
         return url.replace("\"", "").replace("{", "").replace("}", "").replace("url:", "").trim();
     }
 
@@ -89,24 +84,19 @@ public class FaseService {
         faseRepository.findByModuloAndFase(modulo, faseNum).ifPresent(faseRepository::delete);
     }
 
-    public boolean verificarSimilaridade(String respostaUsuario, String respostaCorreta, double limite) {
-        if (respostaUsuario == null || respostaCorreta == null) return false;
-        String s1 = normalizarTexto(respostaUsuario);
-        String s2 = normalizarTexto(respostaCorreta);
+    public boolean verificarSimilaridade(String respUser, String respCorrect, double limite) {
+        if (respUser == null || respCorrect == null) return false;
+        String s1 = normalizarTexto(respUser);
+        String s2 = normalizarTexto(respCorrect);
         if (s1.equals(s2)) return true;
-        
-        int distancia = calcularLevenshtein(s1, s2);
-        int maiorTamanho = Math.max(s1.length(), s2.length());
-        if (maiorTamanho == 0) return true;
-        
-        double similaridade = 1.0 - ((double) distancia / maiorTamanho);
-        return similaridade >= limite;
+        int dist = calcularLevenshtein(s1, s2);
+        int maxLen = Math.max(s1.length(), s2.length());
+        return maxLen == 0 ? true : (1.0 - ((double) dist / maxLen)) >= limite;
     }
 
-    private String normalizarTexto(String texto) {
-        if (texto == null) return "";
-        String nfdNormalizedString = Normalizer.normalize(texto.trim().toLowerCase(), Normalizer.Form.NFD);
-        return nfdNormalizedString.replaceAll("[\\u0300-\\u036f]", "");
+    private String normalizarTexto(String t) {
+        if (t == null) return "";
+        return Normalizer.normalize(t.trim().toLowerCase(), Normalizer.Form.NFD).replaceAll("[\\u0300-\\u036f]", "");
     }
 
     private int calcularLevenshtein(String s1, String s2) {

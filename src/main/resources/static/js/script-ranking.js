@@ -41,13 +41,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!users || users.length === 0) {
             rankingItemsContainer.innerHTML = "<div class='loading-state'>Nenhum estudante encontrado na liga.</div>";
+            
+            // Limpa o pódio se não houver ninguém
+            [1, 2, 3].forEach(pos => {
+                const c = podiumElements[pos];
+                if (c) {
+                    c.querySelector(".user-name").textContent = "-";
+                    c.querySelector(".user-xp").textContent = "0 XP";
+                }
+            });
             return;
         }
 
         users.forEach((user, index) => {
             const position = startOffset + index + 1; 
 
-            // Pódio (apenas na página 1)
             if (position <= 3 && currentPage === 0) {
                 const container = podiumElements[position];
                 if (container) {
@@ -77,6 +85,17 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
             rankingItemsContainer.appendChild(item);
         });
+
+        // Limpa partes do pódio se existirem menos de 3 usuários
+        if (currentPage === 0 && users.length < 3) {
+            for (let i = users.length + 1; i <= 3; i++) {
+                const c = podiumElements[i];
+                if (c) {
+                    c.querySelector(".user-name").textContent = "-";
+                    c.querySelector(".user-xp").textContent = "0 XP";
+                }
+            }
+        }
     }
 
     function fetchRanking(targetPage = 0) {

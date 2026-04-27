@@ -2,8 +2,6 @@ package com.example.tcc.service;
 
 import com.example.tcc.domain.Usuario;
 import com.example.tcc.repository.UsuarioRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -26,22 +24,45 @@ public class RankingService {
         Usuario currentUser = usuarioService.getCurrentUser();
         String ligaDoUsuario = currentUser.getLiga(); 
         
-        // Garante que se o usuário logado for antigo e tiver liga nula, ele veja a liga Ferro
+        // Garante que a liga nunca seja nula
         if (ligaDoUsuario == null || ligaDoUsuario.trim().isEmpty()) {
             ligaDoUsuario = "FERRO";
         }
         
-        PageRequest pageRequest = PageRequest.of(page, size);
+        // BUSCA 100% SEGURA: Ignora o problema de nulos no banco de dados de produção
+        // Busca todos e filtra na memória do Java.
+        List<Usuario> todosUsuarios = usuarioRepository.findAll();
+        List<Usuario> usuariosDaLiga = new ArrayList<>();
         
-        // Busca usando a nova query corrigida com COALESCE e ordenada pelo XP Real
-        Page<Usuario> paginaUsuarios = usuarioRepository.findByLigaOrderByXpDesc(ligaDoUsuario, pageRequest);
+        for (Usuario u : todosUsuarios) {
+            String ligaUser = u.getLiga();
+            if (ligaUser == null || ligaUser.trim().isEmpty()) {
+                ligaUser = "FERRO"; // Trata usuários antigos do banco
+            }
+            
+            if (ligaUser.equalsIgnoreCase(ligaDoUsuario)) {
+                usuariosDaLiga.add(u);
+            }
+        }
+        
+        // Ordenação garantida pelo XP Real (Vitalício), igual ao que aparece no Perfil
+        usuariosDaLiga.sort((a, b) -> Integer.compare(b.getXp(), a.getXp()));
+        
+        // Paginação Manual Segura
+        int totalUsuarios = usuariosDaLiga.size();
+        int totalPages = (int) Math.ceil((double) totalUsuarios / size);
+        
+        int start = Math.min(page * size, totalUsuarios);
+        int end = Math.min(start + size, totalUsuarios);
+        
+        List<Usuario> usuariosPaginados = usuariosDaLiga.subList(start, end);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("usuarios", mapearUsuarios(paginaUsuarios.getContent(), currentUser, avatar));
+        response.put("usuarios", mapearUsuarios(usuariosPaginados, currentUser, avatar));
         response.put("currentPage", page);
-        response.put("totalPages", paginaUsuarios.getTotalPages());
+        response.put("totalPages", totalPages == 0 ? 1 : totalPages);
         response.put("liga", ligaDoUsuario);
-        response.put("totalJogadoresLiga", paginaUsuarios.getTotalElements());
+        response.put("totalJogadoresLiga", totalUsuarios);
         
         response.put("requisitos", obterRequisitosLiga(ligaDoUsuario));
         response.put("dataFimCiclo", calcularFimCiclo());
@@ -55,12 +76,11 @@ public class RankingService {
             Map<String, Object> uData = new HashMap<>();
             boolean isCurrent = u.getId().equals(currentUser.getId());
             
-            // Tratamento contra nulos para evitar quebra no frontend
             uData.put("nome", isCurrent ? "Você" : (u.getNome() != null && !u.getNome().isEmpty() ? u.getNome() : "Estudante"));
             uData.put("avatar", isCurrent ? avatarParam : (u.getAvatar() != null ? u.getAvatar() : "👨‍🎓"));
             uData.put("nivel", u.getNivel());
             
-            // Retorna o XP Vitalício, que é o real e nunca zera incorretamente
+            // Garante que o frontend receba o XP Real (nunca 0 se o usuário tiver XP)
             uData.put("xp", u.getXp()); 
             
             uData.put("isCurrentUser", isCurrent);
@@ -119,7 +139,7 @@ public class RankingService {
                 req.put("proximaLiga", "MÁXIMA");
                 req.put("promocaoTop", 0);
                 req.put("rebaixamentoPos", 5);
-                req.put("descricao", "Você está na liga mais alta!");
+                req.put("descricao", "Você está no topo!");
                 break;
         }
         return req;

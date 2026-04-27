@@ -21,7 +21,7 @@ public class Usuario {
     private String senha;
     private String avatar;
     
-    private int xp;
+    private int xp; // XP Vitalício (Real)
     private int nivel;
     private int streakDiaria;
     private String role = "ROLE_ALUNO";
