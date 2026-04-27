@@ -39,9 +39,15 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderRanking(users, startOffset) {
         if (rankingItemsContainer) rankingItemsContainer.innerHTML = "";
 
+        if (!users || users.length === 0) {
+            rankingItemsContainer.innerHTML = "<div class='loading-state'>Nenhum estudante encontrado na liga.</div>";
+            return;
+        }
+
         users.forEach((user, index) => {
             const position = startOffset + index + 1; 
 
+            // Pódio (apenas na página 1)
             if (position <= 3 && currentPage === 0) {
                 const container = podiumElements[position];
                 if (container) {
@@ -67,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         ${inRelegation ? '<span class="tag-releg">↓ Caindo</span>' : ''}
                     </span>
                 </div>
-                <div class="item-xp">${user.xp} XP</div>
+                <div class="item-xp">${user.xp || 0} XP</div>
             `;
             rankingItemsContainer.appendChild(item);
         });
@@ -84,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 pageInfo.textContent = `Página ${currentPage + 1}`;
                 btnPrev.disabled = currentPage === 0;
-                btnNext.disabled = (currentPage + 1) >= data.totalPages;
+                btnNext.disabled = (currentPage + 1) >= data.totalPages || data.totalPages === 0;
             })
             .catch(err => console.error("Erro ao carregar ranking:", err));
     }

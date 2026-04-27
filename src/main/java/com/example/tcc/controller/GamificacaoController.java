@@ -37,6 +37,11 @@ public class GamificacaoController {
         return ResponseEntity.ok(rankingService.carregarRankingPaginado(page, size, avatar));
     }
 
+    @GetMapping("/usuario/heatmap-data")
+    public ResponseEntity<Map<Long, Integer>> getHeatmapData() {
+        return ResponseEntity.ok(usuarioService.getHeatmapData());
+    }
+
     @GetMapping("/progresso")
     public ResponseEntity<Map<String, String>> carregarProgresso() {
         return ResponseEntity.ok(usuarioService.carregarProgresso());

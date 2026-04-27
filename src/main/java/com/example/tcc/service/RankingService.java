@@ -26,14 +26,14 @@ public class RankingService {
         Usuario currentUser = usuarioService.getCurrentUser();
         String ligaDoUsuario = currentUser.getLiga(); 
         
-        // Proteção extra caso o próprio usuário logado tenha liga nula
+        // Garante que se o usuário logado for antigo e tiver liga nula, ele veja a liga Ferro
         if (ligaDoUsuario == null || ligaDoUsuario.trim().isEmpty()) {
             ligaDoUsuario = "FERRO";
         }
         
         PageRequest pageRequest = PageRequest.of(page, size);
         
-        // Utiliza a query customizada que corrige o problema do banco de produção
+        // Busca usando a nova query corrigida com COALESCE e ordenada pelo XP Real
         Page<Usuario> paginaUsuarios = usuarioRepository.findByLigaOrderByXpDesc(ligaDoUsuario, pageRequest);
 
         Map<String, Object> response = new HashMap<>();
@@ -54,13 +54,13 @@ public class RankingService {
         for (Usuario u : usuarios) {
             Map<String, Object> uData = new HashMap<>();
             boolean isCurrent = u.getId().equals(currentUser.getId());
-            uData.put("nome", isCurrent ? "Você" : u.getNome());
             
-            // Garante que usuários antigos sem avatar tenham um avatar padrão para não quebrar a UI
+            // Tratamento contra nulos para evitar quebra no frontend
+            uData.put("nome", isCurrent ? "Você" : (u.getNome() != null && !u.getNome().isEmpty() ? u.getNome() : "Estudante"));
             uData.put("avatar", isCurrent ? avatarParam : (u.getAvatar() != null ? u.getAvatar() : "👨‍🎓"));
-            
             uData.put("nivel", u.getNivel());
-            // CORREÇÃO: Utiliza u.getXp() para garantir o XP Real igual ao do perfil e não retornar 0
+            
+            // Retorna o XP Vitalício, que é o real e nunca zera incorretamente
             uData.put("xp", u.getXp()); 
             
             uData.put("isCurrentUser", isCurrent);
@@ -119,7 +119,7 @@ public class RankingService {
                 req.put("proximaLiga", "MÁXIMA");
                 req.put("promocaoTop", 0);
                 req.put("rebaixamentoPos", 5);
-                req.put("descricao", "Você está no topo!");
+                req.put("descricao", "Você está na liga mais alta!");
                 break;
         }
         return req;
