@@ -26,9 +26,11 @@ public class Usuario {
     private int streakDiaria;
     private String role = "ROLE_ALUNO";
 
-    // Economia e Ligas
-    private int moedas = 0; // EvoluCoins 🪙
-    private String liga = "FERRO"; // Ferro, Bronze, Prata, Ouro, Diamante, Lenda
+    private int moedas = 0; 
+    private String liga = "FERRO"; 
+    
+    // Campo para o Ranking Mensal
+    private int xpTemporada = 0;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "usuario_status_fases", joinColumns = @JoinColumn(name = "usuario_id"))
@@ -46,7 +48,6 @@ public class Usuario {
     @Column(name = "emblema")
     private Set<String> emblemas = new HashSet<>();
 
-    // Itens comprados na loja
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "usuario_itens_comprados", joinColumns = @JoinColumn(name = "usuario_id"))
     @Column(name = "item_id")
@@ -64,17 +65,14 @@ public class Usuario {
     private int totalErros = 0;
     private int desafiosVencidos = 0;
 
-    // Novo campo: Histórico de questões erradas (Fases Críticas)
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "usuario_erros_recentes", joinColumns = @JoinColumn(name = "usuario_id"))
     @Column(name = "detalhe_erro")
     private List<String> ultimasQuestoesErradas = new ArrayList<>();
 
-    // Conquistas de Longo Prazo
     private int totalQuestoesRespondidas = 0;
     private int totalSimuladosConcluidos = 0;
 
-    // Mapa de Calor (Heatmap)
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "usuario_atividade_log", joinColumns = @JoinColumn(name = "usuario_id"))
     @MapKeyColumn(name = "data_atividade")

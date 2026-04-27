@@ -19,14 +19,12 @@ public class RotasController {
         return "home";
     }
 
-    // Rota Genérica para os Módulos Cadastrados Dinamicamente
     @GetMapping("/m/{slug}")
     public String moduloGenerico(@PathVariable String slug, Model model) {
         model.addAttribute("moduloSlug", slug);
         return "modulo-template";
     }
 
-    // Mantido por retrocompatibilidade se existirem links salvos
     @GetMapping("/razao")
     public String razao(Model model) {
         model.addAttribute("moduloSlug", "razao");
@@ -104,7 +102,6 @@ public class RotasController {
         return "admin-conquistas";
     }
 
-    // Nova Rota do Formulário de Criação de Módulo
     @GetMapping("/admin-modulos")
     public String adminModulos() {
         return "admin-modulos";
@@ -125,9 +122,14 @@ public class RotasController {
         return "admin-editar-video";
     }
 
-    // NOVA ROTA CORRIGIDA
     @GetMapping("/admin-editar-modulos")
     public String adminEditarModulos() {
         return "admin-editar-modulos";
+    }
+
+    // NOVA ROTA: Acesso ao Dashboard Analítico
+    @GetMapping("/admin-dashboard")
+    public String adminDashboard() {
+        return "admin-dashboard";
     }
 }

@@ -26,9 +26,11 @@
                             </div>
                             <span id="current-xp-text">0 XP</span>
                         </div>
+                        
                         <div class="streak-mini" title="Ofensiva">
                             <span id="day-streak-count">🔥 0</span>
                         </div>
+                        
                         <div class="coins-mini" title="Moedas">
                             <span id="display-moedas">🪙 0</span>
                         </div>
@@ -38,7 +40,7 @@
 
             <div class="action-group">
                 <a href="/loja" class="mini-action-btn card-loja" title="Loja Virtual">🛒</a>
-                <button id="desafio-card" class="mini-action-btn mini-desafio" title="Meta Diária">🎯</button>
+                <button id="desafio-card" class="mini-action-btn mini-desafio" title="Missões e Desafios">🎯</button>
                 <button id="checkin-btn">Check-in</button>
             </div>
         </header>
@@ -84,27 +86,6 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="daily-modal">
-        <div class="modal-content daily-challenge-content">
-            <button class="modal-close" id="close-modal-btn">✕</button>
-            <div class="modal-icon-wrapper">
-                <div class="modal-icon">🎯</div>
-            </div>
-            <h2 class="modal-title" id="modal-title">Objetivo Diário</h2>
-            <p class="modal-subtitle" id="modal-subtitle">Subtítulo do Objetivo</p>
-            
-            <div class="challenge-info-box">
-                <p class="modal-desc" id="modal-desc">Descrição detalhada do desafio que você precisa completar hoje para ganhar recompensas.</p>
-                <div class="reward-tag">
-                    <span class="label">RECOMPENSA:</span>
-                    <span class="modal-reward" id="modal-reward">0 XP</span>
-                </div>
-            </div>
-
-            <button id="claim-reward-btn" class="primary-modal-btn">Verificar Conclusão</button>
-        </div>
-    </div>
-
     <div class="modal-overlay" id="avatar-modal">
         <div class="modal-content" style="max-width: 550px;">
             <button class="modal-close" id="close-avatar-btn">✕</button>
@@ -112,6 +93,19 @@
             <h2 class="modal-title">Mudar Avatar</h2>
             <p class="modal-desc">Escolha um personagem que combine com seu progresso atual.</p>
             <div class="avatar-grid" id="avatar-grid"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="missions-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <button class="modal-close" id="close-missions-btn">✕</button>
+            <div class="modal-icon">🎯</div>
+            <h2 class="modal-title" style="color: #FFD700;">Missões e Objetivos</h2>
+            <p class="modal-desc">Complete seus desafios para subir de nível rapidamente!</p>
+            
+            <div id="missions-container-modal" style="display: flex; flex-direction: column; gap: 15px; margin-top: 25px; text-align: left;">
+                <p style="color: #888; font-style: italic; text-align: center;">Buscando objetivos...</p>
+            </div>
         </div>
     </div>
 

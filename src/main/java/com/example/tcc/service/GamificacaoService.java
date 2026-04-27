@@ -1,13 +1,9 @@
 package com.example.tcc.service;
 
-import com.example.tcc.domain.Conquista;
-import com.example.tcc.domain.Fase;
-import com.example.tcc.domain.Questao;
-import com.example.tcc.domain.Usuario;
+import com.example.tcc.domain.*;
 import com.example.tcc.dto.ResultadoFaseDTO;
-import com.example.tcc.repository.ConquistaRepository;
-import com.example.tcc.repository.FaseRepository;
-import com.example.tcc.repository.UsuarioRepository;
+import com.example.tcc.repository.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,13 +18,86 @@ public class GamificacaoService {
     private final UsuarioService usuarioService;
     private final FaseRepository faseRepository;
     private final ConquistaRepository conquistaRepository;
+    private final UsuarioMissaoRepository usuarioMissaoRepository;
+    private final MissaoRepository missaoRepository;
 
     public GamificacaoService(UsuarioRepository usuarioRepository, UsuarioService usuarioService,
-            FaseRepository faseRepository, ConquistaRepository conquistaRepository) {
+            FaseRepository faseRepository, ConquistaRepository conquistaRepository, 
+            UsuarioMissaoRepository usuarioMissaoRepository, MissaoRepository missaoRepository) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioService = usuarioService;
         this.faseRepository = faseRepository;
         this.conquistaRepository = conquistaRepository;
+        this.usuarioMissaoRepository = usuarioMissaoRepository;
+        this.missaoRepository = missaoRepository;
+    }
+
+    private void garantirMissoesBase() {
+        if (missaoRepository.count() == 0) {
+            criarMissao("Gênio da Semana: Acerte 50 questões", "SEMANAL", "ACERTOS", 50, 300, 150);
+            criarMissao("Maratonista: Complete 10 fases na semana", "SEMANAL", "FASES", 10, 500, 200);
+            criarMissao("Aquecimento: Acerte 10 questões hoje", "DIARIA", "ACERTOS", 10, 50, 20);
+            criarMissao("Frequência: Faça check-in", "DIARIA", "CHECKIN", 1, 50, 10);
+        }
+    }
+
+    private void criarMissao(String desc, String tipo, String cat, int obj, int xp, int moedas) {
+        Missao m = new Missao();
+        m.setDescricao(desc);
+        m.setTipo(tipo);
+        m.setCategoria(cat);
+        m.setObjetivo(obj);
+        m.setRecompensaXp(xp);
+        m.setRecompensaMoedas(moedas);
+        missaoRepository.save(m);
+    }
+
+    public void atribuirMissoesSeVazio(Usuario user) {
+        garantirMissoesBase();
+        List<UsuarioMissao> todasAtuais = usuarioMissaoRepository.findByUsuario(user);
+        
+        long diarias = todasAtuais.stream().filter(um -> "DIARIA".equals(um.getMissao().getTipo())).count();
+        long semanais = todasAtuais.stream().filter(um -> "SEMANAL".equals(um.getMissao().getTipo())).count();
+
+        if (diarias == 0 || semanais == 0) {
+            List<Missao> todasMissoesDb = missaoRepository.findAll();
+            for (Missao m : todasMissoesDb) {
+                boolean jaTem = todasAtuais.stream().anyMatch(um -> um.getMissao().getId().equals(m.getId()));
+                if (!jaTem) {
+                    UsuarioMissao nova = new UsuarioMissao();
+                    nova.setUsuario(user);
+                    nova.setMissao(m);
+                    nova.setProgressoAtual(0);
+                    nova.setConcluida(false);
+                    nova.setRecompensaResgatada(false);
+                    usuarioMissaoRepository.save(nova);
+                }
+            }
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 1 * ?")
+    public void resetarTemporada() {
+        usuarioRepository.findAll().forEach(u -> {
+            u.setXpTemporada(0);
+            usuarioRepository.save(u);
+        });
+    }
+
+    @Scheduled(cron = "0 0 0 * * MON")
+    public void resetarMissoesSemanais() {
+        usuarioRepository.findAll().forEach(u -> {
+            usuarioMissaoRepository.deleteAll(usuarioMissaoRepository.findByUsuarioAndTipoMissao(u, "SEMANAL"));
+            atribuirMissoesSeVazio(u);
+        });
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void resetarMissoesDiarias() {
+        usuarioRepository.findAll().forEach(u -> {
+            usuarioMissaoRepository.deleteAll(usuarioMissaoRepository.findByUsuarioAndTipoMissao(u, "DIARIA"));
+            atribuirMissoesSeVazio(u);
+        });
     }
 
     public Map<String, Object> concluirFase(String lessonId, ResultadoFaseDTO resultado) {
@@ -36,33 +105,18 @@ public class GamificacaoService {
         Usuario user = usuarioRepository.findById(userSessao.getId()).orElse(userSessao);
         
         usuarioService.verificarResetDiario(user);
+        atribuirMissoesSeVazio(user);
 
-        Fase faseOriginal = faseRepository.findByModuloAndFase(resultado.getModulo(), resultado.getFase()).orElse(null);
-
-        if (faseOriginal == null) {
-            throw new RuntimeException("Fase não encontrada no banco de dados.");
-        }
+        Fase faseOriginal = faseRepository.findByModuloAndFase(resultado.getModulo(), resultado.getFase())
+                .orElseThrow(() -> new RuntimeException("Fase não encontrada"));
 
         String chaveUnica = resultado.getModulo() + "_fase" + resultado.getFase() + "_id" + faseOriginal.getId();
-        
-        if (user.getStatusDasFases() == null) {
-            user.setStatusDasFases(new HashMap<>());
-        }
-        
-        boolean jaEstavaConcluida = "completed".equals(user.getStatusDasFases().get(chaveUnica));
+        boolean jaEstavaConcluida = user.getStatusDasFases().containsKey(chaveUnica) && "completed".equals(user.getStatusDasFases().get(chaveUnica));
 
         if (resultado.getEnunciadosErrados() != null) {
-            String nomeModuloBonito = resultado.getModulo().replace("_", " ").toUpperCase();
-            
-            if (user.getUltimasQuestoesErradas() == null) {
-                user.setUltimasQuestoesErradas(new ArrayList<>());
-            }
-            
             for (String enunciado : resultado.getEnunciadosErrados()) {
-                String detalhe = String.format("[%s - FASE %d] %s", nomeModuloBonito, resultado.getFase(), enunciado);
-                user.getUltimasQuestoesErradas().add(0, detalhe);
+                user.getUltimasQuestoesErradas().add(0, String.format("[%s - F %d] %s", resultado.getModulo().toUpperCase(), resultado.getFase(), enunciado));
             }
-            
             if (user.getUltimasQuestoesErradas().size() > 15) {
                 user.setUltimasQuestoesErradas(new ArrayList<>(user.getUltimasQuestoesErradas().subList(0, 15)));
             }
@@ -73,77 +127,42 @@ public class GamificacaoService {
         int xpGanho = 0;
         int moedasGanhas = 0;
 
-        user.setTotalQuestoesRespondidas(user.getTotalQuestoesRespondidas() + resultado.getTotalQuestoes());
-        if (resultado.getModulo() != null && resultado.getModulo().contains("simulado")) {
-            user.setTotalSimuladosConcluidos(user.getTotalSimuladosConcluidos() + 1);
-        }
-
-        LocalDate hoje = LocalDate.now();
-        
-        if (user.getLogAtividade() == null) {
-            user.setLogAtividade(new HashMap<>());
-        }
-        user.getLogAtividade().put(hoje, user.getLogAtividade().getOrDefault(hoje, 0) + resultado.getTotalQuestoes());
-
         if (!jaEstavaConcluida) {
-            user.setTotalAcertos(user.getTotalAcertos() + resultado.getAcertos());
-            user.setTotalErros(user.getTotalErros() + resultado.getErros());
-            user.setDesafiosVencidos(user.getDesafiosVencidos() + resultado.getDesafiosVencidosNestaFase());
-
-            // Cálculo base de XP
             xpGanho = (resultado.getAcertos() * 10) + (resultado.getMaxStreak() * 5);
-            
-            // Lógica de Recompensa Especial
-            int baseMoedas = faseOriginal.isEspecial() ? 50 : 30;
-            
-            // Se a fase for especial, o XP ganho é dobrado
-            if (faseOriginal.isEspecial()) {
-                xpGanho *= 2;
-            }
+            if (faseOriginal.isEspecial()) xpGanho *= 2;
 
-            moedasGanhas = baseMoedas - (resultado.getErros() * 5);
-            
-            if (moedasGanhas < 0) {
-                moedasGanhas = 0;
-            }
+            moedasGanhas = Math.max(0, (faseOriginal.isEspecial() ? 50 : 30) - (resultado.getErros() * 5));
 
             user.setXp(user.getXp() + xpGanho);
+            user.setXpTemporada(user.getXpTemporada() + xpGanho);
             user.setMoedas(user.getMoedas() + moedasGanhas);
 
-            if (resultado.getAcertos() == resultado.getTotalQuestoes() && resultado.getTotalQuestoes() > 0) {
-                if (user.getFasesPerfeitas() == null) user.setFasesPerfeitas(new HashSet<>());
-                user.getFasesPerfeitas().add(chaveUnica);
-                user.setFasesPerfeitasHoje(user.getFasesPerfeitasHoje() + 1);
-            }
-        } else {
-            if (resultado.getAcertos() == resultado.getTotalQuestoes() && resultado.getTotalQuestoes() > 0) {
-                if (user.getFasesPerfeitas() == null) user.setFasesPerfeitas(new HashSet<>());
-                if (!user.getFasesPerfeitas().contains(chaveUnica)) {
-                    user.getFasesPerfeitas().add(chaveUnica);
-                    user.setFasesPerfeitasHoje(user.getFasesPerfeitasHoje() + 1);
-                }
-            }
+            atualizarProgressoMissoes(user, "ACERTOS", resultado.getAcertos());
+            atualizarProgressoMissoes(user, "FASES", 1);
         }
 
         user.setNivel((user.getXp() / 100) + 1);
         atualizarLiga(user); 
         verificarConquistas(user, resultado);
-
-        if ("ROLE_ADMIN".equals(user.getRole()) && user.getMoedas() < 9999999) {
-            user.setMoedas(9999999);
-        }
-
         usuarioRepository.save(user);
 
-        Map<String, Object> resposta = new HashMap<>();
-        resposta.put("xpGanho", xpGanho);
-        resposta.put("moedasGanhas", moedasGanhas);
-        resposta.put("moedasTotais", user.getMoedas());
-        resposta.put("xpTotal", user.getXp());
-        resposta.put("nivel", user.getNivel());
-        resposta.put("liga", user.getLiga());
-        resposta.put("faseEspecial", faseOriginal.isEspecial());
-        return resposta;
+        return Map.of("xpGanho", xpGanho, "moedasGanhas", moedasGanhas, "nivel", user.getNivel(), "liga", user.getLiga());
+    }
+
+    private void atualizarProgressoMissoes(Usuario user, String categoria, int incremento) {
+        usuarioMissaoRepository.findByUsuarioAndConcluidaFalse(user).stream()
+            .filter(um -> um.getMissao().getCategoria().equals(categoria))
+            .forEach(um -> {
+                um.setProgressoAtual(Math.min(um.getProgressoAtual() + incremento, um.getMissao().getObjetivo()));
+                if (um.getProgressoAtual() >= um.getMissao().getObjetivo()) {
+                    um.setConcluida(true);
+                    um.setRecompensaResgatada(true);
+                    user.setXp(user.getXp() + um.getMissao().getRecompensaXp());
+                    user.setXpTemporada(user.getXpTemporada() + um.getMissao().getRecompensaXp());
+                    user.setMoedas(user.getMoedas() + um.getMissao().getRecompensaMoedas());
+                }
+                usuarioMissaoRepository.save(um);
+            });
     }
 
     private void atualizarLiga(Usuario user) {
@@ -158,66 +177,54 @@ public class GamificacaoService {
 
     private void verificarConquistas(Usuario user, ResultadoFaseDTO resultado) {
         if (user.getEmblemas() == null) user.setEmblemas(new HashSet<>());
-        
-        if (user.getXp() >= 500 && !user.getEmblemas().contains("badge_iniciante")) 
-            user.getEmblemas().add("badge_iniciante");
-        if (user.getStreakDiaria() >= 7 && !user.getEmblemas().contains("badge_ofensiva_7")) 
-            user.getEmblemas().add("badge_ofensiva_7");
-        
-        List<Conquista> todasConquistas = conquistaRepository.findAll();
-        for (Conquista c : todasConquistas) {
+        conquistaRepository.findAll().forEach(c -> {
             String badgeId = "dynamic_" + c.getId();
-            if (user.getEmblemas().contains(badgeId)) continue;
-
-            boolean conquistou = switch (c.getTipoRequisito()) {
-                case "XP" -> user.getXp() >= c.getValorObjetivo();
-                case "NIVEL" -> user.getNivel() >= c.getValorObjetivo();
-                case "PERFEITAS" -> (user.getFasesPerfeitas() != null ? user.getFasesPerfeitas().size() : 0) >= c.getValorObjetivo();
-                default -> false;
-            };
-            if (conquistou) user.getEmblemas().add(badgeId);
-        }
+            if (!user.getEmblemas().contains(badgeId)) {
+                boolean conquistou = switch (c.getTipoRequisito()) {
+                    case "XP" -> user.getXp() >= c.getValorObjetivo();
+                    case "NIVEL" -> user.getNivel() >= c.getValorObjetivo();
+                    default -> false;
+                };
+                if (conquistou) user.getEmblemas().add(badgeId);
+            }
+        });
     }
 
     public Map<String, Object> fazerCheckin() {
-        Usuario userSessao = usuarioService.getCurrentUser();
-        Usuario user = usuarioRepository.findById(userSessao.getId()).orElse(userSessao);
+        Usuario user = usuarioRepository.findById(usuarioService.getCurrentUser().getId()).orElseThrow();
         usuarioService.verificarResetDiario(user);
+        atribuirMissoesSeVazio(user);
 
-        if (user.getCheckinsHoje() > 0) return Collections.singletonMap("sucesso", false);
+        if (user.getCheckinsHoje() > 0) return Map.of("sucesso", false);
 
         user.setCheckinsHoje(1);
         user.setStreakDiaria(user.getStreakDiaria() + 1);
         user.setXp(user.getXp() + 100);
+        user.setXpTemporada(user.getXpTemporada() + 100);
         user.setMoedas(user.getMoedas() + 20); 
         user.setNivel((user.getXp() / 100) + 1);
         atualizarLiga(user);
+        atualizarProgressoMissoes(user, "CHECKIN", 1);
         usuarioRepository.save(user);
         
-        Map<String, Object> resposta = new HashMap<>();
-        resposta.put("sucesso", true);
-        resposta.put("moedasTotais", user.getMoedas());
-        resposta.put("xpTotal", user.getXp());
-        return resposta;
+        return Map.of("sucesso", true, "moedasTotais", user.getMoedas(), "xpTotal", user.getXp(), "nivel", user.getNivel());
     }
 
     public Map<String, Object> completarDesafioDiario(Map<String, Integer> payload) {
-        Usuario userSessao = usuarioService.getCurrentUser();
-        Usuario user = usuarioRepository.findById(userSessao.getId()).orElse(userSessao);
+        Usuario user = usuarioRepository.findById(usuarioService.getCurrentUser().getId()).orElseThrow();
         usuarioService.verificarResetDiario(user);
+        atribuirMissoesSeVazio(user);
 
-        LocalDate hoje = LocalDate.now();
-        if (hoje.equals(user.getDataUltimoDesafioCompletado())) return Collections.singletonMap("sucesso", false);
+        if (LocalDate.now().equals(user.getDataUltimoDesafioCompletado())) return Map.of("sucesso", false);
 
-        user.setXp(user.getXp() + payload.getOrDefault("xp", 50));
+        int xp = payload.getOrDefault("xp", 50);
+        user.setXp(user.getXp() + xp);
+        user.setXpTemporada(user.getXpTemporada() + xp);
         user.setMoedas(user.getMoedas() + 50);
-        user.setDataUltimoDesafioCompletado(hoje);
+        user.setDataUltimoDesafioCompletado(LocalDate.now());
+        atualizarProgressoMissoes(user, "DESAFIOS_DIARIOS", 1);
         usuarioRepository.save(user);
 
-        Map<String, Object> resposta = new HashMap<>();
-        resposta.put("sucesso", true);
-        resposta.put("moedasTotais", user.getMoedas());
-        resposta.put("xpTotal", user.getXp());
-        return resposta;
+        return Map.of("sucesso", true, "moedasTotais", user.getMoedas(), "xpTotal", user.getXp());
     }
 }

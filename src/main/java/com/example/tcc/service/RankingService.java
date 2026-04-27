@@ -19,11 +19,10 @@ public class RankingService {
 
     public Map<String, Object> carregarRankingPaginado(int page, int size, String avatar) {
         Usuario currentUser = usuarioService.getCurrentUser();
-        String ligaDoUsuario = currentUser.getLiga(); // O ranking agora isola os jogadores pela Liga
+        String ligaDoUsuario = currentUser.getLiga(); 
         
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        // Busca apenas os usuários da mesma liga ordenados por XP
         Page<Usuario> paginaUsuarios = usuarioRepository.findByLigaOrderByXpDesc(ligaDoUsuario, pageRequest);
 
         Map<String, Object> response = new HashMap<>();
@@ -44,7 +43,8 @@ public class RankingService {
             uData.put("nome", isCurrent ? "Você" : u.getNome());
             uData.put("avatar", isCurrent ? avatarParam : u.getAvatar());
             uData.put("nivel", u.getNivel());
-            uData.put("xp", u.getXp());
+            // CORREÇÃO: O ranking agora puxa o xpTemporada em vez do XP vitalício
+            uData.put("xp", u.getXpTemporada()); 
             uData.put("isCurrentUser", isCurrent);
             listaMapeada.add(uData);
         }

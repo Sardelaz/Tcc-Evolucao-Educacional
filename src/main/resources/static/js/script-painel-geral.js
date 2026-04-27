@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let alunoSelecionadoId = null;
     let meuGrafico;
 
-    // MAPEAMENTO DE NOMES DE MÓDULOS
     const mapaNomesModulos = {
         'mat': 'Razão e Proporção',
         'simulado': 'Simulados ENEM',
@@ -18,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'aritmetica': 'Aritmética'
     };
 
-    if (adminToggle) {
+    if (adminToggle && adminContent) {
         adminToggle.addEventListener('click', () => {
             adminContent.classList.toggle('expanded');
             adminToggle.classList.toggle('expanded');
@@ -34,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
     function renderizarLista(lista) {
+        if (!listaAlunosUl) return;
         listaAlunosUl.innerHTML = '';
         const liGeral = document.createElement('li');
         liGeral.className = 'aluno-item';
@@ -52,16 +52,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    inputBusca.addEventListener('input', (e) => {
-        const termo = e.target.value.toLowerCase();
-        const filtrados = todosAlunos.filter(a => 
-            (a.nome && a.nome.toLowerCase().includes(termo)) || 
-            (a.email && a.email.toLowerCase().includes(termo))
-        );
-        renderizarLista(filtrados);
-    });
+    if (inputBusca) {
+        inputBusca.addEventListener('input', (e) => {
+            const termo = e.target.value.toLowerCase();
+            const filtrados = todosAlunos.filter(a => 
+                (a.nome && a.nome.toLowerCase().includes(termo)) || 
+                (a.email && a.email.toLowerCase().includes(termo))
+            );
+            renderizarLista(filtrados);
+        });
+    }
 
-    // Função auxiliar para traduzir chaves de ID complexas (ex: estatistica_fase1_id50)
     function formatarNomeChave(chave) {
         if (!chave) return 'DESCONHECIDA';
         if (chave.includes('_fase')) {
@@ -75,9 +76,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.carregarAnaliseGeral = function() {
         alunoSelecionadoId = null;
-        tituloAnalise.innerHTML = `Visão Geral: <span style="color:#FFD700;">Desempenho da Turma</span>`;
-        document.getElementById('perfil-aluno').style.display = 'none';
-        document.getElementById('secao-progresso').style.display = 'none';
+        if (tituloAnalise) tituloAnalise.innerHTML = `Visão Geral: <span style="color:#FFD700;">Desempenho da Turma</span>`;
+        
+        const perf = document.getElementById('perfil-aluno');
+        const prog = document.getElementById('secao-progresso');
+        if (perf) perf.style.display = 'none';
+        if (prog) prog.style.display = 'none';
         
         fetch('/api/admin/relatorios/geral')
             .then(res => res.json())
@@ -85,21 +89,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 atualizarGrafico(data.acertos, data.erros);
                 
                 const listaP = document.getElementById('lista-fases-perfeitas');
-                listaP.innerHTML = '';
-                (data.fasesMaisPerfeitas || []).forEach(item => {
-                    const li = document.createElement('li');
-                    // CORREÇÃO DA RENDERIZAÇÃO NO PAINEL ADMIN
-                    li.textContent = `⭐ ${formatarNomeChave(item.nomeFase)} (${item.quantidade} alunos gabaritaram)`;
-                    listaP.appendChild(li);
-                });
+                if (listaP) {
+                    listaP.innerHTML = '';
+                    (data.fasesMaisPerfeitas || []).forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = `⭐ ${formatarNomeChave(item.nomeFase)} (${item.quantidade} alunos gabaritaram)`;
+                        listaP.appendChild(li);
+                    });
+                }
 
                 const listaC = document.getElementById('lista-mais-erradas');
-                listaC.innerHTML = '';
-                (data.fasesMaisCriticas || []).forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = `❌ ${formatarNomeChave(item.nomeFase)} (${item.quantidade} alunos com erros)`;
-                    listaC.appendChild(li);
-                });
+                if (listaC) {
+                    listaC.innerHTML = '';
+                    (data.fasesMaisCriticas || []).forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = `❌ ${formatarNomeChave(item.nomeFase)} (${item.quantidade} alunos com erros)`;
+                        listaC.appendChild(li);
+                    });
+                }
             });
     };
 
@@ -108,76 +115,115 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(`/api/admin/relatorios/usuarios/analise/${id}`)
             .then(res => res.json())
             .then(data => {
-                tituloAnalise.innerHTML = `Análise de <span style="color:var(--cor-xp)">${data.nome}</span>`;
-                document.getElementById('perfil-aluno').style.display = 'block';
-                document.getElementById('secao-progresso').style.display = 'block';
+                if (tituloAnalise) tituloAnalise.innerHTML = `Análise de <span style="color:var(--cor-xp)">${data.nome}</span>`;
+                
+                const perf = document.getElementById('perfil-aluno');
+                const prog = document.getElementById('secao-progresso');
+                if (perf) perf.style.display = 'block';
+                if (prog) prog.style.display = 'block';
 
-                document.getElementById('nome-aluno-perfil').textContent = data.nome;
-                document.getElementById('email-aluno-perfil').textContent = data.email;
-                document.getElementById('nivel-aluno-perfil').textContent = data.nivel;
-                document.getElementById('streak-aluno-perfil').textContent = `${data.streak} 🔥`;
-                document.getElementById('xp-aluno-perfil').textContent = data.xp;
+                const elNome = document.getElementById('nome-aluno-perfil');
+                const elEmail = document.getElementById('email-aluno-perfil');
+                const elNivel = document.getElementById('nivel-aluno-perfil');
+                const elStreak = document.getElementById('streak-aluno-perfil');
+                const elXp = document.getElementById('xp-aluno-perfil');
+
+                if (elNome) elNome.textContent = data.nome;
+                if (elEmail) elEmail.textContent = data.email;
+                if (elNivel) elNivel.textContent = data.nivel;
+                
+                // CORREÇÃO: Usar 'streakDiaria' que é o nome do campo no Java
+                if (elStreak) elStreak.textContent = `${data.streakDiaria || 0} 🔥`;
+                if (elXp) elXp.textContent = data.xp;
                 
                 const conquistaContainer = document.getElementById('conquistas-aluno-perfil');
-                conquistaContainer.innerHTML = '';
-                (data.emblemas || []).forEach(eb => {
-                    const span = document.createElement('span');
-                    span.className = 'badge-item';
-                    span.textContent = eb.replace('badge_', '').replace('_', ' ').toUpperCase();
-                    conquistaContainer.appendChild(span);
-                });
-
-                const gridProgresso = document.getElementById('lista-progresso-modulos');
-                gridProgresso.innerHTML = '';
-                const progressoPorModulo = {};
-                
-                // CORREÇÃO DA LEITURA DE PROGRESSO INDIVIDUAL (Nova Chave Dinâmica e Fallback)
-                Object.keys(data.statusFases || {}).forEach(key => {
-                    let modId, num;
-                    
-                    if (key.includes('_fase')) {
-                        const partes = key.split('_fase');
-                        modId = partes[0];
-                        num = parseInt(partes[1].split('_id')[0]) || 0;
-                    } else if (key.includes('-')) {
-                        const partes = key.split('-');
-                        modId = partes[0];
-                        num = parseInt(partes[1]) || 0;
-                    } else {
-                        return; // Ignora chaves desconhecidas
-                    }
-
-                    if (!progressoPorModulo[modId] || num > progressoPorModulo[modId]) {
-                        progressoPorModulo[modId] = num;
-                    }
-                });
-                
-                for (const modId in progressoPorModulo) {
-                    const nomeAmigavel = mapaNomesModulos[modId] || modId.toUpperCase();
-                    const card = document.createElement('div');
-                    card.className = 'modulo-progresso-card';
-                    card.innerHTML = `<h5>${nomeAmigavel}</h5><span>Fase Atual: ${progressoPorModulo[modId]}</span>`;
-                    gridProgresso.appendChild(card);
+                if (conquistaContainer) {
+                    conquistaContainer.innerHTML = '';
+                    (data.emblemas || []).forEach(eb => {
+                        const span = document.createElement('span');
+                        span.className = 'badge-item';
+                        span.textContent = eb.replace('badge_', '').replace('_', ' ').toUpperCase();
+                        conquistaContainer.appendChild(span);
+                    });
                 }
 
+                const gridProgresso = document.getElementById('lista-progresso-modulos');
+                if (gridProgresso) {
+                    gridProgresso.innerHTML = '';
+                    const progressoPorModulo = {};
+                    
+                    Object.keys(data.statusFases || {}).forEach(key => {
+                        let modId, num;
+                        if (key.includes('_fase')) {
+                            const partes = key.split('_fase');
+                            modId = partes[0];
+                            num = parseInt(partes[1].split('_id')[0]) || 0;
+                        } else if (key.includes('-')) {
+                            const partes = key.split('-');
+                            modId = partes[0];
+                            num = parseInt(partes[1]) || 0;
+                        } else {
+                            return;
+                        }
+                        if (!progressoPorModulo[modId] || num > progressoPorModulo[modId]) {
+                            progressoPorModulo[modId] = num;
+                        }
+                    });
+                    
+                    for (const modId in progressoPorModulo) {
+                        const nomeAmigavel = mapaNomesModulos[modId] || modId.toUpperCase();
+                        const card = document.createElement('div');
+                        card.className = 'modulo-progresso-card';
+                        card.innerHTML = `<h5>${nomeAmigavel}</h5><span>Fase Atual: ${progressoPorModulo[modId]}</span>`;
+                        gridProgresso.appendChild(card);
+                    }
+                }
+
+                // CORREÇÃO: Adicionar o loop para listar as questões/fases críticas individuais
                 const listaR = document.getElementById('lista-mais-erradas');
-                listaR.innerHTML = `<li style="border-left:3px solid #e74c3c; padding-left:10px; color:#e74c3c;"><strong>Sugestão IA:</strong> ${data.sugestao}</li>`;
+                if (listaR) {
+                    listaR.innerHTML = `<li style="border-left:3px solid #e74c3c; padding-left:10px; color:#e74c3c; margin-bottom:10px;"><strong>Sugestão IA:</strong> ${data.sugestao || 'Continue praticando!'}</li>`;
+                    
+                    // Lista os erros registrados na conta do aluno
+                    if (data.ultimasQuestoesErradas && data.ultimasQuestoesErradas.length > 0) {
+                        data.ultimasQuestoesErradas.forEach(erro => {
+                            const li = document.createElement('li');
+                            li.style.marginBottom = "5px";
+                            li.textContent = `❌ ${erro}`;
+                            listaR.appendChild(li);
+                        });
+                    } else {
+                        const li = document.createElement('li');
+                        li.style.color = "#888";
+                        li.textContent = "Nenhum erro crítico registrado recentemente.";
+                        listaR.appendChild(li);
+                    }
+                }
                 
                 const listaP = document.getElementById('lista-fases-perfeitas');
-                listaP.innerHTML = '';
-                (data.fasesPerfeitas || []).forEach(f => {
-                    const li = document.createElement('li');
-                    li.textContent = `⭐ ${formatarNomeChave(f)}`;
-                    listaP.appendChild(li);
-                });
+                if (listaP) {
+                    listaP.innerHTML = '';
+                    (data.fasesPerfeitas || []).forEach(f => {
+                        const li = document.createElement('li');
+                        li.textContent = `⭐ ${formatarNomeChave(f)}`;
+                        listaP.appendChild(li);
+                    });
+                }
 
                 atualizarGrafico(data.acertos, data.erros);
-                document.getElementById('subtitulo-acertos').innerHTML = `<strong>Previsão:</strong> +${data.previsaoXp.toFixed(0)} XP esperado no próximo acesso.`;
+                
+                const elSubtitulo = document.getElementById('subtitulo-acertos');
+                if (elSubtitulo) {
+                    const previsaoValue = (data.previsaoXp !== undefined && data.previsaoXp !== null) ? data.previsaoXp : 0;
+                    elSubtitulo.innerHTML = `<strong>Previsão:</strong> +${Number(previsaoValue).toFixed(0)} XP esperado no próximo acesso.`;
+                }
             });
     };
 
     function atualizarGrafico(acertos, erros) {
-        const ctx = document.getElementById('graficoDificuldade').getContext('2d');
+        const canvas = document.getElementById('graficoDificuldade');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
         if (meuGrafico) meuGrafico.destroy();
         meuGrafico = new Chart(ctx, {
             type: 'pie',
@@ -197,19 +243,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.getElementById('btn-alterar-senha').onclick = () => {
-        const novaSenha = document.getElementById('nova-senha-input').value;
-        if (!alunoSelecionadoId || !novaSenha) return alert("Selecione um aluno e defina a senha.");
+    const btnSenha = document.getElementById('btn-alterar-senha');
+    if (btnSenha) {
+        btnSenha.onclick = () => {
+            const inputSenha = document.getElementById('nova-senha-input');
+            const novaSenha = inputSenha ? inputSenha.value : null;
+            if (!alunoSelecionadoId || !novaSenha) return alert("Selecione um aluno e defina a senha.");
 
-        fetch(`/api/admin/relatorios/usuarios/alterar-senha/${alunoSelecionadoId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ novaSenha: novaSenha })
-        })
-        .then(res => res.json())
-        .then(data => {
-            alert(data.mensagem || data.erro);
-            document.getElementById('nova-senha-input').value = '';
-        });
-    };
+            fetch(`/api/admin/relatorios/usuarios/alterar-senha/${alunoSelecionadoId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ novaSenha: novaSenha })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.mensagem || data.erro);
+                if (inputSenha) inputSenha.value = '';
+            });
+        };
+    }
 });
