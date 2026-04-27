@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Criar Simulado | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-admin.css}">
+    <style>
+        #art-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="art-background"></canvas>
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="admin-container">
+        <h1 style="color: #e74c3c;">Criar Simulado Oficial</h1>
+        <p style="text-align: center; color: #aaa; margin-bottom: 30px;">Cadastre questões exclusivas que aparecerão
+            quando o aluno iniciar um teste de simulado.</p>
+
+        <form id="form-admin-simulado">
+
+            <div class="form-group">
+                <label for="modulo_simulado">Matéria do Simulado</label>
+                <select id="modulo_simulado" required>
+                    <option value="simulado_razao">Simulado de Razão e Proporção</option>
+                    <option value="simulado_estatistica">Simulado de Estatística</option>
+                    <option value="simulado_probabilidade">Simulado de Probabilidade</option>
+                    <option value="simulado_aritmetica">Simulado de Aritmética</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <input type="hidden" id="fase_simulado" value="1">
+
+                <div class="form-group">
+                    <label for="qtd_perguntas">Qtd. Total de Perguntas</label>
+                    <input type="number" id="qtd_perguntas" min="1" max="100" value="10" required>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+                <label for="video_aula_url" style="color: #e74c3c;">URL da Videoaula de Resolução (Opcional)</label>
+                <input type="text" id="video_aula_url" placeholder="Ex: https://www.youtube.com/watch?v=...">
+            </div>
+
+            <hr class="divisor">
+
+            <div id="indicador-questao" style="color: #e74c3c;">Formulando Questão 1 de 10</div>
+
+            <div class="form-group">
+                <label for="tipo_pergunta">Tipo de Pergunta</label>
+                <select id="tipo_pergunta" required onchange="toggleAlternativas()">
+                    <option value="multipla">Múltipla Escolha</option>
+                    <option value="dissertativa">Dissertativa (Texto livre)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="enunciado">Enunciado da Pergunta</label>
+                <textarea id="enunciado" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="imagem_url">URL da Imagem (Opcional)</label>
+                <input type="text" id="imagem_url" placeholder="Ex: https://i.imgur.com/suaimagem.png">
+            </div>
+
+            <div class="form-group">
+                <label for="imagem_upload" style="color: #e74c3c;">Ou Envie do Computador</label>
+                <input type="file" id="imagem_upload" accept="image/*"
+                    style="padding: 8px; background: rgba(0,0,0,0.2);" onchange="fazerUpload(this)">
+                <span id="upload_status" style="font-size: 0.9rem; margin-top: 5px; display: none;"></span>
+            </div>
+
+            <div id="box-alternativas" class="alternativas-box">
+                <p style="margin-bottom: 10px; font-size: 0.9rem; color: #888;">Preencha as alternativas:</p>
+                <div class="form-group"><input type="text" id="alt_a" placeholder="Alternativa A"></div>
+                <div class="form-group"><input type="text" id="alt_b" placeholder="Alternativa B"></div>
+                <div class="form-group"><input type="text" id="alt_c" placeholder="Alternativa C"></div>
+                <div class="form-group"><input type="text" id="alt_d" placeholder="Alternativa D"></div>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label for="resposta_correta">Resposta Correta</label>
+                <select id="resposta_correta_multipla" required>
+                    <option value="" disabled selected>Selecione a letra correta</option>
+                    <option value="A">Alternativa A</option>
+                    <option value="B">Alternativa B</option>
+                    <option value="C">Alternativa C</option>
+                    <option value="D">Alternativa D</option>
+                </select>
+                <input type="text" id="resposta_correta_dissertativa" class="hidden"
+                    placeholder="Digite a resposta exata">
+            </div>
+
+            <button type="submit" id="btn-submit" style="background-color: #e74c3c;">Salvar Pergunta (Ir para a
+                Próxima)</button>
+        </form>
+
+        <a href="/painel-geral" class="back-link">← Voltar para o Painel Geral</a>
+    </div>
+
+    <div th:replace="~{layout/base :: audio-player}"></div>
+    <div th:replace="~{layout/base :: settings-modal}"></div>
+    <script th:src="@{/js/core.js}"></script>
+    <script th:src="@{/js/particles-bg.js}"></script>
+    <script th:src="@{/js/script-admin-core.js}"></script>
+    <script th:src="@{/js/script-admin-simulados.js}"></script>
+</body>
+
+</html>

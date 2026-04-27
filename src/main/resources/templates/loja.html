@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Loja Virtual | Evolução Educacional', '/css/style-loja.css')}"></head>
+<body>
+    <canvas id="art-background"></canvas>
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+    
+    <nav class="top-nav">
+        <h2>🛒 Mercado de Recompensas</h2>
+        <div class="nav-actions">
+            <div class="coin-display" id="display-moedas-loja">
+                🪙 <span id="moedas-valor">0</span>
+            </div>
+            <a href="/" class="btn-voltar">← Voltar ao Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="loja-container">
+        <header class="loja-header">
+            <h1>Coleção Exclusiva</h1>
+            <p>Troque as suas EvoluCoins ganhas em batalhas por avatares e itens cosméticos raros para se destacar no Hall da Fama.</p>
+        </header>
+
+        <div class="loja-grid">
+            <div class="loja-card epico">
+                <span class="raridade-badge">Épico</span>
+                <div class="item-icon">👑</div>
+                <div class="item-info">
+                    <h4 class="item-title">Avatar Rei/Rainha</h4>
+                    <p class="item-desc">Desbloqueie o Avatar exclusivo da realeza. Mostre a todos quem manda nas exatas.</p>
+                </div>
+                <button class="btn-comprar" data-id="avatar_rei" data-preco="500">🪙 500</button>
+            </div>
+
+            <div class="loja-card lendario">
+                <span class="raridade-badge">Lendário</span>
+                <div class="item-icon">🐉</div>
+                <div class="item-info">
+                    <h4 class="item-title">Dragão Ancestral</h4>
+                    <p class="item-desc">O mascote lendário mais temido de todos. Apenas os alunos mais persistentes o dominam.</p>
+                </div>
+                <button class="btn-comprar" data-id="avatar_dragao" data-preco="1000">🪙 1000</button>
+            </div>
+
+            <div class="loja-card mitico">
+                <span class="raridade-badge">Mítico</span>
+                <div class="item-icon">💎</div>
+                <div class="item-info">
+                    <h4 class="item-title">Borda de Diamante</h4>
+                    <p class="item-desc">Um efeito brilhante e animado à volta da sua foto de perfil na Home.</p>
+                </div>
+                <button class="btn-comprar" data-id="borda_diamante" data-preco="2500">🪙 2500</button>
+            </div>
+
+            <div class="loja-card epico">
+                <span class="raridade-badge">Épico</span>
+                <div class="item-icon">🦉</div>
+                <div class="item-info">
+                    <h4 class="item-title">Coruja Mestra</h4>
+                    <p class="item-desc">O símbolo universal da sabedoria. Avatar exclusivo para estudantes aplicados.</p>
+                </div>
+                <button class="btn-comprar" data-id="avatar_coruja" data-preco="600">🪙 600</button>
+            </div>
+
+            <div class="loja-card lendario">
+                <span class="raridade-badge">Lendário</span>
+                <div class="item-icon">⚡</div>
+                <div class="item-info">
+                    <h4 class="item-title">Rastro de Relâmpago</h4>
+                    <p class="item-desc">Adiciona um ícone de raio dinâmico ao lado do seu nome na página inicial.</p>
+                </div>
+                <button class="btn-comprar" data-id="efeito_raio" data-preco="1500">🪙 1500</button>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout/base :: audio-player}"></div>
+    <script th:src="@{/js/particles-bg.js}"></script>
+    <div th:replace="~{layout/base :: scripts(null)}"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/perfil')
+                .then(res => res.json())
+                .then(perfil => {
+                    document.getElementById('moedas-valor').textContent = perfil.moedas;
+                    
+                    if (perfil.itensComprados && perfil.itensComprados.length > 0) {
+                        document.querySelectorAll('.btn-comprar').forEach(btn => {
+                            const itemId = btn.dataset.id;
+                            if (perfil.itensComprados.includes(itemId)) {
+                                btn.disabled = true;
+                                btn.textContent = "Adquirido ✅";
+                                btn.style.background = "#58CC02";
+                                btn.style.color = "white";
+                                btn.style.boxShadow = "0 4px 0 #4CAF50";
+                            }
+                        });
+                    }
+                })
+                .catch(err => console.error("Erro ao carregar perfil:", err));
+
+            document.querySelectorAll('.btn-comprar').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.dataset.id;
+                    const preco = parseInt(e.target.dataset.preco);
+                    
+                    if(!confirm(`Tem a certeza que deseja comprar este item por ${preco} EvoluCoins?`)) return;
+                    
+                    const originalText = e.target.textContent;
+                    e.target.disabled = true;
+                    e.target.textContent = "A processar...";
+
+                    try {
+                        const res = await fetch(`/api/extras/loja/comprar/${id}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ preco: preco })
+                        });
+                        const data = await res.json();
+                        
+                        if(data.sucesso) {
+                            // Atualiza a visualização do contador de moedas com animação
+                            const moedasSpan = document.getElementById('moedas-valor');
+                            moedasSpan.textContent = data.moedasRestantes;
+                            moedasSpan.parentElement.style.transform = "scale(1.2)";
+                            setTimeout(() => moedasSpan.parentElement.style.transform = "scale(1)", 300);
+
+                            // AUTO-EQUIPAMENTO DO AVATAR NO FRONTEND
+                            if (id === 'avatar_rei') localStorage.setItem('userAvatar', '👑');
+                            if (id === 'avatar_dragao') localStorage.setItem('userAvatar', '🐉');
+                            if (id === 'avatar_coruja') localStorage.setItem('userAvatar', '🦉');
+
+                            e.target.textContent = "Adquirido ✅";
+                            e.target.style.background = "#58CC02";
+                            e.target.style.color = "white";
+                            e.target.style.boxShadow = "0 4px 0 #4CAF50";
+                            
+                            alert("🎉 " + data.mensagem);
+                        } else {
+                            alert("❌ " + data.mensagem);
+                            e.target.textContent = originalText;
+                            e.target.disabled = false;
+                        }
+                    } catch(err) {
+                        alert("Erro de conexão ao processar compra.");
+                        e.target.textContent = originalText;
+                        e.target.disabled = false;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/base :: head('Simulados | Evolução Educacional', '/css/style-simulados.css')}"></head>
+
+<body>
+    <canvas id="art-background"></canvas>
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="top-nav">
+        <h2>📝 Central de Simulados</h2>
+        <a href="/" class="btn-voltar">← Voltar ao Dashboard</a>
+    </div>
+
+    <div class="simulados-layout">
+        <header class="simulados-header">
+            <h3>Teste seus conhecimentos</h3>
+            <p>Escolha um módulo abaixo para iniciar o simulado geral. O professor deve ter agrupado as fases no Painel
+                de Controle.</p>
+        </header>
+
+        <div class="modulos-simulado-grid" id="simulados-grid">
+            <p style="grid-column: 1/-1; text-align: center; color: #888;">A carregar módulos de simulado...</p>
+        </div>
+    </div>
+
+    <style>
+        /* Estilos para o botão desativado */
+        .btn-iniciar.disabled {
+            background: #444 !important;
+            box-shadow: none !important;
+            border-bottom: 4px solid #222 !important;
+            cursor: not-allowed !important;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .simulado-card {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+    </style>
+
+    <div th:replace="~{layout/base :: audio-player}"></div>
+    <div th:replace="~{layout/base :: settings-modal}"></div>
+    <div th:replace="~{layout/base :: scripts('/js/script-simulados.js')}"></div>
+</body>
+
+</html>

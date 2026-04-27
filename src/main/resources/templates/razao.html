@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Razão e Proporção | Evolução Educacional', '/css/style-modulos.css')}"></head>
+<body>
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="page-container">
+        <a href="/" class="back-button">← Voltar</a>
+        <header>
+            <h1>Razão, Proporção e Escala</h1>
+        </header>
+        <main>
+            <div class="lessons-track" id="lessons-track"><svg id="track-lines"></svg></div>
+        </main>
+    </div>
+
+    <div th:replace="~{layout/base :: audio-player}"></div>
+    <div th:replace="~{layout/base :: settings-modal}"></div>
+    <div th:replace="~{layout/base :: scripts(null)}"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const track = document.getElementById('lessons-track');
+            const moduloAtual = 'razao';
+            let lessonElements = [];
+
+            try {
+                const [respFases, respProgresso] = await Promise.all([
+                    fetch(`/api/fases/${moduloAtual}`),
+                    fetch('/api/progresso')
+                ]);
+
+                let minhasFases = await respFases.json();
+                const statusData = await respProgresso.json();
+
+                function generateLessons() {
+                    track.innerHTML = '<svg id="track-lines"></svg>';
+
+                    if (minhasFases.length === 0) {
+                        track.innerHTML += '<p style="grid-column: 1/-1; text-align: center; color: #888; margin-top: 50px;">Nenhuma fase encontrada no banco de dados. Acesse o painel Admin para criá-las!</p>';
+                        return;
+                    }
+
+                    minhasFases.forEach((faseObj, i) => {
+                        const faseNum = faseObj.fase;
+                        const row = Math.floor(i / 4) + 1;
+                        let col = (row % 2 !== 0) ? (i % 4) + 1 : 4 - (i % 4);
+
+                        const item = document.createElement('div');
+                        item.className = 'lesson-item';
+                        item.dataset.lessonId = `mat-${faseNum}`;
+                        item.style.gridRow = row; item.style.gridColumn = col;
+
+                        const link = document.createElement('a');
+                        link.href = `/aula?modulo=${moduloAtual}&fase=${faseNum}`;
+                        link.className = `lesson-circle planet-${(i % 4) + 1}`;
+                        link.textContent = faseNum;
+
+                        const title = document.createElement('p');
+                        title.className = 'lesson-title';
+                        title.textContent = `Fase ${faseNum}`;
+
+                        const status = document.createElement('p');
+                        status.className = 'lesson-status';
+
+                        item.appendChild(link); item.appendChild(title); item.appendChild(status);
+                        track.appendChild(item);
+                        lessonElements.push(item);
+                    });
+                }
+
+                function drawTrackLines() {
+                    const svg = document.getElementById('track-lines');
+                    if (!svg) return;
+                    svg.innerHTML = '';
+
+                    for (let i = 0; i < lessonElements.length - 1; i++) {
+                        const startElem = lessonElements[i]; const endElem = lessonElements[i + 1];
+
+                        const x1 = startElem.offsetLeft + startElem.offsetWidth / 2;
+                        const y1 = startElem.offsetTop + startElem.querySelector('.lesson-circle').offsetHeight / 2;
+                        const x2 = endElem.offsetLeft + endElem.offsetWidth / 2;
+                        const y2 = endElem.offsetTop + endElem.querySelector('.lesson-circle').offsetHeight / 2;
+
+                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        path.setAttribute('d', `M${x1} ${y1} C ${x1} ${y1 + 80}, ${x2} ${y2 - 80}, ${x2} ${y2}`);
+                        path.setAttribute('stroke', 'rgba(255,255,255,0.1)'); path.setAttribute('stroke-width', '3'); path.setAttribute('fill', 'none');
+                        svg.appendChild(path);
+                    }
+                }
+
+                function checkAndUpdateUI() {
+                    lessonElements.forEach((item, index) => {
+                        const status = statusData[item.dataset.lessonId];
+
+                        if (index === 0) item.classList.remove('locked');
+                        else {
+                            const idAnterior = lessonElements[index - 1].dataset.lessonId;
+                            if (statusData[idAnterior] === 'completed') item.classList.remove('locked');
+                            else item.classList.add('locked');
+                        }
+
+                        if (status && !item.classList.contains('locked')) {
+                            item.classList.add(status);
+                            if (status === 'completed') item.querySelector('.lesson-status').textContent = 'Concluída';
+                        }
+                    });
+                }
+
+                generateLessons();
+                checkAndUpdateUI();
+                setTimeout(drawTrackLines, 100);
+                window.addEventListener('resize', drawTrackLines);
+            } catch (error) {
+                console.error("Erro ao carregar a trilha do BD:", error);
+            }
+        });
+    </script>
+</body>
+</html>

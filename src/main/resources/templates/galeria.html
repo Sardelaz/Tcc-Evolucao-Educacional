@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Galeria de Vídeos | Evolução Educacional', '/css/style-simulados.css')}"></head>
+<body>
+    <canvas id="art-background"></canvas>
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="top-nav">
+        <h2>🎥 Galeria de Videoaulas</h2>
+        <a href="/" class="btn-voltar">← Voltar ao Dashboard</a>
+    </div>
+
+    <div class="simulados-layout" style="max-width: 1200px;">
+        <header class="simulados-header">
+            <h3>Aprofunde os seus estudos</h3>
+            <p>Assista às videoaulas cadastradas pelos professores.</p>
+        </header>
+
+        <div class="filters-container" style="display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; background: rgba(26, 26, 46, 0.8); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
+            <div style="flex: 1; min-width: 250px;">
+                <label style="color: #aaa; font-size: 0.9rem; margin-bottom: 8px; display: block; font-weight: 600;">🔍 Buscar por título</label>
+                <input type="text" id="filter-title" placeholder="Ex: Frações equivalentes..." style="width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: #fff; outline: none; font-family: inherit; font-size: 1rem; transition: 0.3s;">
+            </div>
+            
+            <div style="flex: 1; min-width: 200px;">
+                <label style="color: #aaa; font-size: 0.9rem; margin-bottom: 8px; display: block; font-weight: 600;">📚 Módulo (Matéria)</label>
+                <select id="filter-module" style="width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: #fff; outline: none; font-family: inherit; font-size: 1rem; cursor: pointer; transition: 0.3s;">
+                    <option value="todos">Todos os Módulos</option>
+                    <option value="razao">Razão, Proporção e Escala</option>
+                    <option value="estatistica">Estatística</option>
+                    <option value="probabilidade">Probabilidade</option>
+                    <option value="aritmetica">Aritmética</option>
+                    <option value="geral">Geral / Dicas de Estudo</option>
+                </select>
+            </div>
+            
+            <div style="flex: 1; min-width: 200px;">
+                <label style="color: #aaa; font-size: 0.9rem; margin-bottom: 8px; display: block; font-weight: 600;">🏷️ Tipo de Vídeo</label>
+                <select id="filter-origin" style="width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: #fff; outline: none; font-family: inherit; font-size: 1rem; cursor: pointer; transition: 0.3s;">
+                    <option value="todos">Todos os Tipos</option>
+                    <option value="fase">Resolução de Fases (Oficial)</option>
+                    <option value="avulso">Vídeos Extras (Avulsos)</option>
+                </select>
+            </div>
+        </div>
+
+        <style>
+            #filter-title:focus, #filter-module:focus, #filter-origin:focus {
+                border-color: #1cb0f6 !important;
+                box-shadow: 0 0 10px rgba(28, 176, 246, 0.3);
+            }
+            #filter-module option, #filter-origin option {
+                background: #1A1A2E;
+                color: #fff;
+            }
+        </style>
+
+        <div class="modulos-simulado-grid" id="videos-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+            <h3 style="text-align: center; width: 100%; color: #aaa; padding: 40px 0;">A carregar vídeos...</h3>
+        </div>
+    </div>
+
+    <div th:replace="~{layout/base :: audio-player}"></div>
+    <div th:replace="~{layout/base :: settings-modal}"></div>
+    <div th:replace="~{layout/base :: scripts('/js/script-galeria.js')}"></div>
+</body>
+</html>

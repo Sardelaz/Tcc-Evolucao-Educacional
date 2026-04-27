@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Editar Fase | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-admin-editar.css}">
+    <style>
+        #art-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="art-background"></canvas>
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="admin-container">
+        <h1>Editar Fase Existente</h1>
+
+        <div class="top-actions">
+            <a href="/admin" class="back-link">← Ir para Criar Nova Fase</a>
+            <a href="/painel-geral" class="back-link">← Voltar para o Painel Geral</a>
+        </div>
+
+        <div class="search-box">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="busca-modulo">Módulo (Matéria)</label>
+                    <select id="busca-modulo">
+                        <option value="razao">Razão, Proporção e Escala</option>
+                        <option value="estatistica">Estatística</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="busca-fase">Número da Fase</label>
+                    <input type="number" id="busca-fase" min="1" value="1">
+                </div>
+            </div>
+            <button id="btn-buscar" onclick="buscarFase()">Carregar Dados da Fase</button>
+        </div>
+
+        <hr class="divisor">
+
+        <div id="editor-area" class="hidden">
+            <h2 id="fase-title" style="text-align: center; color: var(--cor-xp); margin-bottom: 20px;">Fase X</h2>
+
+            <div class="form-group"
+                style="margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+                <label for="edit_video_aula_url" style="color: #1cb0f6;">URL da Videoaula de Reforço</label>
+                <input type="text" id="edit_video_aula_url" placeholder="Ex: https://www.youtube.com/watch?v=...">
+            </div>
+
+            <div id="questoes-container"></div>
+
+            <button class="btn-adicionar" onclick="adicionarQuestao()">+ Adicionar Nova Questão</button>
+
+            <hr class="divisor">
+
+            <button class="btn-salvar-tudo" onclick="salvarEdicao()">Salvar Todas as Alterações</button>
+        </div>
+    </div>
+
+    <div th:replace="~{layout/base :: audio-player}"></div>
+    <div th:replace="~{layout/base :: settings-modal}"></div>
+    <script th:src="@{/js/core.js}"></script>
+    <script th:src="@{/js/particles-bg.js}"></script>
+    <script th:src="@{/js/script-admin-core.js}"></script>
+    <script th:src="@{/js/script-admin-editar.js}"></script>
+</body>
+
+</html>

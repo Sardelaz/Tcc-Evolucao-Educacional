@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Editar Conquistas | Evolução Educacional', '/css/style-admin.css')}"></head>
+<body>
+    <style>
+        .admin-page-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            padding-bottom: 15px;
+        }
+
+        .section-header h2 {
+            color: #FFD700;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .custom-select-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .admin-input, .admin-select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: 0.3s;
+            outline: none;
+        }
+
+        .admin-input:focus, .admin-select:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .full-width { grid-column: span 2; }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #FFD700, #B8860B);
+            color: #000;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-delete {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .btn-delete:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-left: 5px;
+        }
+
+        .hidden { display: none; }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+        }
+    </style>
+
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="admin-page-container">
+        <header style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="color: white; margin: 0;">Gestão de Conquistas</h1>
+            <a href="/painel-geral" style="color: #FFD700; text-decoration: none; font-weight: bold;">← Painel Geral</a>
+        </header>
+
+        <div class="glass-card">
+            <div class="section-header">
+                <span>🔍</span>
+                <h2>Localizar Conquista</h2>
+            </div>
+            <div class="custom-select-wrapper">
+                <label>Selecione uma conquista existente para editar:</label>
+                <select id="select-conquistas" class="admin-select">
+                    <option value="">A carregar conquistas...</option>
+                </select>
+            </div>
+            <button onclick="carregarDadosConquista()" class="btn-action btn-save">
+                Carregar para Edição
+            </button>
+        </div>
+
+        <div id="editor-conquista" class="glass-card hidden">
+            <div class="section-header">
+                <span>✏️</span>
+                <h2>Editar Detalhes</h2>
+            </div>
+            
+            <form id="form-editar-conquista" class="form-grid">
+                <div class="form-group full-width">
+                    <label>Título da Conquista</label>
+                    <input type="text" id="edit_nome" class="admin-input" placeholder="Ex: Mestre da Razão">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Descrição (O que o aluno vê)</label>
+                    <textarea id="edit_descricao" class="admin-input" rows="3" placeholder="Descreva o objetivo..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo de Gatilho</label>
+                    <select id="edit_tipo" class="admin-select">
+                        <option value="XP">Pontos de Experiência (XP)</option>
+                        <option value="NIVEL">Nível da Conta</option>
+                        <option value="OFENSIVA">Dias de Ofensiva</option>
+                        <option value="PERFEITAS">Fases Gabaritadas</option>
+                        <option value="DESAFIOS">Desafios Vencidos</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Valor Meta</label>
+                    <input type="number" id="edit_valor" class="admin-input">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Ícone Representativo (Emoji)</label>
+                    <input type="text" id="edit_icone" class="admin-input" placeholder="Cole um emoji aqui (Ex: 🏆)">
+                </div>
+
+                <div class="btn-group full-width">
+                    <button type="button" onclick="salvarAlteracaoConquista()" class="btn-action btn-save">
+                        💾 Gravar Alterações
+                    </button>
+                    <button type="button" onclick="excluirConquista()" class="btn-action btn-delete">
+                        🗑️ Eliminar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let conquistaAtualId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/conquistas')
+                .then(res => res.json())
+                .then(data => {
+                    const select = document.getElementById('select-conquistas');
+                    select.innerHTML = '<option value="">Selecione uma conquista...</option>';
+                    data.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.textContent = `${c.icone} ${c.nome}`;
+                        select.appendChild(opt);
+                    });
+                });
+        });
+
+        function carregarDadosConquista() {
+            const id = document.getElementById('select-conquistas').value;
+            if(!id) return alert("Por favor, selecione uma conquista na lista.");
+
+            fetch(`/api/conquistas/${id}`)
+                .then(res => res.json())
+                .then(c => {
+                    conquistaAtualId = id;
+                    document.getElementById('edit_nome').value = c.nome;
+                    document.getElementById('edit_descricao').value = c.descricao;
+                    document.getElementById('edit_tipo').value = c.tipoRequisito;
+                    document.getElementById('edit_valor').value = c.valorObjetivo;
+                    document.getElementById('edit_icone').value = c.icone;
+                    
+                    const editor = document.getElementById('editor-conquista');
+                    editor.classList.remove('hidden');
+                    editor.scrollIntoView({ behavior: 'smooth' });
+                });
+        }
+
+        function salvarAlteracaoConquista() {
+            const payload = {
+                id: conquistaAtualId,
+                nome: document.getElementById('edit_nome').value,
+                descricao: document.getElementById('edit_descricao').value,
+                tipoRequisito: document.getElementById('edit_tipo').value,
+                valorObjetivo: parseInt(document.getElementById('edit_valor').value),
+                icone: document.getElementById('edit_icone').value
+            };
+
+            fetch(`/api/conquistas/${conquistaAtualId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(res => {
+                if(res.ok) {
+                    alert("Sucesso! A conquista foi atualizada.");
+                    location.reload();
+                } else {
+                    alert("Erro ao atualizar conquista.");
+                }
+            });
+        }
+
+        function excluirConquista() {
+            if(confirm("Confirma a eliminação definitiva desta conquista? Esta ação não pode ser revertida.")) {
+                fetch(`/api/conquistas/${conquistaAtualId}`, { method: 'DELETE' })
+                .then(() => { 
+                    alert("Conquista removida do sistema."); 
+                    location.reload(); 
+                });
+            }
+        }
+    </script>
+</body>
+</html>

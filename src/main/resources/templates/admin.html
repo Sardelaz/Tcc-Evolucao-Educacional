@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Criar Desafio | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-admin.css}">
+    <style>
+        #art-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="art-background"></canvas>
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="admin-container">
+        <h1>Criar Novo Desafio</h1>
+
+        <form id="form-admin">
+            <div class="form-group">
+                <label for="modulo">Módulo (Matéria)</label>
+                <select id="modulo" required>
+                    <option value="razao">Razão, Proporção e Escala</option>
+                    <option value="estatistica">Estatística</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fase">Fase do Módulo</label>
+                    <input type="number" id="fase" min="1" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="qtd_perguntas">Qtd. Total de Perguntas</label>
+                    <input type="number" id="qtd_perguntas" min="1" max="50" value="5" required>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+                <label for="video_aula_url" style="color: #1cb0f6;">URL da Videoaula de Reforço (Opcional -
+                    YouTube)</label>
+                <input type="text" id="video_aula_url" placeholder="Ex: https://www.youtube.com/watch?v=...">
+            </div>
+
+            <hr class="divisor">
+
+            <div id="indicador-questao">Formulando Questão 1 de 5</div>
+
+            <div class="form-group">
+                <label for="tipo_pergunta">Tipo de Pergunta</label>
+                <select id="tipo_pergunta" required onchange="toggleAlternativas()">
+                    <option value="multipla">Múltipla Escolha</option>
+                    <option value="dissertativa">Dissertativa (Texto livre)</option>
+                </select>
+            </div>
+
+            <div class="form-group"
+                style="background: rgba(255, 215, 0, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(255, 215, 0, 0.3); margin-top: 20px;">
+                <label
+                    style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #FFD700; font-weight: bold;">
+                    <input type="checkbox" id="is_desafio"
+                        onchange="document.getElementById('desafio-fields').style.display = this.checked ? 'flex' : 'none';"
+                        style="width: 20px; height: 20px;">
+                    Transformar em Desafio contra o Tempo?
+                </label>
+
+                <div id="desafio-fields" style="display: none; margin-top: 15px; gap: 15px;" class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="tempo_desafio" style="color: #EAEAEA;">Tempo Limite (Segundos)</label>
+                        <input type="number" id="tempo_desafio" min="5" max="300" value="30">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="xp_extra" style="color: #EAEAEA;">Recompensa (XP Extra)</label>
+                        <input type="number" id="xp_extra" min="10" max="500" value="50">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="enunciado">Enunciado da Pergunta</label>
+                <textarea id="enunciado" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="imagem_url">URL da Imagem (Opcional)</label>
+                <input type="text" id="imagem_url" placeholder="Ex: https://i.imgur.com/suaimagem.png">
+            </div>
+
+            <div class="form-group">
+                <label for="imagem_upload" style="color: #00A8FF;">Ou Envie do Computador</label>
+                <input type="file" id="imagem_upload" accept="image/*"
+                    style="padding: 8px; background: rgba(0,0,0,0.2);" onchange="fazerUpload(this)">
+                <span id="upload_status" style="font-size: 0.9rem; margin-top: 5px; display: none;"></span>
+            </div>
+
+            <div id="box-alternativas" class="alternativas-box">
+                <p style="margin-bottom: 10px; font-size: 0.9rem; color: #888;">Preencha as alternativas:</p>
+                <div class="form-group"><input type="text" id="alt_a" placeholder="Alternativa A"></div>
+                <div class="form-group"><input type="text" id="alt_b" placeholder="Alternativa B"></div>
+                <div class="form-group"><input type="text" id="alt_c" placeholder="Alternativa C"></div>
+                <div class="form-group"><input type="text" id="alt_d" placeholder="Alternativa D"></div>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label for="resposta_correta">Resposta Correta</label>
+                <select id="resposta_correta_multipla" required>
+                    <option value="" disabled selected>Selecione a letra correta</option>
+                    <option value="A">Alternativa A</option>
+                    <option value="B">Alternativa B</option>
+                    <option value="C">Alternativa C</option>
+                    <option value="D">Alternativa D</option>
+                </select>
+                <input type="text" id="resposta_correta_dissertativa" class="hidden"
+                    placeholder="Digite a resposta exata">
+            </div>
+
+            <button type="submit" id="btn-submit">Salvar Pergunta (Ir para a Próxima)</button>
+        </form>
+
+        <a href="/painel-geral" class="back-link">← Voltar para o Painel Geral</a>
+    </div>
+
+    <div th:replace="~{layout/base :: audio-player}"></div>
+    <div th:replace="~{layout/base :: settings-modal}"></div>
+    <script th:src="@{/js/core.js}"></script>
+    <script th:src="@{/js/particles-bg.js}"></script>
+    <script th:src="@{/js/script-admin-core.js}"></script>
+    <script th:src="@{/js/script-admin.js}"></script>
+</body>
+
+</html>

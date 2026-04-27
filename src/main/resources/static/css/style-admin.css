@@ -1,0 +1,182 @@
+:root {
+    --cor-fundo: #0A0A10;
+    --cor-texto: #EAEAEA;
+    --cor-container: rgba(26, 26, 46, 0.7);
+    --cor-borda: rgba(255, 255, 255, 0.15);
+    --cor-destaque: #00A8FF;
+    --cor-salvar: #4CAF50;
+    --cor-sutil: #888;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+.admin-container {
+    background: var(--cor-container);
+    border: 1px solid var(--cor-borda);
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+    text-align: center;
+    color: var(--cor-destaque);
+    margin-bottom: 30px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+label {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--cor-texto);
+    font-family: inherit;
+    outline: none;
+    transition: 0.3s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--cor-destaque);
+}
+
+input:disabled,
+select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--cor-salvar);
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}
+
+.alternativas-box {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px dashed var(--cor-borda);
+    margin-top: 10px;
+}
+
+.hidden {
+    display: none;
+}
+
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: var(--cor-sutil);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.back-link:hover {
+    color: var(--cor-texto);
+}
+
+.divisor {
+    border: 0;
+    height: 1px;
+    background: var(--cor-borda);
+    margin: 25px 0;
+}
+
+#indicador-questao {
+    text-align: center;
+    color: var(--cor-salvar);
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+/* Estudante explica: O segredo aqui é o 'position: fixed'. 
+   Ele faz o botão "flutuar" sobre a página, ignorando o 
+   alinhamento central do body. 
+*/
+#music-toggle {
+    position: fixed !important;
+    bottom: 20px !important;
+    left: 20px !important;
+    right: auto !important; /* Força a ignorar o lado direito */
+    
+    z-index: 9999 !important; /* Fica por cima de tudo */
+    background: #1A1A2E;
+    color: #EAEAEA;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    transition: 0.3s;
+    
+    /* Zera margens que o flexbox do body possa ter colocado */
+    margin: 0 !important; 
+    transform: none !important;
+}
+
+#music-toggle:hover {
+    background: #252545;
+    transform: scale(1.05) !important;
+}

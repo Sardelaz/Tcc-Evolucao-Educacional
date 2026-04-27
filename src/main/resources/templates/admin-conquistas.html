@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Criar Conquistas | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-admin.css}">
+    <style>
+        #art-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .icon-preview { font-size: 3rem; text-align: center; margin: 10px 0; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; }
+    </style>
+</head>
+<body>
+    <canvas id="art-background"></canvas>
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="admin-container" style="max-width: 600px;">
+        <h1 style="color: #FFD700;">🏆 Criar Novo Emblema</h1>
+        <p style="text-align: center; color: #aaa; margin-bottom: 30px;">Defina a regra para que o aluno desbloqueie esta conquista.</p>
+
+        <form id="form-admin-conquista">
+            <div class="form-group">
+                <label for="nome">Nome da Conquista</label>
+                <input type="text" id="nome" required placeholder="Ex: Mestre das Proporções">
+            </div>
+
+            <div class="form-group">
+                <label for="descricao">Descrição (Aparece na galeria)</label>
+                <input type="text" id="descricao" required placeholder="Ex: Acertou 50 questões de Razão">
+            </div>
+
+            <div class="form-group">
+                <label for="icone">Ícone (Emoji)</label>
+                <input type="text" id="icone" required placeholder="Ex: 🎯" oninput="document.getElementById('preview').textContent = this.value">
+                <div class="icon-preview" id="preview">✨</div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="tipoRequisito">Tipo de Regra</label>
+                    <select id="tipoRequisito" required>
+                        <option value="XP">Total de XP</option>
+                        <option value="NIVEL">Atingir Nível</option>
+                        <option value="OFENSIVA">Dias de Ofensiva</option>
+                        <option value="PERFEITAS">Fases Gabaritadas</option>
+                        <option value="DESAFIOS">Desafios de Tempo Vencidos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="valorObjetivo">Quantidade Alvo</label>
+                    <input type="number" id="valorObjetivo" min="1" required value="10">
+                </div>
+            </div>
+
+            <button type="submit" id="btn-submit" style="background-color: #FFD700; color: #1A1A2E; margin-top: 30px;">Salvar Conquista</button>
+        </form>
+
+        <a href="/painel-geral" class="back-link">← Voltar para o Painel Geral</a>
+    </div>
+
+    <script th:src="@{/js/core.js}"></script>
+    <script th:src="@{/js/particles-bg.js}"></script>
+    <script>
+        document.getElementById('form-admin-conquista').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit');
+            btn.disabled = true;
+
+            const payload = {
+                nome: document.getElementById('nome').value,
+                descricao: document.getElementById('descricao').value,
+                icone: document.getElementById('icone').value,
+                tipoRequisito: document.getElementById('tipoRequisito').value,
+                valorObjetivo: parseInt(document.getElementById('valorObjetivo').value)
+            };
+
+            try {
+                const res = await fetch('/api/conquistas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    alert('Conquista criada!');
+                    window.location.href = '/painel-geral';
+                }
+            } catch (err) { alert('Erro ao salvar.'); btn.disabled = false; }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Aula | Evolução Educacional', '/css/style-aula.css')}"></head>
+<body>
+
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="top-bar">
+        <a href="/" id="btn-voltar" class="close-btn">✕</a>
+        <div class="lives-display" id="lives-container">
+            <span class="heart active">❤️</span>
+            <span class="heart active">❤️</span>
+            <span class="heart active">❤️</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+        </div>
+        <div class="streak-display">🔥 <span id="streak-text">0</span></div>
+        <div class="timer-display">⏱️ <span id="timer-text">00:00</span></div>
+    </div>
+
+    <div id="challenge-bar" class="challenge-bar" style="display: none; background: rgba(255,215,0,0.1); border-bottom: 2px solid #FFD700; padding: 10px; text-align: center;">
+        <span style="color: #FFD700; font-weight: bold;">⚠️ DESAFIO ATIVADO: </span>
+        <span id="challenge-time-text" style="color: #FF4B4B; font-weight: bold; margin-right: 15px;">30s</span>
+        <span id="challenge-xp-text" style="color: #58CC02; font-weight: bold;">+0 XP</span>
+    </div>
+
+    <div id="area-pergunta-principal" class="question-area">
+        <div class="mascot-container">
+            <div class="mascot-img" id="mascote-atual">🦉</div>
+            <div class="speech-bubble" id="titulo-pergunta">
+                A carregar pergunta...
+            </div>
+        </div>
+
+        <img id="imagem-pergunta" class="question-image" style="display: none;" src="" alt="Imagem da questão">
+        <div id="area-resposta" style="width: 100%;"></div>
+    </div>
+
+    <div class="modal-overlay" id="modal-pre-desafio">
+        <div class="modal-content">
+            <h2 style="color: #FFD700;">Desafio Surpresa!</h2>
+            <p id="modal-pre-desafio-desc">Complete a tempo para bônus!</p>
+            <button class="check-btn" id="btn-iniciar-desafio" style="background: #FFD700; color: #000; margin-top: 20px;">Iniciar</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-game-over">
+        <div class="modal-content" style="border-color: #FF4B4B;">
+            <h2 style="color: #FF4B4B;">💔 Fim de Jogo!</h2>
+            <p>Ficaste sem vidas. Tenta novamente!</p>
+            <button class="check-btn" id="btn-reiniciar-fase" style="background: #FF4B4B; margin-top: 20px;">Reiniciar</button>
+        </div>
+    </div>
+
+    <div class="summary-screen" id="tela-resumo">
+        <div class="summary-card">
+            <h2 style="color: #FFD700; margin-bottom: 20px;">Fase Concluída! 🎉</h2>
+            <div class="stat-row"><span>Acertos</span><span id="resumo-acertos" style="color: #58CC02;">0</span></div>
+            <div class="stat-row"><span>Vidas Restantes</span><span id="resumo-vidas" style="color: #FF4B4B;">3 ❤️</span></div>
+            <div class="stat-row"><span>Combo Máximo</span><span id="resumo-streak">0 🔥</span></div>
+            
+            <div class="stat-row"><span>Tempo Gasto</span><span id="resumo-tempo" style="color: #fff;">00:00</span></div>
+            <div class="stat-row"><span>Desafios</span><span id="resumo-desafio-status">Nenhum</span></div>
+            
+            <div class="stat-row"><span>XP Ganho</span><span id="resumo-xp-extra" style="color: #FFD700;">0 XP</span></div>
+            
+            <div id="video-card" style="margin-top: 25px; display: none; flex-direction: column; width: 100%; text-align: left;">
+                <p style="margin-bottom: 12px; font-weight: bold; color: #fff; font-size: 1.1rem;">Videoaula de Reforço:</p>
+                <div style="width: 100%; overflow: hidden; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                    <iframe id="video-iframe" style="width: 100%; aspect-ratio: 16/9; display: block; border: none;" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <button class="check-btn" id="btn-voltar-modulo" style="margin-top: 30px; width: 100%;">Voltar</button>
+        </div>
+    </div>
+
+    <div id="feedback-msg" class="feedback"></div>
+
+    <div class="bottom-bar">
+        <button class="check-btn" id="btn-verificar">Verificar</button>
+    </div>
+
+    <div th:replace="~{layout/base :: audio-player}"></div>
+    <div th:replace="~{layout/base :: scripts('/js/script-aula.js')}"></div>
+
+</body>
+</html>

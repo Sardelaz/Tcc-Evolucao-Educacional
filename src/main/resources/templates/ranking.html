@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Ranking Global | Evolução Educacional', '/css/style-ranking.css')}"></head>
+<body>
+    <canvas id="art-background"></canvas>
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="top-nav-ranking">
+        <div class="nav-content">
+            <div class="nav-title-group">
+                <span class="nav-icon" id="liga-icon-display">🏆</span>
+                <h2 id="liga-title-display">Classificação da Liga</h2>
+            </div>
+            <a href="/" class="btn-voltar-home">
+                <span class="arrow">←</span> Voltar ao Início
+            </a>
+        </div>
+    </div>
+
+    <main class="ranking-wrapper">
+        
+        <section class="podium-section">
+            <div class="podium-container">
+                
+                <div class="podium-item silver" id="rank-2">
+                    <div class="avatar-wrapper">
+                        <span class="rank-badge">2</span>
+                        <div class="user-avatar">🥈</div>
+                    </div>
+                    <div class="user-info">
+                        <h3 class="user-name">Carregando...</h3>
+                        <span class="user-xp">0 XP</span>
+                    </div>
+                    <div class="base"></div>
+                </div>
+
+                <div class="podium-item gold" id="rank-1">
+                    <div class="crown">👑</div>
+                    <div class="avatar-wrapper">
+                        <span class="rank-badge">1</span>
+                        <div class="user-avatar">🥇</div>
+                    </div>
+                    <div class="user-info">
+                        <h3 class="user-name">Carregando...</h3>
+                        <span class="user-xp">0 XP</span>
+                    </div>
+                    <div class="base"></div>
+                </div>
+
+                <div class="podium-item bronze" id="rank-3">
+                    <div class="avatar-wrapper">
+                        <span class="rank-badge">3</span>
+                        <div class="user-avatar">🥉</div>
+                    </div>
+                    <div class="user-info">
+                        <h3 class="user-name">Carregando...</h3>
+                        <span class="user-xp">0 XP</span>
+                    </div>
+                    <div class="base"></div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="ranking-list-container">
+            <div class="list-header">
+                <span>Posição</span>
+                <span>Estudante</span>
+                <span>Experiência</span>
+            </div>
+            
+            <div id="ranking-items" class="ranking-scroll-area">
+                <div class="loading-state">Sincronizando posições...</div>
+            </div>
+
+            <div class="pagination-controls">
+                <button id="btn-prev-page" disabled>Anterior</button>
+                <span id="page-info">Página 1 de 1</span>
+                <button id="btn-next-page" disabled>Próxima</button>
+            </div>
+        </section>
+
+    </main>
+
+    <style>
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 25px;
+            padding-bottom: 20px;
+        }
+        .pagination-controls button {
+            background: var(--cor-container);
+            border: 1px solid var(--cor-borda);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .pagination-controls button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .pagination-controls button:not(:disabled):hover {
+            background: var(--cor-primaria);
+            border-color: var(--cor-primaria);
+            transform: translateY(-2px);
+        }
+        .pagination-controls span {
+            color: #aaa;
+            font-weight: bold;
+            font-size: 0.95rem;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+    </style>
+
+    <div th:replace="~{layout/base :: audio-player}"></div>
+    <div th:replace="~{layout/base :: settings-modal}"></div>
+    <div th:replace="~{layout/base :: scripts('/js/script-ranking.js')}"></div>
+</body>
+</html>

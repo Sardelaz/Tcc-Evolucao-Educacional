@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Painel Geral | Evolução Educacional', '/css/style-painel-geral.css')}"></head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .collapsible-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: rgba(255,255,255,0.05); padding: 15px 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+        .collapsible-header:hover { background: rgba(255,255,255,0.1); }
+        .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
+        .collapsible-content.expanded { max-height: 2000px; padding: 20px 0; }
+        .toggle-icon { transition: 0.3s; }
+        .expanded .toggle-icon { transform: rotate(180deg); }
+
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; align-items: stretch; }
+        .action-card { padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); text-decoration: none; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; transition: 0.3s; height: 100%; }
+        .action-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.08); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .action-card .icon { font-size: 1.6rem; margin-bottom: 8px; }
+        .action-card h4 { margin: 0; font-size: 0.9rem; color: #fff; line-height: 1.2; }
+
+        .perfil-aluno-detalhes { background: rgba(255,255,255,0.05); border-radius: 15px; padding: 25px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); display: none; }
+        .badge-item { background: rgba(255,215,0,0.15); color: #FFD700; padding: 3px 12px; border-radius: 20px; font-size: 0.65rem; border: 1px solid #FFD700; margin: 2px; display: inline-block; }
+        
+        .modulo-progresso-card { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border-left: 4px solid var(--cor-primaria); margin-bottom: 10px; }
+        .modulo-progresso-card h5 { color: #fff; margin: 0 0 5px 0; font-size: 0.95rem; }
+        .modulo-progresso-card span { color: var(--cor-xp); font-size: 0.8rem; font-weight: bold; }
+
+        .senha-box { margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .input-senha { background: rgba(0,0,0,0.4); border: 1px solid #555; color: #fff; padding: 10px; border-radius: 8px; width: 220px; outline: none; }
+        .btn-senha { background: #e74c3c; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    </style>
+
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="top-nav">
+        <h2>Painel de Controle e Desempenho</h2>
+        <a href="/" class="btn-voltar">← Voltar ao Início</a>
+    </div>
+
+    <div class="painel-layout">
+        <aside class="sidebar-alunos">
+            <h3 class="sidebar-title">Alunos</h3>
+            <input type="text" id="busca-aluno" class="search-input" placeholder="🔍 Nome ou E-mail...">
+            <ul id="lista-alunos" class="alunos-list"></ul>
+        </aside>
+
+        <main class="dashboard-container">
+            <section class="actions-section">
+                <div class="collapsible-header" id="admin-toggle">
+                    <h3 style="margin:0; font-size:1.1rem; color:#fff;">🛠️ Gerenciamento de Conteúdo</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="collapsible-content" id="admin-content">
+                    <div class="cards-grid">
+                        <a href="/admin-modulos" class="action-card" style="border-color: #9b59b6;"><div class="icon">📚</div><h4>Criar Módulo</h4></a>
+                        <a href="/admin-editar-modulos" class="action-card" style="border-color: #8e44ad;"><div class="icon">⚙️</div><h4>Editar Módulo</h4></a>
+                        <a href="/admin" class="action-card" style="border-color: #58cc02;"><div class="icon">➕</div><h4>Criar Fase</h4></a>
+                        <a href="/admin-editar" class="action-card" style="border-color: #1cb0f6;"><div class="icon">✏️</div><h4>Editar Fase</h4></a>
+                        <a href="/admin-video" class="action-card" style="border-color: #e74c3c;"><div class="icon">🎥</div><h4>Cadastrar Vídeo</h4></a>
+                        <a href="/admin-editar-video" class="action-card" style="border-color: #c0392b;"><div class="icon">🎬</div><h4>Editar Vídeo</h4></a>
+                        <a href="/admin-conquistas" class="action-card" style="border-color: #FFD700;"><div class="icon">🏆</div><h4>Criar Conquista</h4></a>
+                        <a href="/admin-editar-conquistas" class="action-card" style="border-color: #d4af37;"><div class="icon">🥇</div><h4>Editar Conquista</h4></a>
+                        <a href="/admin-simulados" class="action-card" style="border-color: #f1c40f;"><div class="icon">📝</div><h4>Criar Simulado</h4></a>
+                        <a href="/admin-editar-simulados" class="action-card" style="border-color: #f39c12;"><div class="icon">🛠️</div><h4>Editar Simulado</h4></a>
+                    </div>
+                </div>
+            </section>
+
+            <h3 class="section-title destaque-aluno" id="titulo-analise" style="margin-top: 30px;">Visão Geral</h3>
+
+            <section id="perfil-aluno" class="perfil-aluno-detalhes">
+                <div style="display: flex; gap: 25px; align-items: start;">
+                    <div id="avatar-aluno-grande" style="font-size: 4.5rem; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 50%;">👨‍🎓</div>
+                    <div style="flex: 1;">
+                        <h2 id="nome-aluno-perfil" style="color: #fff; margin: 0;">Nome</h2>
+                        <p id="email-aluno-perfil" style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">email@exemplo.com</p>
+                        <div style="display: flex; gap: 40px; margin-bottom: 20px;">
+                            <div><small style="color:#aaa;">Nível</small><div id="nivel-aluno-perfil" style="font-weight:bold; color:#1cb0f6; font-size: 1.3rem;">0</div></div>
+                            <div><small style="color:#aaa;">Ofensiva</small><div id="streak-aluno-perfil" style="font-weight:bold; color:#FF4B4B; font-size: 1.3rem;">0🔥</div></div>
+                            <div><small style="color:#aaa;">XP</small><div id="xp-aluno-perfil" style="font-weight:bold; color:#fff; font-size: 1.3rem;">0</div></div>
+                        </div>
+                        <div id="conquistas-aluno-perfil"></div>
+                        <div class="senha-box">
+                            <label style="display:block; color:#aaa; font-size:0.8rem; margin-bottom:8px;">Gestão de Segurança:</label>
+                            <input type="password" id="nova-senha-input" class="input-senha" placeholder="Nova Senha">
+                            <button class="btn-senha" id="btn-alterar-senha">Alterar Senha</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="progress-section" id="secao-progresso" style="display: none;">
+                <h3 class="section-title" style="border: none; margin-bottom: 15px; font-size: 1.1rem; color: #888;">📍 Progresso nos Módulos</h3>
+                <div class="modulos-grid" id="lista-progresso-modulos" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;"></div>
+            </section>
+
+            <section class="charts-section" style="margin-top: 30px;">
+                <h3 class="section-title" style="border: none; margin-bottom: 15px; font-size: 1.1rem; color: #888;">Proporção: Acertos vs Erros</h3>
+                <div class="chart-container" style="height: 300px; background: rgba(0,0,0,0.1); border-radius: 15px; padding: 25px;">
+                    <canvas id="graficoDificuldade"></canvas>
+                </div>
+            </section>
+
+            <section class="questions-stats-section">
+                <div class="stats-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <div class="stats-card erro-card" style="background:rgba(231, 76, 60, 0.05); padding:20px; border-radius:12px; border:1px solid rgba(231, 76, 60, 0.2);"><h3 class="card-title" style="color:#e74c3c;">🚨 Fases Críticas</h3><ul id="lista-mais-erradas" class="question-list" style="list-style:none; padding:0; margin-top:15px; color:#fff; font-size:0.9rem;"></ul></div>
+                    <div class="stats-card acerto-card" style="background:rgba(46, 204, 113, 0.05); padding:20px; border-radius:12px; border:1px solid rgba(46, 204, 113, 0.2);"><h3 class="card-title" style="color:#2ecc71;">⭐ Fases Perfeitas</h3><ul id="lista-fases-perfeitas" class="question-list" style="list-style:none; padding:0; margin-top:15px; color:#fff; font-size:0.9rem;"></ul></div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <div th:replace="~{layout/base :: scripts('/js/script-painel-geral.js')}"></div>
+</body>
+</html>

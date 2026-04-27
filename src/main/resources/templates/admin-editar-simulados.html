@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Editar Simulado | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-admin.css}">
+    <link rel="stylesheet" th:href="@{/css/style-admin-editar.css}">
+    <style>
+        #art-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .lista-questoes-container {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .questao-item-btn {
+            width: 100%;
+            text-align: left;
+            background: var(--cor-container);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #EAEAEA;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .questao-item-btn:hover,
+        .questao-item-btn.active {
+            background: #f39c12;
+            border-color: #f39c12;
+            color: #fff;
+        }
+
+        .btn-acao {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-salvar-alteracoes {
+            background: #4CAF50;
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+            font-size: 1.1rem;
+        }
+
+        .btn-salvar-alteracoes:hover {
+            background: #45a049;
+        }
+
+        .editor-section {
+            display: none;
+            margin-top: 30px;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="art-background"></canvas>
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="admin-container" style="max-width: 800px;">
+        <h1 style="color: #f39c12;">Editar Simulado Oficial</h1>
+        <p style="text-align: center; color: #aaa; margin-bottom: 30px;">Selecione o simulado abaixo para carregar as
+            questões e fazer suas edições.</p>
+
+        <div class="form-group">
+            <label for="modulo_busca">Matéria do Simulado</label>
+            <div style="display: flex; gap: 10px;">
+                <select id="modulo_busca" style="flex: 1;">
+                    <option value="" disabled selected>Selecione o simulado...</option>
+                    <option value="simulado_razao">Simulado de Razão e Proporção</option>
+                    <option value="simulado_estatistica">Simulado de Estatística</option>
+                    <option value="simulado_probabilidade">Simulado de Probabilidade</option>
+                    <option value="simulado_aritmetica">Simulado de Aritmética</option>
+                </select>
+                <button onclick="buscarSimulado()" class="btn-acao"
+                    style="background: #00A8FF; color: white;">Buscar</button>
+            </div>
+        </div>
+
+        <div id="status-busca" style="text-align: center; margin-top: 10px; font-size: 0.9rem; color: #aaa;"></div>
+
+        <div class="form-group"
+            style="margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-top: 20px;">
+            <label for="edit_video_aula_url" style="color: #e74c3c;">URL da Videoaula de Resolução</label>
+            <input type="text" id="edit_video_aula_url" placeholder="Ex: https://www.youtube.com/watch?v=...">
+        </div>
+
+        <div id="container-lista-questoes" class="lista-questoes-container" style="display: none;">
+        </div>
+
+        <div id="secao-editor" class="editor-section">
+            <h3 style="color: #f39c12; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;"
+                id="titulo-editando">Editando Questão</h3>
+
+            <form id="form-editar-questao">
+                <div class="form-group">
+                    <label for="tipo_pergunta">Tipo de Pergunta</label>
+                    <select id="tipo_pergunta" required onchange="toggleAlternativas()">
+                        <option value="multipla">Múltipla Escolha</option>
+                        <option value="dissertativa">Dissertativa (Texto livre)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="enunciado">Enunciado da Pergunta</label>
+                    <textarea id="enunciado" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="imagem_url">URL da Imagem (Opcional)</label>
+                    <input type="text" id="imagem_url" placeholder="Ex: https://i.imgur.com/suaimagem.png">
+                </div>
+
+                <div id="box-alternativas" class="alternativas-box">
+                    <p style="margin-bottom: 10px; font-size: 0.9rem; color: #888;">Alternativas:</p>
+                    <div class="form-group"><input type="text" id="alt_a" placeholder="Alternativa A"></div>
+                    <div class="form-group"><input type="text" id="alt_b" placeholder="Alternativa B"></div>
+                    <div class="form-group"><input type="text" id="alt_c" placeholder="Alternativa C"></div>
+                    <div class="form-group"><input type="text" id="alt_d" placeholder="Alternativa D"></div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="resposta_correta">Resposta Correta</label>
+                    <select id="resposta_correta_multipla">
+                        <option value="" disabled selected>Selecione a letra correta</option>
+                        <option value="A">Alternativa A</option>
+                        <option value="B">Alternativa B</option>
+                        <option value="C">Alternativa C</option>
+                        <option value="D">Alternativa D</option>
+                    </select>
+                    <input type="text" id="resposta_correta_dissertativa" class="hidden"
+                        placeholder="Digite a resposta exata">
+                </div>
+
+                <button type="button" onclick="salvarEdicaoQuestao()" class="btn-acao"
+                    style="background-color: #f39c12; color: white; width: 100%;">Confirmar Alteração na
+                    Questão</button>
+            </form>
+        </div>
+
+        <button id="btn-salvar-tudo" class="btn-acao btn-salvar-alteracoes" style="display: none;"
+            onclick="salvarSimuladoCompleto()">Salvar Simulado Atualizado no Servidor</button>
+
+        <a href="/painel-geral" class="back-link" style="margin-top: 30px; display: block; text-align: center;">← Voltar
+            para o Painel Geral</a>
+    </div>
+
+    <div th:replace="~{layout/base :: audio-player}"></div>
+    <div th:replace="~{layout/base :: settings-modal}"></div>
+    <script th:src="@{/js/core.js}"></script>
+    <script th:src="@{/js/particles-bg.js}"></script>
+    <script th:src="@{/js/script-admin-core.js}"></script>
+    <script th:src="@{/js/script-admin-editar-simulados.js}"></script>
+</body>
+
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Criar Módulos | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-admin.css}">
+    <style>
+        #art-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .icon-preview { font-size: 3rem; text-align: center; margin: 10px 0; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; }
+    </style>
+</head>
+<body>
+    <canvas id="art-background"></canvas>
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="admin-container" style="max-width: 600px;">
+        <h1 style="color: #9b59b6;">📚 Criar Novo Módulo</h1>
+        <p style="text-align: center; color: #aaa; margin-bottom: 30px;">Cadastre uma nova matéria ou tópico de estudo.</p>
+
+        <form id="form-admin-modulo">
+            <div class="form-group">
+                <label for="nome">Nome do Módulo</label>
+                <input type="text" id="nome" required placeholder="Ex: Frações e Decimais">
+            </div>
+
+            <div class="form-group">
+                <label for="icone">Ícone (Emoji)</label>
+                <input type="text" id="icone" required placeholder="Ex: 🍕" oninput="document.getElementById('preview').textContent = this.value">
+                <div class="icon-preview" id="preview">✨</div>
+            </div>
+
+            <div class="form-group">
+                <label for="cor">Cor Destaque (Hexadecimal)</label>
+                <input type="color" id="cor" required value="#9b59b6" style="height: 50px; cursor: pointer; padding: 5px;">
+            </div>
+
+            <button type="submit" id="btn-submit" style="background-color: #9b59b6; color: white; margin-top: 30px;">Salvar Módulo</button>
+        </form>
+
+        <a href="/painel-geral" class="back-link">← Voltar para o Painel Geral</a>
+    </div>
+
+    <script th:src="@{/js/core.js}"></script>
+    <script th:src="@{/js/particles-bg.js}"></script>
+    <script>
+        document.getElementById('form-admin-modulo').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit');
+            btn.disabled = true;
+
+            const nome = document.getElementById('nome').value;
+            const slug = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "_");
+
+            const payload = {
+                nome: nome,
+                slug: slug,
+                icone: document.getElementById('icone').value,
+                cor: document.getElementById('cor').value
+            };
+
+            try {
+                const res = await fetch('/api/modulos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    alert('Módulo criado com sucesso!');
+                    window.location.href = '/painel-geral';
+                } else {
+                    alert('Erro ao salvar. Verifique se o módulo já existe.');
+                    btn.disabled = false;
+                }
+            } catch (err) { alert('Erro de conexão.'); btn.disabled = false; }
+        });
+    </script>
+</body>
+</html>

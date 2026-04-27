@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title, cssFile)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Evolução Educacional</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{${cssFile}}">
+
+    <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body { top: 0 !important; }
+        .skiptranslate, .goog-te-banner-frame { display: none !important; }
+        .goog-tooltip { display: none !important; }
+        .goog-tooltip:hover { display: none !important; }
+        .goog-text-highlight { background-color: transparent !important; border: none !important; box-shadow: none !important; }
+        
+        /* Ajuste para renderização de fórmulas MathJax */
+        .mjx-chtml { color: inherit !important; font-size: 110% !important; }
+    </style>
+</head>
+<body>
+
+    <div th:fragment="acessibilidade">
+        <script src="https://cdn.userway.org/widget.js" data-account="iFhzXrmFHy"></script>
+        
+        <div vw class="enabled">
+            <div vw-access-button class="active"></div>
+            <div vw-plugin-wrapper>
+                <div class="vw-plugin-top-wrapper"></div>
+            </div>
+        </div>
+        <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+        <script>
+            new window.VLibras.Widget('https://vlibras.gov.br/app');
+        </script>
+
+        <div id="google_translate_element" style="display:none;"></div>
+        <script type="text/javascript">
+            function googleTranslateElementInit() {
+                new google.translate.TranslateElement({
+                    pageLanguage: 'pt', 
+                    includedLanguages: 'en,es,pt',
+                    autoDisplay: false
+                }, 'google_translate_element');
+            }
+        </script>
+        <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    </div>
+
+    <div th:fragment="audio-player">
+        <audio id="bg-music" src="/audio/musica-fundo.mp3" loop preload="auto"></audio>
+        <button id="music-toggle"
+            style="position: fixed !important; bottom: 20px !important; left: 20px !important; right: auto !important; z-index: 9999 !important; background: #1A1A2E !important; color: #EAEAEA !important; border: 2px solid rgba(255,255,255,0.2) !important; border-radius: 50px !important; padding: 10px 20px !important; font-family: 'Poppins', sans-serif !important; font-weight: 600 !important; cursor: pointer !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important; transition: 0.3s !important; width: auto !important; display: inline-flex !important; margin: 0 !important;">
+            🎵 Música OFF
+        </button>
+    </div>
+
+    <div th:fragment="settings-modal">
+        <style>
+            #settings-toggle {
+                position: fixed !important; bottom: 20px !important; right: 20px !important; left: auto !important; z-index: 9999 !important;
+                background: #1A1A2E !important; color: #EAEAEA !important; border: 2px solid rgba(255,255,255,0.2) !important;
+                border-radius: 50px !important; padding: 10px 20px !important; font-family: 'Poppins', sans-serif !important;
+                font-weight: 600 !important; cursor: pointer !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important; transition: 0.3s !important;
+                width: auto !important; display: inline-flex !important; align-items: center !important; gap: 8px !important; margin: 0 !important;
+            }
+            #settings-toggle:hover { background: #252545 !important; transform: scale(1.05) !important; border-color: #1cb0f6 !important; }
+            .settings-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; pointer-events: none; z-index: 10000; }
+            .settings-modal-overlay.active { pointer-events: auto; }
+            .settings-modal-content {
+                position: absolute; bottom: 80px; right: 20px; left: auto; background: rgba(26, 26, 46, 0.95);
+                border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 30px; width: 320px;
+                text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); transform: translateY(20px) scale(0.95);
+                opacity: 0; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); backdrop-filter: blur(10px); color: #EAEAEA; font-family: 'Poppins', sans-serif;
+            }
+            .settings-modal-overlay.active .settings-modal-content { transform: translateY(0) scale(1); opacity: 1; }
+            .settings-input {
+                width: 100%; padding: 12px 15px; margin-top: 5px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+                background: rgba(0, 0, 0, 0.5); color: #EAEAEA; font-family: inherit; outline: none; transition: 0.3s;
+            }
+            .settings-input:focus { border-color: #1cb0f6; box-shadow: 0 0 8px rgba(28, 176, 246, 0.3); }
+            .settings-input option { background: #1A1A2E; color: #EAEAEA; }
+            #save-settings-btn {
+                background: #1cb0f6; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%;
+                font-weight: bold; font-size: 1.05rem; font-family: 'Poppins', sans-serif; cursor: pointer; transition: 0.2s;
+            }
+            #save-settings-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(28, 176, 246, 0.4); }
+        </style>
+
+        <div class="settings-modal-overlay" id="settings-modal">
+            <div class="settings-modal-content">
+                <button class="modal-close" id="close-settings-btn" style="position:absolute;top:15px;right:15px;background:none;border:none;color:#999;font-size:1.5rem;cursor:pointer;">✕</button>
+                <div class="modal-icon" style="font-size: 2.5rem; margin-bottom: 5px;">⚙️</div>
+                <h2 class="modal-title" style="font-size: 1.3rem; color: #FFD700; margin-bottom: 5px;">Configurações</h2>
+                <p class="modal-subtitle" style="margin-bottom: 20px; color:#aaa; font-size:0.9rem;">Ajuste as suas preferências</p>
+                <form id="settings-form">
+                    <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+                        <label for="idioma-select" style="font-size: 0.9rem; color: #aaa;">Linguagem do Sistema</label>
+                        <select id="idioma-select" class="settings-input">
+                            <option value="pt" selected>Português (Brasil)</option>
+                            <option value="en">English (US)</option>
+                            <option value="es">Español</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+                        <label for="music-volume" style="font-size: 0.9rem; color: #aaa;">Volume da Música</label>
+                        <input type="range" id="music-volume" class="settings-input" min="0" max="1" step="0.05" value="0.3" style="padding: 0; cursor: pointer;">
+                    </div>
+
+                    <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+                        <label for="sfx-toggle" style="font-size: 0.9rem; color: #aaa;">Efeitos Sonoros (SFX)</label>
+                        <select id="sfx-toggle" class="settings-input">
+                            <option value="on">Ligados</option>
+                            <option value="off">Desligados</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" id="save-settings-btn">Salvar Alterações</button>
+                    <button type="button" id="logout-btn" style="background: #FF4500; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; font-size: 1.05rem; font-family: 'Poppins', sans-serif; cursor: pointer; transition: 0.2s; margin-top: 15px;">Terminar Sessão</button>
+                </form>
+            </div>
+        </div>
+        <button id="settings-toggle" title="Abrir Configurações">⚙️ Ajustes</button>
+    </div>
+
+    <div th:fragment="scripts(mainScript)">
+        <script th:src="@{/js/core.js}"></script>
+        <script th:src="@{/js/audio-controller.js}"></script>
+        <script th:src="@{/js/particles-bg.js}"></script>
+        <script th:if="${mainScript != null}" th:src="@{${mainScript}}"></script>
+    </div>
+</body>
+</html>

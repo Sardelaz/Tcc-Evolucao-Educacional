@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Editar Vídeos | Evolução Educacional', '/css/style-admin.css')}"></head>
+<body>
+    <style>
+        .admin-page-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(28, 176, 246, 0.3);
+            padding-bottom: 15px;
+        }
+
+        .section-header h2 {
+            color: #1cb0f6;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .admin-input, .admin-select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: 0.3s;
+            outline: none;
+            margin-bottom: 15px;
+        }
+
+        .admin-input:focus, .admin-select:focus {
+            border-color: #1cb0f6;
+            box-shadow: 0 0 10px rgba(28, 176, 246, 0.3);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+
+        .btn-blue {
+            background: linear-gradient(135deg, #1cb0f6, #1594d0);
+            color: white;
+        }
+
+        .btn-blue:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(28, 176, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .hidden { display: none; }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #888;
+            font-size: 0.85rem;
+            margin-left: 5px;
+        }
+
+        .video-preview-box {
+            background: #000;
+            border-radius: 12px;
+            aspect-ratio: 16/9;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+    </style>
+
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="admin-page-container">
+        <header style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="color: white; margin: 0;">Gestão de Vídeos</h1>
+            <a href="/painel-geral" style="color: #1cb0f6; text-decoration: none; font-weight: bold;">← Painel Geral</a>
+        </header>
+
+        <div class="glass-card">
+            <div class="section-header">
+                <span>🎬</span>
+                <h2>Biblioteca de Vídeos</h2>
+            </div>
+            <label>Selecione uma aula da galeria:</label>
+            <select id="select-videos" class="admin-select">
+                <option value="">A carregar galeria...</option>
+            </select>
+            <button onclick="carregarDadosVideo()" class="btn-action btn-blue">
+                Carregar Vídeo
+            </button>
+        </div>
+
+        <div id="editor-video" class="glass-card hidden">
+            <div class="section-header">
+                <span>⚙️</span>
+                <h2>Configurações do Vídeo</h2>
+            </div>
+            
+            <form id="form-editar-video">
+                <label>Título de Exibição</label>
+                <input type="text" id="edit_titulo" class="admin-input" placeholder="Ex: Introdução à Geometria">
+
+                <label>Módulo Vinculado</label>
+                <select id="edit_modulo" class="admin-select">
+                    <option value="mat">Razão e Proporção</option>
+                    <option value="geometria">Geometria Espacial</option>
+                    <option value="probabilidade">Probabilidade</option>
+                    <option value="estatistica">Estatística</option>
+                    <option value="aritmetica">Aritmética</option>
+                </select>
+
+                <label>URL de Incorporação (YouTube)</label>
+                <input type="text" id="edit_url" class="admin-input" placeholder="https://www.youtube.com/watch?v=...">
+
+                <div class="btn-group">
+                    <button type="button" onclick="salvarAlteracaoVideo()" class="btn-action btn-blue">
+                        💾 Atualizar Vídeo
+                    </button>
+                    <button type="button" onclick="excluirVideo()" class="btn-action btn-danger">
+                        🗑️ Remover da Galeria
+                    </button>
+                </div>
+            </form>
+
+            <div class="video-preview-box" id="video-preview-container">
+                <span style="color:#555;">O vídeo aparecerá aqui após carregar</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let videoAtualId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/videos')
+                .then(res => res.json())
+                .then(data => {
+                    const select = document.getElementById('select-videos');
+                    select.innerHTML = '<option value="">Escolha um vídeo...</option>';
+                    data.forEach(v => {
+                        const opt = document.createElement('option');
+                        opt.value = v.id;
+                        // Origem ajuda o admin a saber se é de uma fase ou avulso
+                        const tag = v.origem === 'fase' ? '📌' : '🎞️';
+                        opt.textContent = `${tag} [${v.modulo.toUpperCase()}] ${v.titulo}`;
+                        select.appendChild(opt);
+                    });
+                });
+        });
+
+        function carregarDadosVideo() {
+            const id = document.getElementById('select-videos').value;
+            if(!id) return alert("Selecione um vídeo primeiro.");
+
+            fetch(`/api/videos/${id}`)
+                .then(res => res.json())
+                .then(v => {
+                    videoAtualId = id;
+                    document.getElementById('edit_titulo').value = v.titulo;
+                    document.getElementById('edit_modulo').value = v.modulo;
+                    document.getElementById('edit_url').value = v.url;
+                    
+                    document.getElementById('editor-video').classList.remove('hidden');
+                    
+                    // Atualiza Preview
+                    const preview = document.getElementById('video-preview-container');
+                    const embedUrl = v.url.replace("watch?v=", "embed/");
+                    preview.innerHTML = `<iframe width="100%" height="100%" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>`;
+                });
+        }
+
+        function salvarAlteracaoVideo() {
+            const payload = {
+                id: videoAtualId,
+                titulo: document.getElementById('edit_titulo').value,
+                modulo: document.getElementById('edit_modulo').value,
+                url: document.getElementById('edit_url').value
+            };
+
+            fetch(`/api/videos/${videoAtualId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(res => {
+                if(res.ok) {
+                    alert("Vídeo atualizado com sucesso!");
+                    location.reload();
+                }
+            });
+        }
+
+        function excluirVideo() {
+            if(confirm("Tens a certeza que desejas remover este vídeo permanentemente?")) {
+                fetch(`/api/videos/${videoAtualId}`, { method: 'DELETE' })
+                .then(() => { 
+                    alert("Vídeo removido da biblioteca."); 
+                    location.reload(); 
+                });
+            }
+        }
+    </script>
+</body>
+</html>

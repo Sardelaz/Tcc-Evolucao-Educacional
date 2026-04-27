@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Home | Evolução Educacional', '/css/style-home.css')}"></head>
+<body>
+    <canvas id="art-background"></canvas>
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="wrapper">
+        <header class="profile-panel">
+            <div class="user-info">
+                <div class="avatar" id="profile-avatar" title="Mudar Avatar">
+                    <span id="current-avatar-icon">👨‍🎓</span>
+                    <div class="edit-icon">✏️</div>
+                </div>
+                <div class="user-details">
+                    <div class="badges-row">
+                        <div class="level-badge" id="user-level-badge">Nível 1</div>
+                        <span id="display-liga" class="liga-text">LIGA FERRO</span>
+                    </div>
+                    <h3 id="display-user-name">Carregando...</h3>
+                    
+                    <div class="mini-stats-row">
+                        <div class="xp-mini-container">
+                            <div class="xp-bar-bg">
+                                <div class="xp-bar-fill" id="xp-progress-bar"></div>
+                            </div>
+                            <span id="current-xp-text">0 XP</span>
+                        </div>
+                        <div class="streak-mini" title="Ofensiva">
+                            <span id="day-streak-count">🔥 0</span>
+                        </div>
+                        <div class="coins-mini" title="Moedas">
+                            <span id="display-moedas">🪙 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-group">
+                <a href="/loja" class="mini-action-btn card-loja" title="Loja Virtual">🛒</a>
+                <button id="desafio-card" class="mini-action-btn mini-desafio" title="Meta Diária">🎯</button>
+                <button id="checkin-btn">Check-in</button>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <aside class="sidebar">
+                <a href="/desempenho" class="nav-card" style="border-left: 5px solid var(--cor-sucesso);">
+                    <h2 style="color: var(--cor-sucesso);">📊 Desempenho</h2>
+                    <p>Analise seus gráficos de acertos e acompanhe seus emblemas.</p>
+                </a>
+
+                <a href="/galeria" class="nav-card" style="border-left: 5px solid var(--cor-primaria);">
+                    <h2 style="color: var(--cor-primaria);">🎥 Videoaulas</h2>
+                    <p>Assista aos conteúdos de reforço gravados pelos professores.</p>
+                </a>
+
+                <a href="/simulados" class="nav-card" style="border-left: 5px solid #e74c3c;">
+                    <h2 style="color: #e74c3c;">📝 Simulados</h2>
+                    <p>Teste seus conhecimentos com tempo real e questões oficiais.</p>
+                </a>
+
+                <a href="/ranking" class="nav-card" style="border-left: 5px solid #1abc9c;">
+                    <h2 style="color: #1abc9c;">🏆 Ranking</h2>
+                    <p>Veja quem são os líderes da sua liga nesta temporada.</p>
+                </a>
+            </aside>
+
+            <main class="content-area">
+                <a href="/painel-geral" class="admin-banner" id="admin-panel-card" style="display: none;">
+                    <div style="font-size: 2.5rem;">⚙️</div>
+                    <div>
+                        <h3 style="color: #f39c12; margin-bottom: 2px;">Painel do Professor</h3>
+                        <p style="color: #aaa; font-size: 0.9rem;">Gerenciar turmas, módulos, questões e exportar relatórios.</p>
+                    </div>
+                </a>
+
+                <div class="subjects-grid" id="modulos-grid">
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                        <p style="color: #666; font-style: italic;">Sincronizando módulos com o servidor...</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="daily-modal">
+        <div class="modal-content daily-challenge-content">
+            <button class="modal-close" id="close-modal-btn">✕</button>
+            <div class="modal-icon-wrapper">
+                <div class="modal-icon">🎯</div>
+            </div>
+            <h2 class="modal-title" id="modal-title">Objetivo Diário</h2>
+            <p class="modal-subtitle" id="modal-subtitle">Subtítulo do Objetivo</p>
+            
+            <div class="challenge-info-box">
+                <p class="modal-desc" id="modal-desc">Descrição detalhada do desafio que você precisa completar hoje para ganhar recompensas.</p>
+                <div class="reward-tag">
+                    <span class="label">RECOMPENSA:</span>
+                    <span class="modal-reward" id="modal-reward">0 XP</span>
+                </div>
+            </div>
+
+            <button id="claim-reward-btn" class="primary-modal-btn">Verificar Conclusão</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="avatar-modal">
+        <div class="modal-content" style="max-width: 550px;">
+            <button class="modal-close" id="close-avatar-btn">✕</button>
+            <div class="modal-icon">👤</div>
+            <h2 class="modal-title">Mudar Avatar</h2>
+            <p class="modal-desc">Escolha um personagem que combine com seu progresso atual.</p>
+            <div class="avatar-grid" id="avatar-grid"></div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout/base :: audio-player}"></div>
+    <div th:replace="~{layout/base :: settings-modal}"></div>
+    <div th:replace="~{layout/base :: scripts('/js/script-home.js')}"></div>
+</body>
+</html>

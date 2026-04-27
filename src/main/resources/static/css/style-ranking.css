@@ -1,0 +1,285 @@
+:root {
+  --cor-fundo: #0F0F1A;
+  --cor-texto: #EAEAEA;
+  --cor-container: rgba(26, 26, 46, 0.7);
+  --cor-borda: rgba(255, 255, 255, 0.1);
+  --cor-primaria: #1cb0f6;
+  --cor-ranking: #FFD700;
+  --cor-prata: #C0C0C0;
+  --cor-bronze: #CD7F32;
+  --cor-xp: #1cb0f6;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#art-background {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: -1;
+}
+
+/* ==========================================
+   NAVEGAÇÃO SUPERIOR
+   ========================================== */
+.top-nav-ranking {
+  width: 100%;
+  padding: 30px 20px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+}
+
+.nav-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-title-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.nav-icon { font-size: 2.5rem; }
+
+.nav-title-group h2 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.btn-voltar-home {
+  text-decoration: none;
+  background: var(--cor-container);
+  padding: 12px 25px;
+  border-radius: 14px;
+  color: #fff;
+  border: 1px solid var(--cor-borda);
+  font-weight: 700;
+  transition: 0.3s;
+  display: flex; align-items: center; gap: 10px;
+}
+
+.btn-voltar-home:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateX(-5px);
+}
+
+/* ==========================================
+   PÓDIO (TOP 3) - DESIGN AMPLIADO
+   ========================================== */
+.ranking-wrapper {
+  width: 100%;
+  max-width: 1000px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+
+.podium-section {
+  padding-top: 40px;
+}
+
+.podium-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 20px;
+  height: 400px;
+}
+
+.podium-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 220px;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.podium-item:hover { transform: translateY(-10px); }
+
+/* Avatares no Pódio */
+.avatar-wrapper {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.user-avatar {
+  width: 100px; height: 100px;
+  background: var(--cor-container);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem;
+  border: 4px solid transparent;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.rank-badge {
+  position: absolute;
+  top: -5px; right: -5px;
+  width: 35px; height: 35px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900;
+  font-size: 1.2rem;
+  border: 2px solid var(--cor-fundo);
+}
+
+/* Estilos Específicos por Posição */
+.gold .user-avatar { border-color: var(--cor-ranking); width: 130px; height: 130px; font-size: 4rem; }
+.gold .rank-badge { background: var(--cor-ranking); color: #000; width: 45px; height: 45px; font-size: 1.5rem; }
+.gold .crown { font-size: 2.5rem; margin-bottom: -10px; animation: float 3s infinite ease-in-out; }
+
+.silver .user-avatar { border-color: var(--cor-prata); }
+.silver .rank-badge { background: var(--cor-prata); color: #000; }
+
+.bronze .user-avatar { border-color: var(--cor-bronze); }
+.bronze .rank-badge { background: var(--cor-bronze); color: #fff; }
+
+.podium-item .user-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.podium-item .user-xp {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--cor-primaria);
+}
+
+/* Bases do Pódio */
+.podium-item .base {
+  width: 100%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+  border: 1px solid var(--cor-borda);
+  border-bottom: none;
+  border-radius: 15px 15px 0 0;
+  margin-top: 20px;
+}
+
+.gold .base { height: 180px; background: linear-gradient(to bottom, rgba(255, 215, 0, 0.15), transparent); border-color: rgba(255, 215, 0, 0.3); }
+.silver .base { height: 130px; }
+.bronze .base { height: 90px; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+/* ==========================================
+   LISTA DE RANKING (GLASSMORPHISM)
+   ========================================== */
+.ranking-list-container {
+  background: var(--cor-container);
+  border: 1px solid var(--cor-borda);
+  border-radius: 24px;
+  overflow: hidden;
+  backdrop-filter: blur(15px);
+  margin-bottom: 50px;
+}
+
+.list-header {
+  display: grid;
+  grid-template-columns: 100px 1fr 150px;
+  padding: 20px 30px;
+  background: rgba(255,255,255,0.05);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  color: var(--cor-primaria);
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.ranking-scroll-area {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.ranking-item {
+  display: grid;
+  grid-template-columns: 100px 1fr 150px;
+  padding: 20px 30px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: 0.2s;
+}
+
+.ranking-item:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.ranking-item:last-child { border-bottom: none; }
+
+.item-rank {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #666;
+}
+
+.item-user {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.item-avatar {
+  width: 45px; height: 45px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+}
+
+.item-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.item-xp {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--cor-primaria);
+  text-align: right;
+}
+
+/* Destaque para o próprio usuário */
+.ranking-item.is-me {
+  background: rgba(28, 176, 246, 0.1);
+  border-left: 4px solid var(--cor-primaria);
+}
+
+.loading-state {
+  padding: 50px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .podium-container { gap: 10px; height: auto; align-items: center; flex-direction: column; }
+  .podium-item { width: 100%; max-width: 300px; }
+  .podium-item .base { display: none; }
+  .nav-title-group h2 { font-size: 1.5rem; }
+  .list-header, .ranking-item { grid-template-columns: 60px 1fr 100px; padding: 15px; }
+}
