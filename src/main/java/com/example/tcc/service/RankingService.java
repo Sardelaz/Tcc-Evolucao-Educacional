@@ -5,6 +5,11 @@ import com.example.tcc.repository.UsuarioRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 @Service
@@ -22,8 +27,7 @@ public class RankingService {
         String ligaDoUsuario = currentUser.getLiga(); 
         
         PageRequest pageRequest = PageRequest.of(page, size);
-
-        Page<Usuario> paginaUsuarios = usuarioRepository.findByLigaOrderByXpDesc(ligaDoUsuario, pageRequest);
+        Page<Usuario> paginaUsuarios = usuarioRepository.findByLigaOrderByXpTemporadaDesc(ligaDoUsuario, pageRequest);
 
         Map<String, Object> response = new HashMap<>();
         response.put("usuarios", mapearUsuarios(paginaUsuarios.getContent(), currentUser, avatar));
@@ -31,6 +35,10 @@ public class RankingService {
         response.put("totalPages", paginaUsuarios.getTotalPages());
         response.put("liga", ligaDoUsuario);
         response.put("totalJogadoresLiga", paginaUsuarios.getTotalElements());
+        
+        // Dados do Ciclo de 7 dias
+        response.put("requisitos", obterRequisitosLiga(ligaDoUsuario));
+        response.put("dataFimCiclo", calcularFimCiclo());
 
         return response;
     }
@@ -43,11 +51,68 @@ public class RankingService {
             uData.put("nome", isCurrent ? "Você" : u.getNome());
             uData.put("avatar", isCurrent ? avatarParam : u.getAvatar());
             uData.put("nivel", u.getNivel());
-            // CORREÇÃO: O ranking agora puxa o xpTemporada em vez do XP vitalício
             uData.put("xp", u.getXpTemporada()); 
             uData.put("isCurrentUser", isCurrent);
             listaMapeada.add(uData);
         }
         return listaMapeada;
+    }
+
+    private String calcularFimCiclo() {
+        LocalDateTime agora = LocalDateTime.now();
+        // O ranking fecha todo Domingo às 23:59:59
+        LocalDateTime fimCiclo = agora.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+                                      .withHour(23).withMinute(59).withSecond(59);
+        
+        // Se já passou do horário no domingo, pula para o próximo
+        if (agora.isAfter(fimCiclo)) {
+            fimCiclo = fimCiclo.plusWeeks(1);
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
+        return fimCiclo.format(formatter);
+    }
+
+    private Map<String, Object> obterRequisitosLiga(String ligaAtual) {
+        Map<String, Object> req = new HashMap<>();
+        switch (ligaAtual) {
+            case "FERRO":
+                req.put("proximaLiga", "BRONZE");
+                req.put("promocaoTop", 5);
+                req.put("rebaixamentoPos", 0); // Não há rebaixamento no Ferro
+                req.put("descricao", "Fique no Top 5 para subir de liga!");
+                break;
+            case "BRONZE":
+                req.put("proximaLiga", "PRATA");
+                req.put("promocaoTop", 5);
+                req.put("rebaixamentoPos", 15);
+                req.put("descricao", "Top 5 sobem. Abaixo de 15º volta para o Ferro.");
+                break;
+            case "PRATA":
+                req.put("proximaLiga", "OURO");
+                req.put("promocaoTop", 3);
+                req.put("rebaixamentoPos", 12);
+                req.put("descricao", "Top 3 sobem. Abaixo de 12º volta para o Bronze.");
+                break;
+            case "OURO":
+                req.put("proximaLiga", "DIAMANTE");
+                req.put("promocaoTop", 3);
+                req.put("rebaixamentoPos", 10);
+                req.put("descricao", "Top 3 sobem. Abaixo de 10º volta para a Prata.");
+                break;
+            case "DIAMANTE":
+                req.put("proximaLiga", "LENDA");
+                req.put("promocaoTop", 1);
+                req.put("rebaixamentoPos", 8);
+                req.put("descricao", "Apenas o 1º sobe. Abaixo de 8º volta para o Ouro.");
+                break;
+            default:
+                req.put("proximaLiga", "MÁXIMA");
+                req.put("promocaoTop", 0);
+                req.put("rebaixamentoPos", 5);
+                req.put("descricao", "Você está no topo! Evite ficar abaixo de 5º.");
+                break;
+        }
+        return req;
     }
 }

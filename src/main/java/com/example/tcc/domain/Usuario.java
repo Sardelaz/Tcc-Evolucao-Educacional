@@ -29,7 +29,7 @@ public class Usuario {
     private int moedas = 0; 
     private String liga = "FERRO"; 
     
-    // Campo para o Ranking Mensal
+    // Experiência acumulada apenas no ciclo atual de 7 dias
     private int xpTemporada = 0;
 
     @ElementCollection(fetch = FetchType.LAZY)
