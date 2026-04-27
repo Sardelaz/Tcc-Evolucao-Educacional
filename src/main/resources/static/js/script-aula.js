@@ -205,18 +205,31 @@ function montarDOMDaQuestao(q) {
 
     const imgElem = document.getElementById('imagem-pergunta');
     if (q.imagemUrl && q.imagemUrl.trim() !== '') {
-        let caminhoImagem = q.imagemUrl.trim()
+        // CORREÇÃO: Limpeza profunda da URL para remover resíduos de JSON e aspas
+        let urlLimpa = q.imagemUrl.trim()
             .replace(/['"]/g, '')      
             .replace(/%22/g, '')      
             .replace(/%7[dD]/g, '')    
-            .replace(/}/g, '')         
-            .replace(/\/uploads\//g, ''); 
+            .replace(/[{}]/g, '')      
+            .replace(/url:/g, '');
 
-        imgElem.src = `/uploads/${caminhoImagem}`;
+        // Verifica se a URL já é absoluta ou começa com barra, caso contrário, aponta para /uploads/
+        if (!urlLimpa.startsWith('/') && !urlLimpa.startsWith('http')) {
+            urlLimpa = '/uploads/' + urlLimpa;
+        }
+
+        imgElem.src = urlLimpa;
         imgElem.style.display = 'block';
         imgElem.style.margin = '0 auto 20px auto';
         imgElem.style.maxWidth = '100%';
         imgElem.style.borderRadius = '10px';
+
+        // Fallback: Se a imagem ainda assim falhar, tenta carregar um placeholder
+        imgElem.onerror = function() {
+            console.warn("Falha ao carregar imagem:", urlLimpa);
+            this.src = '/img/placeholder.png'; // Garanta que este arquivo existe
+            this.onerror = null; // Evita loop infinito
+        };
     } else {
         imgElem.style.display = 'none';
         imgElem.src = '';

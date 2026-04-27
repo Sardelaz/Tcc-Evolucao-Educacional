@@ -11,6 +11,7 @@ import java.text.Normalizer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -25,20 +26,19 @@ public class FaseService {
     public void salvarFase(String modulo, Fase novaFase) {
         log.info("Iniciando processo de salvamento da fase {} do módulo {}", novaFase.getFase(), modulo);
         
-        // 1. Validação de alternativas duplicadas
+        // Validação de alternativas duplicadas
         validarQuestoes(novaFase.getQuestoes());
 
         novaFase.setModulo(modulo);
         
-        // 2. Lógica de Sobrescrita (Correção do Erro 400)
-        // Se a fase já existe, deletamos a versão anterior antes de salvar a nova.
-        // Isso garante que as questões antigas sejam removidas (orphanRemoval) e o ID mude,
-        // resetando o progresso conforme planejado na arquitetura do sistema.
+        // Sanitização preventiva antes de salvar
+        sanitizarDadosFase(novaFase);
+
+        // Lógica de Sobrescrita
         faseRepository.findByModuloAndFase(modulo, novaFase.getFase())
                 .ifPresent(faseExistente -> {
                     log.info("Fase {} já existente no módulo {}. Deletando versão antiga para atualizar.", novaFase.getFase(), modulo);
                     faseRepository.delete(faseExistente);
-                    // Forçamos o flush para garantir que a deleção ocorra antes da inserção da nova fase
                     faseRepository.flush(); 
                 });
         
@@ -46,7 +46,6 @@ public class FaseService {
         log.info("Fase {} do módulo {} salva com sucesso!", novaFase.getFase(), modulo);
     }
 
-    // Calcula o próximo número de fase disponível para o módulo
     public int buscarProximaFase(String modulo) {
         List<Fase> fases = faseRepository.findByModuloOrderByFaseAsc(modulo);
         if (fases.isEmpty()) {
@@ -80,11 +79,39 @@ public class FaseService {
     }
 
     public List<Fase> carregarFases(String modulo) {
-        return faseRepository.findByModuloOrderByFaseAsc(modulo);
+        List<Fase> fases = faseRepository.findByModuloOrderByFaseAsc(modulo);
+        fases.forEach(this::sanitizarDadosFase);
+        return fases;
     }
 
     public Fase carregarFaseEspecifica(String modulo, int faseNum) {
-        return faseRepository.findByModuloAndFase(modulo, faseNum).orElse(null);
+        Optional<Fase> faseOpt = faseRepository.findByModuloAndFase(modulo, faseNum);
+        faseOpt.ifPresent(this::sanitizarDadosFase);
+        return faseOpt.orElse(null);
+    }
+
+    /**
+     * Limpa URLs de imagens e outros campos que possam conter resíduos de JSON
+     */
+    private void sanitizarDadosFase(Fase fase) {
+        if (fase == null) return;
+        if (fase.getQuestoes() != null) {
+            fase.getQuestoes().forEach(q -> {
+                if (q.getImagemUrl() != null) {
+                    q.setImagemUrl(sanitizarUrl(q.getImagemUrl()));
+                }
+            });
+        }
+    }
+
+    private String sanitizarUrl(String url) {
+        if (url == null || url.isEmpty()) return null;
+        // Remove aspas, chaves e prefixos comuns de serialização JSON incorreta
+        return url.replace("\"", "")
+                  .replace("{", "")
+                  .replace("}", "")
+                  .replace("url:", "")
+                  .trim();
     }
 
     @Transactional
