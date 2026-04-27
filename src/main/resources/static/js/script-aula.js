@@ -466,6 +466,8 @@ function finalizarFase() {
     .then(res => res.json())
     .then(data => {
         document.getElementById('resumo-xp-extra').textContent = `+${data.xpGanho || 0} XP Total`;
+        // Injeta o valor das moedas retornadas pelo backend
+        document.getElementById('resumo-moedas').textContent = `+${data.moedasGanhas || 0} 🪙`;
         document.getElementById('tela-resumo').classList.add('active');
         if (data.badgesNovos && data.badgesNovos.length > 0) alert(`🏆 Conquista Desbloqueada!`);
     })

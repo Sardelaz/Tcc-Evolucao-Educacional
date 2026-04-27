@@ -81,6 +81,7 @@ document.getElementById('form-admin').addEventListener('submit', async (e) => {
             fase: parseInt(document.getElementById('fase').value),
             qtd: totalQuestoes,
             videoAulaUrl: document.getElementById('video_aula_url').value,
+            especial: document.getElementById('is_especial').checked, // ADIÇÃO DO CAMPO ESPECIAL
             questoes: questoes
         };
 

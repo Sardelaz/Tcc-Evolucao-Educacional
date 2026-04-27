@@ -1,5 +1,6 @@
 package com.example.tcc.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -36,7 +37,9 @@ public class Questao {
     private String respostaCorreta;
 
     // Funcionalidade de Desafio
+    // O JsonProperty resolve o bug de conversão do Jackson/Lombok para campos booleanos
     @Column(name = "is_desafio")
+    @JsonProperty("isDesafio")
     private boolean isDesafio = false;
     
     @Column(name = "tempo_desafio")

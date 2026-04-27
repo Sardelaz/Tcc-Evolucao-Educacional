@@ -29,6 +29,8 @@ public class FaseService {
         validarQuestoes(novaFase.getQuestoes());
 
         novaFase.setModulo(modulo);
+        
+        // A sanitização agora ocorre EXCLUSIVAMENTE na hora de salvar, evitando bugs no Read-Only
         sanitizarDadosFase(novaFase);
 
         faseRepository.findByModuloAndFase(modulo, novaFase.getFase())
@@ -77,16 +79,14 @@ public class FaseService {
 
     @Transactional(readOnly = true)
     public List<Fase> carregarFases(String modulo) {
-        List<Fase> fases = faseRepository.findByModuloOrderByFaseAsc(modulo);
-        fases.forEach(this::sanitizarDadosFase);
-        return fases;
+        // Retorna direto do banco. Os dados já foram sanitizados no momento do salvamento (salvarFase).
+        return faseRepository.findByModuloOrderByFaseAsc(modulo);
     }
 
     @Transactional(readOnly = true)
     public Fase carregarFaseEspecifica(String modulo, int faseNum) {
-        Optional<Fase> faseOpt = faseRepository.findByModuloAndFase(modulo, faseNum);
-        faseOpt.ifPresent(this::sanitizarDadosFase);
-        return faseOpt.orElse(null);
+        // Retorna direto do banco, sem manipular a entidade gerenciada
+        return faseRepository.findByModuloAndFase(modulo, faseNum).orElse(null);
     }
 
     private void sanitizarDadosFase(Fase fase) {

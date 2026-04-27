@@ -3,7 +3,6 @@ package com.example.tcc.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import java.io.File;
 import java.nio.file.Paths;
 
 @Configuration
@@ -11,21 +10,20 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Define o caminho da pasta de uploads na raiz do projeto
-        String uploadPath = Paths.get("uploads").toAbsolutePath().toString();
-        
-        // No Linux/Render, o caminho deve terminar com / para o Spring reconhecer como diretório
-        if (!uploadPath.endsWith(File.separator)) {
-            uploadPath += File.separator;
-        }
+        // CORREÇÃO CRÍTICA: toUri().toString() resolve automaticamente para "file:///" 
+        // Isso garante total compatibilidade no Windows (ambiente de dev) e no Linux (Render)
+        String uploadPath = Paths.get("uploads").toAbsolutePath().toUri().toString();
 
-        // Mapeia /uploads/** para a pasta física no servidor
-        // O prefixo file: deve ser seguido pelo caminho absoluto
+        // Mapeia /uploads/** para a pasta física absoluta no servidor
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadPath);
+                .addResourceLocations(uploadPath);
                 
         // Garante que a pasta static/img também seja servida corretamente para o placeholder
         registry.addResourceHandler("/img/**")
                 .addResourceLocations("classpath:/static/img/");
+                
+        // Impede que a ausência do favicon polua seu console com erros 404
+        registry.addResourceHandler("/favicon.ico")
+                .addResourceLocations("classpath:/static/");
     }
 }
