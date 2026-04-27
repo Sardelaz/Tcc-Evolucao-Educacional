@@ -3,6 +3,7 @@ package com.example.tcc.controller;
 import com.example.tcc.dto.ResultadoFaseDTO;
 import com.example.tcc.service.GamificacaoService;
 import com.example.tcc.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,8 +69,9 @@ public class GamificacaoController {
         return ResponseEntity.ok(usuarioService.carregarProgresso());
     }
 
+    // Correção: Adição do @Valid para garantir que as regras do ResultadoFaseDTO sejam respeitadas
     @PostMapping("/progresso/{lessonId}")
-    public ResponseEntity<Map<String, Object>> concluirFase(@PathVariable String lessonId, @RequestBody ResultadoFaseDTO dto) {
+    public ResponseEntity<Map<String, Object>> concluirFase(@PathVariable String lessonId, @Valid @RequestBody ResultadoFaseDTO dto) {
         return ResponseEntity.ok(gamificacaoService.concluirFase(lessonId, dto));
     }
 

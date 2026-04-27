@@ -31,19 +31,39 @@ public class ModuloController {
 
     @PostMapping
     public ResponseEntity<Modulo> criar(@RequestBody Modulo modulo) {
-        // Se a url amigável não for passada, garantimos a segurança da mesma
         if (modulo.getSlug() == null || modulo.getSlug().trim().isEmpty()) {
             String slugFormatado = modulo.getNome().toLowerCase()
-                    .replaceAll("[\\u0300-\\u036f]", "") // Remove acentos
-                    .replaceAll("[^a-z0-9]", "_"); // Substitui espaços por _
+                    .replaceAll("[\\u0300-\\u036f]", "")
+                    .replaceAll("[^a-z0-9]", "_");
             modulo.setSlug(slugFormatado);
         }
         
-        // Evita duplicados
         if (moduloRepository.findBySlug(modulo.getSlug()).isPresent()) {
             return ResponseEntity.badRequest().build();
         }
 
         return ResponseEntity.ok(moduloRepository.save(modulo));
+    }
+
+    // ENDPOINT PARA ATUALIZAR MÓDULO
+    @PutMapping("/{id}")
+    public ResponseEntity<Modulo> atualizar(@PathVariable Long id, @RequestBody Modulo moduloAtualizado) {
+        return moduloRepository.findById(id).map(modulo -> {
+            modulo.setNome(moduloAtualizado.getNome());
+            modulo.setIcone(moduloAtualizado.getIcone());
+            modulo.setCor(moduloAtualizado.getCor());
+            // O slug geralmente não mudamos para não quebrar links existentes
+            return ResponseEntity.ok(moduloRepository.save(modulo));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    // ENDPOINT PARA DELETAR MÓDULO
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        if (moduloRepository.existsById(id)) {
+            moduloRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }

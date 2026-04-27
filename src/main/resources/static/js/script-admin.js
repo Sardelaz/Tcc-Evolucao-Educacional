@@ -2,6 +2,31 @@ let questoes = [];
 let questaoAtualIndex = 1;
 let totalQuestoes = 5;
 
+// Busca automaticamente a próxima fase e bloqueia o campo para evitar duplicatas
+document.getElementById('modulo').addEventListener('change', async (e) => {
+    const modulo = e.target.value;
+    const faseInput = document.getElementById('fase');
+
+    if (!modulo) return;
+
+    try {
+        const response = await fetch(`/api/fases/proxima/${modulo}`);
+        if (response.ok) {
+            const data = await response.json();
+            faseInput.value = data.proximaFase;
+            faseInput.readOnly = true; 
+            
+            // CORREÇÃO VISUAL: Garante que o fundo seja cinza claro mas o texto seja preto e visível
+            faseInput.style.backgroundColor = "#e9ecef"; 
+            faseInput.style.color = "#212529"; 
+            faseInput.style.cursor = "not-allowed";
+            console.log(`Próxima fase para ${modulo}: ${data.proximaFase}`);
+        }
+    } catch (error) {
+        console.error("Erro ao buscar próxima fase:", error);
+    }
+});
+
 document.getElementById('qtd_perguntas').addEventListener('change', (e) => {
     totalQuestoes = parseInt(e.target.value) || 1;
     document.getElementById('indicador-questao').textContent = `Formulando Questão ${questaoAtualIndex} de ${totalQuestoes}`;
@@ -11,6 +36,23 @@ document.getElementById('form-admin').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const tipo = document.getElementById('tipo_pergunta').value;
+
+    // Validação de alternativas duplicadas (Front-end)
+    if (tipo === 'multipla') {
+        const altA = document.getElementById('alt_a').value.trim().toLowerCase();
+        const altB = document.getElementById('alt_b').value.trim().toLowerCase();
+        const altC = document.getElementById('alt_c').value.trim().toLowerCase();
+        const altD = document.getElementById('alt_d').value.trim().toLowerCase();
+
+        const preenchidas = [altA, altB, altC, altD].filter(val => val !== '');
+        const unicas = new Set(preenchidas);
+
+        if (preenchidas.length !== unicas.size) {
+            alert('⚠️ ERRO: Você preencheu alternativas idênticas nesta questão!\nPor favor, corrija para continuar.');
+            return;
+        }
+    }
+
     const isDesafio = document.getElementById('is_desafio').checked;
 
     const q = {
@@ -38,7 +80,7 @@ document.getElementById('form-admin').addEventListener('submit', async (e) => {
             modulo: document.getElementById('modulo').value,
             fase: parseInt(document.getElementById('fase').value),
             qtd: totalQuestoes,
-            videoAulaUrl: document.getElementById('video_aula_url').value, // CAPTURA O URL DO VÍDEO
+            videoAulaUrl: document.getElementById('video_aula_url').value,
             questoes: questoes
         };
 
@@ -57,14 +99,21 @@ document.getElementById('form-admin').addEventListener('submit', async (e) => {
                 alert('Fase criada com sucesso!');
                 window.location.reload();
             } else {
-                alert('Erro ao salvar fase no banco.');
+                let msgErro = 'Erro ao salvar fase.';
+                try {
+                    const dataError = await response.json();
+                    if (dataError.erro) msgErro = dataError.erro;
+                } catch(e) {}
+                alert('⚠️ ERRO: ' + msgErro);
                 btn.textContent = "Salvar Pergunta";
                 btn.disabled = false;
+                questoes.pop();
             }
         } catch (error) {
             alert('Erro de conexão.');
             btn.textContent = "Salvar Pergunta";
             btn.disabled = false;
+            questoes.pop();
         }
     }
 });
@@ -85,7 +134,5 @@ function limparCamposQuestao() {
     if (checkDesafio) {
         checkDesafio.checked = false;
         document.getElementById('desafio-fields').style.display = 'none';
-        document.getElementById('tempo_desafio').value = 30;
-        document.getElementById('xp_extra').value = 50;
     }
 }

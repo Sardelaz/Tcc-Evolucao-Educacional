@@ -1,6 +1,10 @@
 package com.example.tcc.controller;
 
+import com.example.tcc.domain.Fase;
+import com.example.tcc.domain.Modulo;
 import com.example.tcc.domain.Usuario;
+import com.example.tcc.repository.FaseRepository;
+import com.example.tcc.repository.ModuloRepository;
 import com.example.tcc.repository.UsuarioRepository;
 import com.example.tcc.service.AnalisePreditivaService;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +21,19 @@ public class AdminController {
     private final UsuarioRepository usuarioRepository;
     private final AnalisePreditivaService analisePreditivaService;
     private final PasswordEncoder passwordEncoder;
+    private final FaseRepository faseRepository;
+    private final ModuloRepository moduloRepository;
 
-    public AdminController(UsuarioRepository usuarioRepository, AnalisePreditivaService analisePreditivaService, PasswordEncoder passwordEncoder) {
+    public AdminController(UsuarioRepository usuarioRepository, 
+                           AnalisePreditivaService analisePreditivaService, 
+                           PasswordEncoder passwordEncoder,
+                           FaseRepository faseRepository,
+                           ModuloRepository moduloRepository) {
         this.usuarioRepository = usuarioRepository;
         this.analisePreditivaService = analisePreditivaService;
         this.passwordEncoder = passwordEncoder;
+        this.faseRepository = faseRepository;
+        this.moduloRepository = moduloRepository;
     }
 
     @GetMapping("/usuarios/lista")
@@ -48,23 +60,26 @@ public class AdminController {
             return ResponseEntity.ok(analise);
         }
 
-        double mediaAcertos = usuarios.stream().mapToInt(Usuario::getTotalAcertos).average().orElse(0);
-        double mediaErros = usuarios.stream().mapToInt(Usuario::getTotalErros).average().orElse(0);
+        Set<String> chavesValidas = obterChavesDeFasesAtivas();
+        Map<String, String> nomesModulos = obterMapaNomesModulos();
 
-        analise.put("acertos", (int) mediaAcertos);
-        analise.put("erros", (int) mediaErros);
+        analise.put("acertos", (int) usuarios.stream().mapToInt(Usuario::getTotalAcertos).average().orElse(0));
+        analise.put("erros", (int) usuarios.stream().mapToInt(Usuario::getTotalErros).average().orElse(0));
 
+        // Ranking de Fases Perfeitas
         Map<String, Long> rankingPerfeitas = usuarios.stream()
                 .flatMap(u -> u.getFasesPerfeitas().stream())
-                .collect(Collectors.groupingBy(f -> f, Collectors.counting()));
+                .filter(chavesValidas::contains)
+                .collect(Collectors.groupingBy(chave -> formatarNomeFase(chave, nomesModulos), Collectors.counting()));
 
-        Map<String, Long> fasesCriticas = usuarios.stream()
-                .flatMap(u -> u.getStatusDasFases().keySet().stream()
-                        .filter(fase -> !u.getFasesPerfeitas().contains(fase)))
-                .collect(Collectors.groupingBy(f -> f, Collectors.counting()));
+        // Ranking de Fases Críticas (Aqui mostramos as questões reais erradas pelos alunos)
+        List<String> todasQuestoesErradas = usuarios.stream()
+                .flatMap(u -> u.getUltimasQuestoesErradas().stream())
+                .limit(20) // Mostra as 20 questões mais críticas do sistema global
+                .collect(Collectors.toList());
 
         analise.put("fasesMaisPerfeitas", formatarRanking(rankingPerfeitas));
-        analise.put("fasesMaisCriticas", formatarRanking(fasesCriticas));
+        analise.put("questoesCriticasGeral", todasQuestoesErradas); // Alterado para mostrar questões
         
         return ResponseEntity.ok(analise);
     }
@@ -72,38 +87,53 @@ public class AdminController {
     @GetMapping("/usuarios/analise/{id}")
     public ResponseEntity<Map<String, Object>> buscarAnaliseAluno(@PathVariable String id) {
         Usuario u = usuarioRepository.findById(id).orElseThrow();
-        
+        Set<String> chavesValidas = obterChavesDeFasesAtivas();
+        Map<String, String> nomesModulos = obterMapaNomesModulos();
+
         Map<String, Object> analise = new HashMap<>();
         analise.put("nome", u.getNome());
         analise.put("email", u.getEmail());
         analise.put("xp", u.getXp());
         analise.put("nivel", u.getNivel());
-        analise.put("streak", u.getStreakDiaria());
-        analise.put("emblemas", u.getEmblemas());
         analise.put("acertos", u.getTotalAcertos());
         analise.put("erros", u.getTotalErros());
-        analise.put("statusFases", u.getStatusDasFases());
-        analise.put("fasesPerfeitas", u.getFasesPerfeitas());
         
+        // Relatório de Fases Críticas Individual: Lista as questões específicas que este aluno errou
+        analise.put("questoesErradasRecentes", u.getUltimasQuestoesErradas());
+
+        List<String> perfeitasFormatadas = u.getFasesPerfeitas().stream()
+                .filter(chavesValidas::contains)
+                .map(chave -> formatarNomeFase(chave, nomesModulos))
+                .collect(Collectors.toList());
+
+        analise.put("fasesPerfeitas", perfeitasFormatadas);
         analise.put("previsaoXp", analisePreditivaService.preverProximoDesempenho(u));
         analise.put("sugestao", analisePreditivaService.sugerirFocoEstudo(u));
         
         return ResponseEntity.ok(analise);
     }
 
-    @PostMapping("/usuarios/alterar-senha/{id}")
-    public ResponseEntity<Map<String, String>> alterarSenha(@PathVariable String id, @RequestBody Map<String, String> payload) {
-        Usuario u = usuarioRepository.findById(id).orElseThrow();
-        String novaSenha = payload.get("novaSenha");
-        
-        if (novaSenha == null || novaSenha.length() < 4) {
-            return ResponseEntity.badRequest().body(Map.of("erro", "A senha deve ter no mínimo 4 caracteres."));
-        }
+    private Set<String> obterChavesDeFasesAtivas() {
+        return faseRepository.findAll().stream()
+                .map(f -> f.getModulo() + "_fase" + f.getFase() + "_id" + f.getId())
+                .collect(Collectors.toSet());
+    }
 
-        u.setSenha(passwordEncoder.encode(novaSenha));
-        usuarioRepository.save(u);
-        
-        return ResponseEntity.ok(Map.of("mensagem", "Senha de " + u.getNome() + " alterada com sucesso!"));
+    private Map<String, String> obterMapaNomesModulos() {
+        return moduloRepository.findAll().stream()
+                .collect(Collectors.toMap(Modulo::getSlug, Modulo::getNome, (existente, novo) -> existente));
+    }
+
+    private String formatarNomeFase(String chave, Map<String, String> nomesModulos) {
+        try {
+            String[] partesFase = chave.split("_fase");
+            String slugModulo = partesFase[0];
+            String numeroFase = partesFase[1].split("_id")[0];
+            String nomeExibicaoModulo = nomesModulos.getOrDefault(slugModulo, slugModulo.toUpperCase());
+            return nomeExibicaoModulo + " - FASE " + numeroFase;
+        } catch (Exception e) {
+            return "FASE DESCONHECIDA";
+        }
     }
 
     private List<Map<String, Object>> formatarRanking(Map<String, Long> mapa) {

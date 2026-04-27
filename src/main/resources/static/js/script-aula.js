@@ -44,7 +44,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnVoltarModulo = document.getElementById('btn-voltar-modulo');
     if (btnVoltarModulo) {
         btnVoltarModulo.addEventListener('click', () => {
-            window.location.href = `/${moduloAtual}`;
+            // CORREÇÃO: Redireciona para a rota dinâmica correta com prefixo /m/
+            window.location.href = `/m/${moduloAtual}`;
         });
     }
 
@@ -63,17 +64,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         questoes = faseData.questoes || [];
         faseVideoUrl = faseData.videoAulaUrl || '';
 
-        // CORREÇÃO: Cria a chave exata que o Backend usa, para não chocar com outros módulos
         const chaveUnica = `${moduloAtual}_fase${faseAtual}_id${faseAtualDbId}`;
 
-        // Verifica o progresso da chave única desta fase exata (ou fallback pro modelo antigo)
         if (progressoData[chaveUnica] === 'completed' || progressoData[`${moduloAtual}-${faseAtual}`] === 'completed') {
             isFaseJaConcluida = true;
         }
 
         if (questoes.length === 0) {
             alert("Esta fase ainda não possui questões cadastradas. Por favor, adicione questões no painel de administração.");
-            window.location.href = `/${moduloAtual}`; 
+            // CORREÇÃO: Redireciona para a rota dinâmica correta com prefixo /m/
+            window.location.href = `/m/${moduloAtual}`; 
             return;
         }
 
@@ -294,9 +294,28 @@ function falharDesafioPorTempo() {
     if (inputD) inputD.disabled = true;
 }
 
+function compararSimilaridade(s1, s2, limite = 0.85) {
+    if (!s1 || !s2) return false;
+    let str1 = s1.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    let str2 = s2.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (str1 === str2) return true;
+    const track = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+    for (let i = 0; i <= str1.length; i += 1) track[0][i] = i;
+    for (let j = 0; j <= str2.length; j += 1) track[j][0] = j;
+    for (let j = 1; j <= str2.length; j += 1) {
+        for (let i = 1; i <= str1.length; i += 1) {
+            const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+            track[j][i] = Math.min(track[j][i - 1] + 1, track[j - 1][i] + 1, track[j - 1][i - 1] + indicator);
+        }
+    }
+    const distancia = track[str2.length][str1.length];
+    const maiorTamanho = Math.max(str1.length, str2.length);
+    const similaridade = 1 - (distancia / maiorTamanho);
+    return similaridade >= limite;
+}
+
 function verificarResposta() {
     clearInterval(desafioTimerInterval);
-
     const q = questoes[indiceAtual];
     let respostaUsuario = null;
 
@@ -307,11 +326,13 @@ function verificarResposta() {
     } else {
         const input = document.getElementById('resposta-dissertativa');
         if (!input.value.trim()) return alert('Digite a sua resposta!');
-        respostaUsuario = input.value.trim().toLowerCase();
+        respostaUsuario = input.value.trim();
     }
 
-    const correta = (q.respostaCorreta || "").toLowerCase();
-    const isCerto = (respostaUsuario && respostaUsuario.toLowerCase() === correta);
+    const correta = q.respostaCorreta || "";
+    let isCerto = (q.tipo === 'multipla') 
+        ? (respostaUsuario && respostaUsuario.toLowerCase() === correta.toLowerCase())
+        : compararSimilaridade(respostaUsuario, correta, 0.85);
 
     const feedback = document.getElementById('feedback-msg');
     const btnVerificar = document.getElementById('btn-verificar');
@@ -320,10 +341,8 @@ function verificarResposta() {
     document.querySelectorAll('.option-btn').forEach(b => {
         b.disabled = true;
         const letraBotao = b.dataset.letra;
-        
-        if (!isCerto && letraBotao && letraBotao.toLowerCase() === correta) {
+        if (!isCerto && letraBotao && letraBotao.toLowerCase() === correta.toLowerCase()) {
             b.style.borderColor = "#58CC02";
-            b.style.boxShadow = "0 0 15px rgba(88, 204, 2, 0.5)";
             b.style.color = "#58CC02";
             b.innerHTML += " ✔️";
         }
@@ -334,61 +353,43 @@ function verificarResposta() {
 
     if (isCerto) {
         if (sfxEnabled) audioAcerto.play();
-
         const mat = q.modulo || moduloAtual;
         acertosPorMateria[mat] = (acertosPorMateria[mat] || 0) + 1;
-
         if (q.desafio && !q.desafioFalho) {
             desafiosConcluidos++;
             tempoTotalGastoEmDesafios += (limiteDeTempoDoDesafio - tempoDesafioRestante);
-
-            if (!isFaseJaConcluida) {
-                feedback.textContent = `🎉 Desafio Vencido! +${q.xpExtra} XP Garantido!`;
-            } else {
-                feedback.textContent = `🎉 Desafio Vencido! (Fase já concluída, sem XP extra)`;
-            }
-        } else {
-            feedback.textContent = '🎉 Correto! Muito bem!';
-        }
-
+            feedback.textContent = !isFaseJaConcluida ? `🎉 Desafio Vencido! +${q.xpExtra} XP Garantido!` : `🎉 Desafio Vencido! (Fase já concluída)`;
+        } else feedback.textContent = '🎉 Correto! Muito bem!';
         feedback.className = 'feedback correct show';
         btnVerificar.style.background = '#4CAF50';
-        
         acertosTotais++;
         streakAtual++;
         if (streakAtual > streakMaxima) streakMaxima = streakAtual;
         document.getElementById('streak-text').textContent = streakAtual;
-
         btnVerificar.textContent = "Continuar";
         btnVerificar.onclick = () => {
             indiceAtual++;
             if (indiceAtual >= questoes.length) finalizarFase();
             else carregarQuestao();
         };
-
     } else {
         if (sfxEnabled) audioErro.play();
-
         if (q.desafio && !q.desafioFalho) {
             tempoTotalGastoEmDesafios += (limiteDeTempoDoDesafio - tempoDesafioRestante);
             q.desafioFalho = true;
         }
-
-        feedback.textContent = `❌ Incorreto! A resposta correta está destacada em verde. Você perdeu uma vida.`;
+        feedback.textContent = `❌ Incorreto! A resposta era: "${correta}". Você perdeu uma vida.`;
         feedback.className = 'feedback incorrect show';
-
         errosCometidos++;
         streakAtual = 0;
         vidasJogador--;
         atualizarUIdeVidas();
         document.getElementById('streak-text').textContent = streakAtual;
-
         if (vidasJogador <= 0) {
             btnVerificar.style.display = 'none';
             setTimeout(() => { document.getElementById('modal-game-over').classList.add('active'); }, 2000);
             return;
         }
-
         btnVerificar.style.background = '#F44336';
         btnVerificar.textContent = "Tentar Novamente";
         btnVerificar.onclick = () => { carregarQuestao(); };
@@ -416,44 +417,23 @@ function finalizarFase() {
 
     if (totalDesafiosNaFase > 0) {
         let statusText = desafiosConcluidos === totalDesafiosNaFase ? 'Concluído ✅' : (desafiosConcluidos > 0 ? `${desafiosConcluidos}/${totalDesafiosNaFase} Concluídos ⚠️` : 'Falhou ❌');
-        let statusColor = desafiosConcluidos === totalDesafiosNaFase ? '#58CC02' : (desafiosConcluidos > 0 ? '#f39c12' : '#FF4B4B');
-
         const statusSpan = document.getElementById('resumo-desafio-status');
         statusSpan.textContent = statusText;
-        statusSpan.style.color = statusColor;
-        statusSpan.style.fontWeight = 'bold';
+        statusSpan.style.color = desafiosConcluidos === totalDesafiosNaFase ? '#58CC02' : '#FF4B4B';
     } else {
         document.getElementById('resumo-desafio-status').textContent = 'Nenhum';
-        document.getElementById('resumo-desafio-status').style.color = '#aaa';
     }
 
     const segundosTotais = Math.floor((Date.now() - tempoInicio) / 1000);
     document.getElementById('resumo-tempo').textContent = formatarTempo(segundosTotais);
 
     const videoCard = document.getElementById('video-card');
-    const iframe = document.getElementById('video-iframe');
-
     if (faseVideoUrl && faseVideoUrl.trim() !== '') {
-        const embedUrl = getEmbedUrl(faseVideoUrl);
-        iframe.src = embedUrl;
+        document.getElementById('video-iframe').src = getEmbedUrl(faseVideoUrl);
         videoCard.style.display = 'flex';
-    } else {
-        videoCard.style.display = 'none';
-    }
+    } else videoCard.style.display = 'none';
 
-    if (moduloAtual.includes('simulado') && Object.keys(acertosPorMateria).length > 0) {
-        let feedbackHTML = "<div style='text-align: left; margin-top: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;'>";
-        feedbackHTML += "<h4 style='color: var(--cor-xp); margin-bottom: 10px;'>Análise Detalhada:</h4>";
-        for (let materia in acertosPorMateria) {
-            feedbackHTML += `<p style='font-size: 0.9rem; margin-bottom: 5px;'>✅ ${materia.toUpperCase().replace('SIMULADO_', '')}: ${acertosPorMateria[materia]} acerto(s)</p>`;
-        }
-        feedbackHTML += "</div>";
-        document.querySelector('.summary-card').insertAdjacentHTML('beforeend', feedbackHTML);
-    }
-
-    // CORREÇÃO: Envia o progresso com a chave robusta do BD
     const chaveUnicaParaSalvar = `${moduloAtual}_fase${faseAtual}_id${faseAtualDbId}`;
-
     fetch(`/api/progresso/${chaveUnicaParaSalvar}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -469,17 +449,14 @@ function finalizarFase() {
             acertosPorMateria: acertosPorMateria
         })
     })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById('resumo-xp-extra').textContent = `+${data.xpGanho || 0} XP Total`;
-            document.getElementById('tela-resumo').classList.add('active');
-
-            if (data.badgesNovos && data.badgesNovos.length > 0) {
-                alert(`🏆 Parabéns! Você desbloqueou uma nova conquista! Vá ao seu perfil para conferir.`);
-            }
-        })
-        .catch(err => {
-            console.error("Erro de conexão ao salvar progresso:", err);
-            document.getElementById('tela-resumo').classList.add('active');
-        });
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById('resumo-xp-extra').textContent = `+${data.xpGanho || 0} XP Total`;
+        document.getElementById('tela-resumo').classList.add('active');
+        if (data.badgesNovos && data.badgesNovos.length > 0) alert(`🏆 Conquista Desbloqueada!`);
+    })
+    .catch(err => {
+        console.error("Erro ao salvar:", err);
+        document.getElementById('tela-resumo').classList.add('active');
+    });
 }

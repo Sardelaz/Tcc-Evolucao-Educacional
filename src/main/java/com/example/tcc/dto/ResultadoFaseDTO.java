@@ -3,6 +3,7 @@ package com.example.tcc.dto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -27,9 +28,10 @@ public class ResultadoFaseDTO {
     @Min(value = 1, message = "O total de questões deve ser no mínimo 1")
     private int totalQuestoes;
     
-    // ANTI-CHEAT: Conta os desafios vencidos em vez de confiar no XP enviado pelo navegador
+    // Lista de textos das questões que o usuário errou
+    private List<String> enunciadosErrados;
+
     private int desafiosVencidosNestaFase;
 
-    // Feedback Detalhado para Simulados
     private Map<String, Integer> acertosPorMateria;
 }

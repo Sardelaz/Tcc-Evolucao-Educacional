@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Gerenciar Módulos | Evolução Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style-admin.css}">
+    <style>
+        #art-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .modules-list { width: 100%; margin-top: 20px; border-collapse: collapse; background: rgba(255,255,255,0.05); border-radius: 12px; overflow: hidden; }
+        .modules-list th, .modules-list td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); color: #fff; }
+        .modules-list th { background: rgba(0,0,0,0.2); color: #9b59b6; }
+        .action-btn { padding: 8px 12px; border-radius: 6px; cursor: pointer; border: none; font-weight: 600; margin-right: 5px; transition: 0.3s; }
+        .edit-btn { background: #f39c12; color: #fff; }
+        .delete-btn { background: #e74c3c; color: #fff; }
+        .action-btn:hover { opacity: 0.8; transform: translateY(-2px); }
+
+        /* Modal Simples para Edição */
+        .modal-edit { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; 
+                      background: #2c3e50; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000; }
+        .modal-edit.active { display: block; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; }
+        .overlay.active { display: block; }
+    </style>
+</head>
+<body>
+    <canvas id="art-background"></canvas>
+    <div th:replace="~{layout/base :: acessibilidade}"></div>
+
+    <div class="admin-container">
+        <h1 style="color: #9b59b6;">🛠️ Gerenciar Módulos</h1>
+        <p style="text-align: center; color: #aaa; margin-bottom: 30px;">Edite ou remova módulos existentes do sistema.</p>
+
+        <table class="modules-list">
+            <thead>
+                <tr>
+                    <th>Ícone</th>
+                    <th>Nome</th>
+                    <th>Slug</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="lista-modulos">
+                </tbody>
+        </table>
+
+        <a href="/painel-geral" class="back-link" style="margin-top: 30px; display: inline-block;">← Voltar para o Painel Geral</a>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="modal-edit" id="modal-edit">
+        <h2 style="color: #f39c12; margin-bottom: 20px;">Editar Módulo</h2>
+        <form id="form-edit-modulo">
+            <input type="hidden" id="edit-id">
+            <div class="form-group">
+                <label>Nome do Módulo</label>
+                <input type="text" id="edit-nome" required>
+            </div>
+            <div class="form-group">
+                <label>Ícone (Emoji)</label>
+                <input type="text" id="edit-icone" required>
+            </div>
+            <div class="form-group">
+                <label>Cor Destaque</label>
+                <input type="color" id="edit-cor" style="height: 40px; padding: 5px;">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" class="action-btn edit-btn" style="flex: 1;">Salvar Alterações</button>
+                <button type="button" class="action-btn" onclick="fecharModal()" style="background: #95a5a6;">Cancelar</button>
+            </div>
+        </form>
+    </div>
+
+    <script th:src="@{/js/core.js}"></script>
+    <script th:src="@{/js/particles-bg.js}"></script>
+    <script>
+        async function carregarModulos() {
+            const res = await fetch('/api/modulos');
+            const modulos = await res.json();
+            const tbody = document.getElementById('lista-modulos');
+            tbody.innerHTML = '';
+
+            modulos.forEach(m => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-size: 1.5rem;">${m.icone}</td>
+                        <td>${m.nome}</td>
+                        <td><code style="background: rgba(0,0,0,0.3); padding: 2px 5px; border-radius: 4px;">${m.slug}</code></td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick='abrirModal(${JSON.stringify(m)})'>Editar</button>
+                            <button class="action-btn delete-btn" onclick="deletarModulo(${m.id})">Excluir</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function abrirModal(modulo) {
+            document.getElementById('edit-id').value = modulo.id;
+            document.getElementById('edit-nome').value = modulo.nome;
+            document.getElementById('edit-icone').value = modulo.icone;
+            document.getElementById('edit-cor').value = modulo.cor;
+            
+            document.getElementById('modal-edit').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        function fecharModal() {
+            document.getElementById('modal-edit').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        }
+
+        document.getElementById('form-edit-modulo').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const payload = {
+                nome: document.getElementById('edit-nome').value,
+                icone: document.getElementById('edit-icone').value,
+                cor: document.getElementById('edit-cor').value
+            };
+
+            const res = await fetch(`/api/modulos/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                alert('Módulo atualizado!');
+                fecharModal();
+                carregarModulos();
+            } else {
+                alert('Erro ao atualizar.');
+            }
+        });
+
+        async function deletarModulo(id) {
+            if (!confirm('Tem certeza? Isso pode afetar as fases ligadas a este módulo.')) return;
+
+            const res = await fetch(`/api/modulos/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                alert('Módulo removido.');
+                carregarModulos();
+            } else {
+                alert('Erro ao excluir.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', carregarModulos);
+    </script>
+</body>
+</html>

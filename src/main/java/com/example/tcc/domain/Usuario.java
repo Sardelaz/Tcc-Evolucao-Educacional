@@ -46,7 +46,7 @@ public class Usuario {
     @Column(name = "emblema")
     private Set<String> emblemas = new HashSet<>();
 
-    // Itens comprados na loja (IDs dos avatares/bordas premium)
+    // Itens comprados na loja
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "usuario_itens_comprados", joinColumns = @JoinColumn(name = "usuario_id"))
     @Column(name = "item_id")
@@ -63,6 +63,12 @@ public class Usuario {
     private int totalAcertos = 0;
     private int totalErros = 0;
     private int desafiosVencidos = 0;
+
+    // Novo campo: Histórico de questões erradas (Fases Críticas)
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "usuario_erros_recentes", joinColumns = @JoinColumn(name = "usuario_id"))
+    @Column(name = "detalhe_erro")
+    private List<String> ultimasQuestoesErradas = new ArrayList<>();
 
     // Conquistas de Longo Prazo
     private int totalQuestoesRespondidas = 0;

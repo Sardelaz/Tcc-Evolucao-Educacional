@@ -124,4 +124,10 @@ public class RotasController {
     public String adminEditarVideo() {
         return "admin-editar-video";
     }
+
+    // NOVA ROTA CORRIGIDA
+    @GetMapping("/admin-editar-modulos")
+    public String adminEditarModulos() {
+        return "admin-editar-modulos";
+    }
 }

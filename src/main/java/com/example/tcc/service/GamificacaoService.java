@@ -32,36 +32,33 @@ public class GamificacaoService {
     }
 
     public Map<String, Object> concluirFase(String lessonId, ResultadoFaseDTO resultado) {
-        // Busca o utilizador atual diretamente da BD para evitar cache
         Usuario userSessao = usuarioService.getCurrentUser();
         Usuario user = usuarioRepository.findById(userSessao.getId()).orElse(userSessao);
         
         usuarioService.verificarResetDiario(user);
 
-        // Busca a fase real para obter o ID único do Banco de Dados
         Fase faseOriginal = faseRepository.findByModuloAndFase(resultado.getModulo(), resultado.getFase()).orElse(null);
 
         if (faseOriginal == null) {
             throw new RuntimeException("Fase não encontrada no banco de dados.");
         }
 
-        // CORREÇÃO DEFINITIVA: Geramos uma chave que é impossível de duplicar entre módulos ou fases recriadas
-        // Exemplo: "estatistica_fase1_id105"
         String chaveUnica = resultado.getModulo() + "_fase" + resultado.getFase() + "_id" + faseOriginal.getId();
-        
         boolean jaEstavaConcluida = "completed".equals(user.getStatusDasFases().get(chaveUnica));
 
-        int xpDesafioValidado = 0;
-        long totalDesafiosNoBanco = faseOriginal.getQuestoes().stream().filter(Questao::isDesafio).count();
-        if (resultado.getDesafiosVencidosNestaFase() <= totalDesafiosNoBanco) {
-            int valorXpExtra = faseOriginal.getQuestoes().stream()
-                    .filter(Questao::isDesafio)
-                    .map(q -> q.getXpExtra() != null ? q.getXpExtra() : 0)
-                    .findFirst().orElse(0);
-            xpDesafioValidado = resultado.getDesafiosVencidosNestaFase() * valorXpExtra;
+        // Registro de Questões Erradas para Relatório de Fases Críticas
+        if (resultado.getEnunciadosErrados() != null) {
+            String nomeModuloBonito = resultado.getModulo().replace("_", " ").toUpperCase();
+            for (String enunciado : resultado.getEnunciadosErrados()) {
+                String detalhe = String.format("[%s - FASE %d] %s", nomeModuloBonito, resultado.getFase(), enunciado);
+                user.getUltimasQuestoesErradas().add(0, detalhe); // Adiciona no início da lista
+            }
+            // Limita o histórico aos últimos 15 erros
+            if (user.getUltimasQuestoesErradas().size() > 15) {
+                user.setUltimasQuestoesErradas(new ArrayList<>(user.getUltimasQuestoesErradas().subList(0, 15)));
+            }
         }
 
-        // Regista a conclusão com a chave robusta
         user.getStatusDasFases().put(chaveUnica, "completed");
 
         int xpGanho = 0;
@@ -72,17 +69,15 @@ public class GamificacaoService {
             user.setTotalSimuladosConcluidos(user.getTotalSimuladosConcluidos() + 1);
         }
 
-        // Atualização do Heatmap
         LocalDate hoje = LocalDate.now();
         user.getLogAtividade().put(hoje, user.getLogAtividade().getOrDefault(hoje, 0) + resultado.getTotalQuestoes());
 
-        // Atribui recompensas apenas se for a primeira vez que completa ESTA fase específica (pelo ID)
         if (!jaEstavaConcluida) {
             user.setTotalAcertos(user.getTotalAcertos() + resultado.getAcertos());
             user.setTotalErros(user.getTotalErros() + resultado.getErros());
             user.setDesafiosVencidos(user.getDesafiosVencidos() + resultado.getDesafiosVencidosNestaFase());
 
-            xpGanho = (resultado.getAcertos() * 10) + (resultado.getMaxStreak() * 5) + xpDesafioValidado;
+            xpGanho = (resultado.getAcertos() * 10) + (resultado.getMaxStreak() * 5);
             moedasGanhas = xpGanho / 5; 
 
             user.setXp(user.getXp() + xpGanho);
@@ -93,7 +88,6 @@ public class GamificacaoService {
                 user.setFasesPerfeitasHoje(user.getFasesPerfeitasHoje() + 1);
             }
         } else {
-            // Se já concluiu antes, apenas verifica se agora obteve um desempenho perfeito
             if (resultado.getAcertos() == resultado.getTotalQuestoes() && resultado.getTotalQuestoes() > 0 && !user.getFasesPerfeitas().contains(chaveUnica)) {
                 user.getFasesPerfeitas().add(chaveUnica);
                 user.setFasesPerfeitasHoje(user.getFasesPerfeitasHoje() + 1);

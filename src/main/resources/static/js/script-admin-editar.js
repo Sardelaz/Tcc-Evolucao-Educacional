@@ -13,19 +13,16 @@ async function buscarFase() {
             const data = await response.json();
             faseAtualId = data.id;
             
-            // Limpeza automática do Banco de Dados para remover os JSONs corrompidos nas imagens antigas
             questoesEdicao = data.questoes.map(q => {
                 if (q.imagemUrl && typeof q.imagemUrl === 'string' && q.imagemUrl.includes('{"url"')) {
                     try { q.imagemUrl = JSON.parse(q.imagemUrl).url; } catch(e) {}
                 }
-                // Garante que o boolean do desafio corresponda à variável exata do Spring Boot
                 if (q.desafio !== undefined && q.isDesafio === undefined) {
                     q.isDesafio = q.desafio; 
                 }
                 return q;
             });
 
-            // Carrega a URL da videoaula
             document.getElementById('edit_video_aula_url').value = data.videoAulaUrl || '';
 
             renderizarQuestoes();
@@ -50,7 +47,6 @@ function renderizarQuestoes() {
         const qDiv = document.createElement('div');
         qDiv.className = 'questao-editor-box';
 
-        // Lógica para a Resposta Correta
         const respC = (q.respostaCorreta || 'A').toUpperCase();
         let campoResposta = '';
         if (q.tipo === 'multipla') {
@@ -65,7 +61,6 @@ function renderizarQuestoes() {
             campoResposta = `<input type="text" value="${q.respostaCorreta || ''}" onchange="atualizarQuestao(${index}, 'respostaCorreta', this.value)" placeholder="Resposta exata">`;
         }
 
-        // Renderização das Alternativas
         const areaAlternativas = q.tipo === 'multipla' ? `
             <div class="form-group">
                 <label>Alternativas</label>
@@ -77,7 +72,6 @@ function renderizarQuestoes() {
                 </div>
             </div>` : '';
 
-        // Gestão Segura de Imagem
         const imgSrc = q.imagemUrl ? q.imagemUrl : '';
         const imgDisplay = q.imagemUrl ? 'block' : 'none';
         
@@ -94,7 +88,6 @@ function renderizarQuestoes() {
                 <small id="status-upload-${index}" style="display: none; margin-top: 5px;"></small>
             </div>`;
 
-        // Previne NaN para não disparar 400 Bad Request
         const desafioBox = `
         <div style="background: rgba(255, 215, 0, 0.1); padding: 10px; border-radius: 8px; margin-top:15px; border: 1px solid rgba(255,215,0,0.3);">
             <label style="color: #FFD700; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
@@ -118,7 +111,6 @@ function renderizarQuestoes() {
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h4 style="margin: 0; color: var(--cor-xp);">Questão ${index + 1}</h4>
             </div>
-
             <div class="form-group">
                 <label>Tipo de Questão</label>
                 <select onchange="atualizarQuestao(${index}, 'tipo', this.value); renderizarQuestoes();">
@@ -126,22 +118,17 @@ function renderizarQuestoes() {
                     <option value="dissertativa" ${q.tipo === 'dissertativa' ? 'selected' : ''}>Dissertativa</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>Enunciado</label>
                 <textarea onchange="atualizarQuestao(${index}, 'enunciado', this.value)" rows="2">${q.enunciado || ''}</textarea>
             </div>
-
             ${areaImagem}
             ${areaAlternativas}
-
             <div class="form-group">
                 <label>Resposta Correta</label>
                 ${campoResposta}
             </div>
-
             ${desafioBox}
-
             <div style="margin-top: 20px; text-align: right; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
                 <button type="button" onclick="removerQuestao(${index})" style="background-color: #f44336; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;">🗑️ Excluir esta Questão</button>
             </div>
@@ -163,24 +150,17 @@ async function fazerUploadEdicao(index, inputElement) {
     
     const statusSpan = document.getElementById(`status-upload-${index}`);
     statusSpan.style.display = 'block';
-    statusSpan.style.color = '#fff';
     statusSpan.textContent = 'Enviando...';
 
     try {
-        const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData
-        });
-
+        const response = await fetch('/api/upload', { method: 'POST', body: formData });
         if (response.ok) {
             const data = await response.json();
             questoesEdicao[index].imagemUrl = data.url;
             statusSpan.style.color = '#4CAF50';
             statusSpan.textContent = 'Upload concluído!';
-            
-            const previewImg = document.getElementById(`preview-${index}`);
-            previewImg.src = data.url;
-            previewImg.style.display = 'block';
+            document.getElementById(`preview-${index}`).src = data.url;
+            document.getElementById(`preview-${index}`).style.display = 'block';
         } else {
             throw new Error('Falha no upload');
         }
@@ -199,14 +179,9 @@ function removerQuestao(index) {
 
 function adicionarQuestao() {
     questoesEdicao.push({
-        tipo: 'multipla',
-        enunciado: 'Nova Questão',
-        imagemUrl: '',
+        tipo: 'multipla', enunciado: 'Nova Questão', imagemUrl: '',
         alternativaA: '', alternativaB: '', alternativaC: '', alternativaD: '',
-        respostaCorreta: 'A',
-        isDesafio: false,
-        tempoDesafio: 30,
-        xpExtra: 50
+        respostaCorreta: 'A', isDesafio: false, tempoDesafio: 30, xpExtra: 50
     });
     renderizarQuestoes();
 }
@@ -220,17 +195,11 @@ async function salvarEdicao() {
     }
 
     const faseNum = parseInt(document.getElementById('busca-fase').value);
-    if (!faseNum) {
-        alert("Número da fase inválido.");
-        return;
-    }
-
+    
     // CORREÇÃO CRÍTICA: Limpamos os IDs da fase e das questões antes de enviar.
-    // Como o backend deleta a fase antiga e cria uma nova (para gerar um ID novo e resetar o progresso),
-    // enviar IDs antigos faz o Hibernate dar erro de "Detached Entity" e bloquear a exclusão de questões!
     const questoesLimpas = questoesEdicao.map(q => {
         const novaQ = { ...q };
-        delete novaQ.id; // Remove o ID da questão para forçar criação de uma limpa
+        delete novaQ.id; // Remove ID para o Hibernate criar novas entidades
         return novaQ;
     });
 
@@ -254,7 +223,7 @@ async function salvarEdicao() {
         } else {
             const errText = await response.text();
             console.error("Erro do backend:", errText);
-            alert(`Erro ${response.status} ao salvar! Verifique se os campos estão preenchidos.`);
+            alert(`Erro ao salvar! Verifique se os campos estão preenchidos.`);
         }
     } catch (error) {
         alert('Erro de conexão ao salvar.');
@@ -265,32 +234,20 @@ async function excluirFase() {
     const modulo = document.getElementById('busca-modulo').value;
     const faseNum = document.getElementById('busca-fase').value;
 
-    if (!modulo || !faseNum) {
-        alert("Selecione uma fase válida para excluir.");
-        return;
-    }
-
-    if (!confirm(`TEM CERTEZA QUE DESEJA EXCLUIR DEFINITIVAMENTE A FASE ${faseNum} DO MÓDULO ${modulo.toUpperCase()}? Esta ação é irreversível e excluirá todas as questões.`)) {
-        return;
-    }
+    if (!confirm(`DESEJA EXCLUIR DEFINITIVAMENTE A FASE ${faseNum}?`)) return;
 
     try {
         const response = await fetch(`/api/fases/${modulo}/${faseNum}`, {
             method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
         });
-
         if (response.ok) {
-            alert("Fase excluída com sucesso do sistema!");
+            alert("Fase excluída com sucesso!");
             window.location.reload(); 
         } else {
-            const errorText = await response.text();
-            alert("Erro ao excluir fase: " + errorText);
+            alert("Erro ao excluir.");
         }
     } catch (error) {
-        console.error("Erro na requisição:", error);
-        alert("Erro de conexão ao tentar excluir a fase.");
+        alert("Erro de conexão.");
     }
 }
