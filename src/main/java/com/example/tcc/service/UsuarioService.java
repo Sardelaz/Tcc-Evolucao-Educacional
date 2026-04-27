@@ -112,7 +112,6 @@ public class UsuarioService {
         return response;
     }
 
-    // NOVO MÉTODO PARA O HEATMAP
     public Map<Long, Integer> getHeatmapData() {
         Usuario user = getCurrentUser();
         Map<Long, Integer> heatmap = new HashMap<>();

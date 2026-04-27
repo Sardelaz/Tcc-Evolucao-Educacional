@@ -30,7 +30,7 @@ public class FaseService {
 
         novaFase.setModulo(modulo);
         
-        // A sanitização agora ocorre EXCLUSIVAMENTE na hora de salvar, evitando bugs no Read-Only
+        // A sanitização ocorre no momento do salvamento para manter o banco limpo
         sanitizarDadosFase(novaFase);
 
         faseRepository.findByModuloAndFase(modulo, novaFase.getFase())
@@ -79,13 +79,11 @@ public class FaseService {
 
     @Transactional(readOnly = true)
     public List<Fase> carregarFases(String modulo) {
-        // Retorna direto do banco. Os dados já foram sanitizados no momento do salvamento (salvarFase).
         return faseRepository.findByModuloOrderByFaseAsc(modulo);
     }
 
     @Transactional(readOnly = true)
     public Fase carregarFaseEspecifica(String modulo, int faseNum) {
-        // Retorna direto do banco, sem manipular a entidade gerenciada
         return faseRepository.findByModuloAndFase(modulo, faseNum).orElse(null);
     }
 
@@ -114,6 +112,10 @@ public class FaseService {
         faseRepository.findByModuloAndFase(modulo, faseNum).ifPresent(faseRepository::delete);
     }
 
+    /**
+     * Verifica a similaridade entre a resposta do usuário e a resposta correta
+     * utilizando a distância de Levenshtein.
+     */
     public boolean verificarSimilaridade(String respostaUsuario, String respostaCorreta, double limite) {
         if (respostaUsuario == null || respostaCorreta == null) return false;
         
@@ -133,6 +135,7 @@ public class FaseService {
 
     private String normalizarTexto(String texto) {
         if (texto == null) return "";
+        // Remove acentos e converte para minúsculas
         String nfdNormalizedString = Normalizer.normalize(texto.trim().toLowerCase(), Normalizer.Form.NFD);
         return nfdNormalizedString.replaceAll("[\\u0300-\\u036f]", "");
     }
@@ -145,7 +148,8 @@ public class FaseService {
                 else if (j == 0) dp[i][j] = i;
                 else {
                     int custo = (s1.charAt(i - 1) == s2.charAt(j - 1)) ? 0 : 1;
-                    dp[i][j] = Math.min(dp[i - 1][j - 1] + custo, Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1));
+                    dp[i][j] = Math.min(dp[i - 1][j - 1] + custo, 
+                                        Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1));
                 }
             }
         }

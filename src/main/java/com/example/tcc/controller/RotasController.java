@@ -28,7 +28,8 @@ public class RotasController {
     @GetMapping("/razao")
     public String razao(Model model) {
         model.addAttribute("moduloSlug", "razao");
-        return "modulo-template";
+        // Correção: Retorna "razao" para usar o template com a lógica de trilha visual
+        return "razao";
     }
 
     @GetMapping("/estatistica")
@@ -127,7 +128,6 @@ public class RotasController {
         return "admin-editar-modulos";
     }
 
-    // NOVA ROTA: Acesso ao Dashboard Analítico
     @GetMapping("/admin-dashboard")
     public String adminDashboard() {
         return "admin-dashboard";

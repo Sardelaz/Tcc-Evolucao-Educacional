@@ -30,14 +30,19 @@
                     fetch('/api/progresso')
                 ]);
 
+                // Correção: Verifica se as respostas são válidas antes de tentar ler o JSON
+                if (!respFases.ok || !respProgresso.ok) {
+                    throw new Error("Erro ao buscar dados da API. Verifique se o usuário está logado.");
+                }
+
                 let minhasFases = await respFases.json();
                 const statusData = await respProgresso.json();
 
                 function generateLessons() {
                     track.innerHTML = '<svg id="track-lines"></svg>';
 
-                    if (minhasFases.length === 0) {
-                        track.innerHTML += '<p style="grid-column: 1/-1; text-align: center; color: #888; margin-top: 50px;">Nenhuma fase encontrada no banco de dados. Acesse o painel Admin para criá-las!</p>';
+                    if (!minhasFases || minhasFases.length === 0) {
+                        track.innerHTML += '<p style="grid-column: 1/-1; text-align: center; color: #888; margin-top: 50px;">Nenhuma fase encontrada no módulo "Razão". Acesse o painel Admin para criá-las!</p>';
                         return;
                     }
 
@@ -48,7 +53,7 @@
 
                         const item = document.createElement('div');
                         item.className = 'lesson-item';
-                        item.dataset.lessonId = `mat-${faseNum}`;
+                        item.dataset.lessonId = `${moduloAtual}_fase${faseNum}_id${faseObj.id}`;
                         item.style.gridRow = row; item.style.gridColumn = col;
 
                         const link = document.createElement('a');
@@ -71,7 +76,7 @@
 
                 function drawTrackLines() {
                     const svg = document.getElementById('track-lines');
-                    if (!svg) return;
+                    if (!svg || lessonElements.length < 2) return;
                     svg.innerHTML = '';
 
                     for (let i = 0; i < lessonElements.length - 1; i++) {
@@ -109,10 +114,11 @@
 
                 generateLessons();
                 checkAndUpdateUI();
-                setTimeout(drawTrackLines, 100);
+                setTimeout(drawTrackLines, 150);
                 window.addEventListener('resize', drawTrackLines);
             } catch (error) {
                 console.error("Erro ao carregar a trilha do BD:", error);
+                track.innerHTML = '<p style="color: #e74c3c; text-align: center; margin-top: 50px;">Falha ao carregar o progresso. Tente recarregar a página.</p>';
             }
         });
     </script>
