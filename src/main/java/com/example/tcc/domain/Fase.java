@@ -27,12 +27,13 @@ public class Fase {
     // Link opcional para a videoaula de reforço
     private String videoAulaUrl;
 
-    // Novo campo para identificar se a fase é especial (Bônus de XP e Moedas)
+    // Retornando a propriedade 'especial' necessária para o funcionamento do frontend
     private boolean especial;
 
     @NotEmpty(message = "A fase deve conter pelo menos uma questão")
     @Valid
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // CORREÇÃO: EAGER impede o erro de "LazyInitializationException"
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "fase_id")
     private List<Questao> questoes;
 }

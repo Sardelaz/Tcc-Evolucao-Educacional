@@ -20,7 +20,6 @@ public class FaseController {
         this.faseService = faseService;
     }
 
-    // Endpoint para buscar o próximo número de fase automático
     @GetMapping("/proxima/{modulo}")
     public ResponseEntity<Map<String, Integer>> buscarProximaFase(@PathVariable String modulo) {
         int proxima = faseService.buscarProximaFase(modulo);

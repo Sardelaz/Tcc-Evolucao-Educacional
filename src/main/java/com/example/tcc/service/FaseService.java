@@ -26,15 +26,11 @@ public class FaseService {
     public void salvarFase(String modulo, Fase novaFase) {
         log.info("Iniciando processo de salvamento da fase {} do módulo {}", novaFase.getFase(), modulo);
         
-        // Validação de alternativas duplicadas
         validarQuestoes(novaFase.getQuestoes());
 
         novaFase.setModulo(modulo);
-        
-        // Sanitização preventiva antes de salvar
         sanitizarDadosFase(novaFase);
 
-        // Lógica de Sobrescrita
         faseRepository.findByModuloAndFase(modulo, novaFase.getFase())
                 .ifPresent(faseExistente -> {
                     log.info("Fase {} já existente no módulo {}. Deletando versão antiga para atualizar.", novaFase.getFase(), modulo);
@@ -46,6 +42,7 @@ public class FaseService {
         log.info("Fase {} do módulo {} salva com sucesso!", novaFase.getFase(), modulo);
     }
 
+    @Transactional(readOnly = true)
     public int buscarProximaFase(String modulo) {
         List<Fase> fases = faseRepository.findByModuloOrderByFaseAsc(modulo);
         if (fases.isEmpty()) {
@@ -78,21 +75,20 @@ public class FaseService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<Fase> carregarFases(String modulo) {
         List<Fase> fases = faseRepository.findByModuloOrderByFaseAsc(modulo);
         fases.forEach(this::sanitizarDadosFase);
         return fases;
     }
 
+    @Transactional(readOnly = true)
     public Fase carregarFaseEspecifica(String modulo, int faseNum) {
         Optional<Fase> faseOpt = faseRepository.findByModuloAndFase(modulo, faseNum);
         faseOpt.ifPresent(this::sanitizarDadosFase);
         return faseOpt.orElse(null);
     }
 
-    /**
-     * Limpa URLs de imagens e outros campos que possam conter resíduos de JSON
-     */
     private void sanitizarDadosFase(Fase fase) {
         if (fase == null) return;
         if (fase.getQuestoes() != null) {
@@ -106,7 +102,6 @@ public class FaseService {
 
     private String sanitizarUrl(String url) {
         if (url == null || url.isEmpty()) return null;
-        // Remove aspas, chaves e prefixos comuns de serialização JSON incorreta
         return url.replace("\"", "")
                   .replace("{", "")
                   .replace("}", "")

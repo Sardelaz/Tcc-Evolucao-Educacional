@@ -13,13 +13,11 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Impede que a falta de um ícone (favicon.ico) ou imagem cause um erro 500
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<Void> handleNotFound(NoResourceFoundException ex) {
         return ResponseEntity.notFound().build();
     }
 
-    // NOVO: Trata erros de validações automáticas (@Valid, @NotEmpty, @Min)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> erros = new HashMap<>();
@@ -29,7 +27,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
     }
 
-    // Trata erros de lógica de negócio (como as alternativas iguais no FaseService)
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
         Map<String, String> erro = new HashMap<>();
@@ -37,11 +34,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
     }
 
+    // CORREÇÃO CRÍTICA: Retornar INTERNAL_SERVER_ERROR e imprimir no log
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntime(RuntimeException ex) {
         Map<String, String> erro = new HashMap<>();
-        erro.put("erro", "Falha na operação: " + ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+        erro.put("erro", "Erro interno no servidor: " + ex.getMessage());
+        ex.printStackTrace(); // Fundamental para você ver qual foi o erro exato nos logs
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
     }
 
     @ExceptionHandler(Exception.class)
