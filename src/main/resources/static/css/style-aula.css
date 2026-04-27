@@ -17,13 +17,19 @@
     box-sizing: border-box;
 }
 
+html {
+    height: -webkit-fill-available;
+}
+
 body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--cor-fundo);
     color: var(--cor-texto);
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    height: 100dvh;
     overflow: hidden;
 }
 
@@ -37,6 +43,7 @@ body {
     z-index: 10;
     flex-wrap: wrap;
     gap: 10px;
+    flex-shrink: 0;
 }
 
 .close-btn {
@@ -78,9 +85,11 @@ body {
     0% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(1.15);
     }
+
     100% {
         transform: scale(1);
     }
@@ -145,9 +154,12 @@ body {
 }
 
 @keyframes floatMascot {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0);
     }
+
     50% {
         transform: translateY(-10px);
     }
@@ -158,6 +170,7 @@ body {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -204,10 +217,47 @@ body {
 
 .question-image {
     max-width: 100%;
-    max-height: 200px;
+    width: 100%;
+    max-height: 250px;
+    object-fit: contain;
     border-radius: 12px;
     margin-bottom: 20px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    display: block;
+    flex-shrink: 0;
+}
+
+/* ESTILIZAÇÃO DE INPUTS */
+#area-resposta input,
+#area-resposta textarea,
+.input-resposta {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    background-color: var(--cor-card);
+    border: 2px solid var(--cor-borda);
+    color: #ffffff;
+    font-size: 1.2rem;
+    padding: 15px 20px;
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+    font-family: inherit;
+    text-align: center;
+    box-shadow: none;
+}
+
+#area-resposta input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+#area-resposta input:focus,
+#area-resposta textarea:focus,
+.input-resposta:focus {
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 10px rgba(28, 176, 246, 0.3);
+    background-color: rgba(28, 176, 246, 0.1);
 }
 
 .options-grid {
@@ -227,6 +277,7 @@ body {
     cursor: pointer;
     transition: 0.2s;
     text-align: left;
+    -webkit-appearance: none;
 }
 
 .option-btn:hover {
@@ -249,14 +300,20 @@ body {
     border-color: var(--cor-incorreta);
 }
 
+/* ==========================================
+   BARRA INFERIOR (MUITO MAIS ALTA)
+   ========================================== */
 .bottom-bar {
-    padding: 20px;
+    padding: 20px 20px 60px 20px;
+    /* Base desktop muito espaçosa */
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
     background: var(--cor-container);
     border-top: 1px solid var(--cor-borda);
     display: flex;
     justify-content: center;
     z-index: 10;
     position: relative;
+    flex-shrink: 0;
 }
 
 .check-btn {
@@ -272,6 +329,7 @@ body {
     max-width: 400px;
     box-shadow: 0 4px 0 var(--cor-secundaria);
     transition: 0.2s;
+    -webkit-appearance: none;
 }
 
 .check-btn:hover {
@@ -290,9 +348,10 @@ body {
     cursor: not-allowed;
 }
 
+/* Feedback Acompanha a Subida do Botão */
 .feedback {
     position: absolute;
-    bottom: 90px;
+    bottom: calc(130px + env(safe-area-inset-bottom, 0px));
     left: 0;
     width: 100%;
     padding: 20px;
@@ -388,7 +447,7 @@ body {
 }
 
 /* ==========================================
-   RESPONSIVIDADE MELHORADA
+   RESPONSIVIDADE MOBILE 
    ========================================== */
 
 /* Tablets grandes */
@@ -484,17 +543,12 @@ body {
     }
 
     .bottom-bar {
-        padding: 15px;
+        padding: 15px 15px 70px 15px;
+        padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
     }
 
     .check-btn {
         padding: 14px 30px;
-        font-size: 1.1rem;
-    }
-
-    .feedback {
-        bottom: 75px;
-        padding: 15px;
         font-size: 1.1rem;
     }
 
@@ -514,10 +568,6 @@ body {
 
 /* Smartphones grandes */
 @media (max-width: 576px) {
-    body {
-        height: 100dvh; /* Dynamic viewport height para mobile */
-    }
-
     .top-bar {
         padding: 10px 12px;
         gap: 8px;
@@ -567,8 +617,11 @@ body {
     }
 
     .question-image {
-        max-height: 150px;
+        max-height: 200px;
         margin-bottom: 15px;
+        flex-shrink: 0;
+        width: 100%;
+        object-fit: contain;
     }
 
     .options-grid {
@@ -581,18 +634,21 @@ body {
         border-radius: 10px;
     }
 
+    /* ESPAÇO EXTREMO PARA SUBIR O BOTÃO AQUI */
     .bottom-bar {
-        padding: 12px;
+        padding: 15px 15px 80px 15px;
+        padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
     }
 
     .check-btn {
-        padding: 12px 25px;
-        font-size: 1rem;
+        padding: 14px 25px;
+        font-size: 1.05rem;
         border-radius: 10px;
     }
 
     .feedback {
-        bottom: 65px;
+        bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+        /* Sobe drasticamente no mobile */
         padding: 12px;
         font-size: 1rem;
     }
@@ -749,16 +805,17 @@ body {
     }
 
     .bottom-bar {
-        padding: 10px;
+        padding: 10px 10px 30px 10px;
     }
 
+    /* Ajuste em paisagem */
     .check-btn {
         padding: 10px 30px;
         font-size: 1rem;
     }
 
     .feedback {
-        bottom: 55px;
+        bottom: 80px;
         padding: 10px;
         font-size: 0.95rem;
     }
