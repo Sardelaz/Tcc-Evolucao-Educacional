@@ -1,7 +1,9 @@
 const urlParams = new URLSearchParams(window.location.search);
 const moduloAtual = urlParams.get('modulo');
 const faseAtual = urlParams.get('fase');
-const lessonId = `mat-${faseAtual}`;
+
+// Variável para armazenar o ID real gerado pelo Banco de Dados para esta fase
+let faseAtualDbId = null; 
 
 let questoes = [];
 let faseVideoUrl = '';
@@ -57,10 +59,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         const faseData = await faseRes.json();
         const progressoData = await progressoRes.json();
 
+        faseAtualDbId = faseData.id;
         questoes = faseData.questoes || [];
         faseVideoUrl = faseData.videoAulaUrl || '';
 
-        if (progressoData[lessonId] === 'completed') {
+        // CORREÇÃO: Cria a chave exata que o Backend usa, para não chocar com outros módulos
+        const chaveUnica = `${moduloAtual}_fase${faseAtual}_id${faseAtualDbId}`;
+
+        // Verifica o progresso da chave única desta fase exata (ou fallback pro modelo antigo)
+        if (progressoData[chaveUnica] === 'completed' || progressoData[`${moduloAtual}-${faseAtual}`] === 'completed') {
             isFaseJaConcluida = true;
         }
 
@@ -227,7 +234,6 @@ function montarDOMDaQuestao(q) {
                 btn.className = 'option-btn';
                 btn.textContent = q[`alternativa${letra}`];
                 
-                // CORREÇÃO: Definir a letra imediatamente na criação para evitar erro no loop de verificação
                 btn.dataset.letra = letra;
 
                 btn.onclick = () => {
@@ -311,7 +317,6 @@ function verificarResposta() {
     const btnVerificar = document.getElementById('btn-verificar');
     const sfxEnabled = localStorage.getItem('sfxEnabled') !== 'off';
 
-    // CORREÇÃO: Bloqueia opções e destaca a correta com verificação de segurança (null-check)
     document.querySelectorAll('.option-btn').forEach(b => {
         b.disabled = true;
         const letraBotao = b.dataset.letra;
@@ -446,7 +451,10 @@ function finalizarFase() {
         document.querySelector('.summary-card').insertAdjacentHTML('beforeend', feedbackHTML);
     }
 
-    fetch(`/api/progresso/${lessonId}`, {
+    // CORREÇÃO: Envia o progresso com a chave robusta do BD
+    const chaveUnicaParaSalvar = `${moduloAtual}_fase${faseAtual}_id${faseAtualDbId}`;
+
+    fetch(`/api/progresso/${chaveUnicaParaSalvar}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

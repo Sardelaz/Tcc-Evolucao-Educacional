@@ -65,7 +65,10 @@
 
             <hr class="divisor">
 
-            <button class="btn-salvar-tudo" onclick="salvarEdicao()">Salvar Todas as Alterações</button>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-salvar-tudo" onclick="salvarEdicao()" style="flex: 2;">Salvar Todas as Alterações</button>
+                <button id="btnExcluirFase" onclick="excluirFase()" style="flex: 1; background-color: #f44336; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; padding: 12px;">Excluir Fase Completa</button>
+            </div>
         </div>
     </div>
 

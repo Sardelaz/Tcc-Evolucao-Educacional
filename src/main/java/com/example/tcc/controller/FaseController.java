@@ -32,9 +32,14 @@ public class FaseController {
     public ResponseEntity<Fase> carregarFaseEspecifica(@PathVariable String modulo, @PathVariable int faseId) {
         Fase fase = faseService.carregarFaseEspecifica(modulo, faseId);
         if (fase == null) {
-            // Se a fase não existir no Banco de Dados, devolvemos 404 de forma limpa para o JS capturar.
             return ResponseEntity.notFound().build(); 
         }
         return ResponseEntity.ok(fase);
+    }
+
+    @DeleteMapping("/{modulo}/{faseId}")
+    public ResponseEntity<Void> deletarFase(@PathVariable String modulo, @PathVariable int faseId) {
+        faseService.deletarFase(modulo, faseId);
+        return ResponseEntity.ok().build();
     }
 }

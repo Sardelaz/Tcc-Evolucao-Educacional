@@ -13,7 +13,7 @@ async function buscarFase() {
             const data = await response.json();
             faseAtualId = data.id;
             
-            // CORREÇÃO: Limpeza automática do Banco de Dados para remover os JSONs corrompidos nas imagens antigas
+            // Limpeza automática do Banco de Dados para remover os JSONs corrompidos nas imagens antigas
             questoesEdicao = data.questoes.map(q => {
                 if (q.imagemUrl && typeof q.imagemUrl === 'string' && q.imagemUrl.includes('{"url"')) {
                     try { q.imagemUrl = JSON.parse(q.imagemUrl).url; } catch(e) {}
@@ -36,6 +36,7 @@ async function buscarFase() {
             document.getElementById('editor-area').classList.add('hidden');
         }
     } catch (error) {
+        console.error("Erro ao buscar fase:", error);
         alert("Erro de conexão.");
     }
     btn.textContent = "Carregar Dados da Fase";
@@ -49,7 +50,7 @@ function renderizarQuestoes() {
         const qDiv = document.createElement('div');
         qDiv.className = 'questao-editor-box';
 
-        // Lógica para a Resposta Correta (Select para múltipla, Input para dissertativa)
+        // Lógica para a Resposta Correta
         const respC = (q.respostaCorreta || 'A').toUpperCase();
         let campoResposta = '';
         if (q.tipo === 'multipla') {
@@ -64,7 +65,7 @@ function renderizarQuestoes() {
             campoResposta = `<input type="text" value="${q.respostaCorreta || ''}" onchange="atualizarQuestao(${index}, 'respostaCorreta', this.value)" placeholder="Resposta exata">`;
         }
 
-        // Renderização das Alternativas (Apenas se for múltipla)
+        // Renderização das Alternativas
         const areaAlternativas = q.tipo === 'multipla' ? `
             <div class="form-group">
                 <label>Alternativas</label>
@@ -76,7 +77,7 @@ function renderizarQuestoes() {
                 </div>
             </div>` : '';
 
-        // Gestão Segura de Imagem (Previne o erro do placeholder 404)
+        // Gestão Segura de Imagem
         const imgSrc = q.imagemUrl ? q.imagemUrl : '';
         const imgDisplay = q.imagemUrl ? 'block' : 'none';
         
@@ -115,8 +116,7 @@ function renderizarQuestoes() {
 
         qDiv.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h4 style="margin: 0;">Questão ${index + 1}</h4>
-                <button class="btn-remover" onclick="removerQuestao(${index})" style="padding: 5px 10px; font-size: 0.8rem;">Excluir</button>
+                <h4 style="margin: 0; color: var(--cor-xp);">Questão ${index + 1}</h4>
             </div>
 
             <div class="form-group">
@@ -141,6 +141,10 @@ function renderizarQuestoes() {
             </div>
 
             ${desafioBox}
+
+            <div style="margin-top: 20px; text-align: right; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <button type="button" onclick="removerQuestao(${index})" style="background-color: #f44336; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;">🗑️ Excluir esta Questão</button>
+            </div>
         `;
         container.appendChild(qDiv);
     });
@@ -187,7 +191,7 @@ async function fazerUploadEdicao(index, inputElement) {
 }
 
 function removerQuestao(index) {
-    if (confirm("Tem a certeza que deseja excluir esta questão?")) {
+    if (confirm("Tem a certeza que deseja excluir esta questão específica?")) {
         questoesEdicao.splice(index, 1);
         renderizarQuestoes();
     }
@@ -210,7 +214,6 @@ function adicionarQuestao() {
 async function salvarEdicao() {
     if (!faseAtualId) return;
 
-    // Proteção Front-End contra o 400 Bad Request
     if (questoesEdicao.length === 0) {
         alert("A fase precisa ter pelo menos 1 questão antes de salvar.");
         return;
@@ -222,13 +225,21 @@ async function salvarEdicao() {
         return;
     }
 
+    // CORREÇÃO CRÍTICA: Limpamos os IDs da fase e das questões antes de enviar.
+    // Como o backend deleta a fase antiga e cria uma nova (para gerar um ID novo e resetar o progresso),
+    // enviar IDs antigos faz o Hibernate dar erro de "Detached Entity" e bloquear a exclusão de questões!
+    const questoesLimpas = questoesEdicao.map(q => {
+        const novaQ = { ...q };
+        delete novaQ.id; // Remove o ID da questão para forçar criação de uma limpa
+        return novaQ;
+    });
+
     const payload = {
-        id: faseAtualId,
         modulo: document.getElementById('busca-modulo').value,
         fase: faseNum,
-        qtd: questoesEdicao.length,
+        qtd: questoesLimpas.length,
         videoAulaUrl: document.getElementById('edit_video_aula_url').value,
-        questoes: questoesEdicao
+        questoes: questoesLimpas
     };
 
     try {
@@ -243,9 +254,43 @@ async function salvarEdicao() {
         } else {
             const errText = await response.text();
             console.error("Erro do backend:", errText);
-            alert(`Erro ${response.status} ao salvar! O Spring Boot rejeitou os dados. Verifique se os campos estão preenchidos.`);
+            alert(`Erro ${response.status} ao salvar! Verifique se os campos estão preenchidos.`);
         }
     } catch (error) {
         alert('Erro de conexão ao salvar.');
+    }
+}
+
+async function excluirFase() {
+    const modulo = document.getElementById('busca-modulo').value;
+    const faseNum = document.getElementById('busca-fase').value;
+
+    if (!modulo || !faseNum) {
+        alert("Selecione uma fase válida para excluir.");
+        return;
+    }
+
+    if (!confirm(`TEM CERTEZA QUE DESEJA EXCLUIR DEFINITIVAMENTE A FASE ${faseNum} DO MÓDULO ${modulo.toUpperCase()}? Esta ação é irreversível e excluirá todas as questões.`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/fases/${modulo}/${faseNum}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            alert("Fase excluída com sucesso do sistema!");
+            window.location.reload(); 
+        } else {
+            const errorText = await response.text();
+            alert("Erro ao excluir fase: " + errorText);
+        }
+    } catch (error) {
+        console.error("Erro na requisição:", error);
+        alert("Erro de conexão ao tentar excluir a fase.");
     }
 }

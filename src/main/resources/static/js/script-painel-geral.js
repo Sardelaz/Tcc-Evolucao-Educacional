@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let alunoSelecionadoId = null;
     let meuGrafico;
 
-    // MAPEAMENTO PARA CORRIGIR "MAT" -> "RAZÃO E PROPORÇÃO"
+    // MAPEAMENTO DE NOMES DE MÓDULOS
     const mapaNomesModulos = {
         'mat': 'Razão e Proporção',
         'simulado': 'Simulados ENEM',
@@ -61,6 +61,18 @@ document.addEventListener('DOMContentLoaded', () => {
         renderizarLista(filtrados);
     });
 
+    // Função auxiliar para traduzir chaves de ID complexas (ex: estatistica_fase1_id50)
+    function formatarNomeChave(chave) {
+        if (!chave) return 'DESCONHECIDA';
+        if (chave.includes('_fase')) {
+            const partes = chave.split('_fase');
+            const mod = mapaNomesModulos[partes[0]] || partes[0].toUpperCase();
+            const num = partes[1].split('_id')[0];
+            return `${mod} - FASE ${num}`;
+        }
+        return chave.toUpperCase().replace('MAT-', 'FASE ').replace('-', ' FASE ');
+    }
+
     window.carregarAnaliseGeral = function() {
         alunoSelecionadoId = null;
         tituloAnalise.innerHTML = `Visão Geral: <span style="color:#FFD700;">Desempenho da Turma</span>`;
@@ -76,7 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 listaP.innerHTML = '';
                 (data.fasesMaisPerfeitas || []).forEach(item => {
                     const li = document.createElement('li');
-                    li.textContent = `⭐ ${item.nomeFase.toUpperCase().replace('MAT-', 'FASE ')} (${item.quantidade} alunos gabaritaram)`;
+                    // CORREÇÃO DA RENDERIZAÇÃO NO PAINEL ADMIN
+                    li.textContent = `⭐ ${formatarNomeChave(item.nomeFase)} (${item.quantidade} alunos gabaritaram)`;
                     listaP.appendChild(li);
                 });
 
@@ -84,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 listaC.innerHTML = '';
                 (data.fasesMaisCriticas || []).forEach(item => {
                     const li = document.createElement('li');
-                    li.textContent = `❌ ${item.nomeFase.toUpperCase().replace('MAT-', 'FASE ')} (${item.quantidade} alunos com erros)`;
+                    li.textContent = `❌ ${formatarNomeChave(item.nomeFase)} (${item.quantidade} alunos com erros)`;
                     listaC.appendChild(li);
                 });
             });
@@ -117,11 +130,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const gridProgresso = document.getElementById('lista-progresso-modulos');
                 gridProgresso.innerHTML = '';
                 const progressoPorModulo = {};
+                
+                // CORREÇÃO DA LEITURA DE PROGRESSO INDIVIDUAL (Nova Chave Dinâmica e Fallback)
                 Object.keys(data.statusFases || {}).forEach(key => {
-                    const partes = key.split('-');
-                    const modId = partes[0];
-                    const num = parseInt(partes[1]) || 0;
-                    if (!progressoPorModulo[modId] || num > progressoPorModulo[modId]) progressoPorModulo[modId] = num;
+                    let modId, num;
+                    
+                    if (key.includes('_fase')) {
+                        const partes = key.split('_fase');
+                        modId = partes[0];
+                        num = parseInt(partes[1].split('_id')[0]) || 0;
+                    } else if (key.includes('-')) {
+                        const partes = key.split('-');
+                        modId = partes[0];
+                        num = parseInt(partes[1]) || 0;
+                    } else {
+                        return; // Ignora chaves desconhecidas
+                    }
+
+                    if (!progressoPorModulo[modId] || num > progressoPorModulo[modId]) {
+                        progressoPorModulo[modId] = num;
+                    }
                 });
                 
                 for (const modId in progressoPorModulo) {
@@ -139,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 listaP.innerHTML = '';
                 (data.fasesPerfeitas || []).forEach(f => {
                     const li = document.createElement('li');
-                    li.textContent = `⭐ ${f.toUpperCase().replace('MAT-', 'FASE ')}`;
+                    li.textContent = `⭐ ${formatarNomeChave(f)}`;
                     listaP.appendChild(li);
                 });
 
