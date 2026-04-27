@@ -29,7 +29,6 @@ public class Usuario {
     private int moedas = 0; 
     private String liga = "FERRO"; 
     
-    // XP acumulado apenas na semana atual
     private int xpTemporada = 0;
 
     @ElementCollection(fetch = FetchType.LAZY)

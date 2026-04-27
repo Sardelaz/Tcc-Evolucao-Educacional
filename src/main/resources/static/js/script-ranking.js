@@ -42,7 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
         users.forEach((user, index) => {
             const position = startOffset + index + 1; 
 
-            // Pódio (apenas na página 1)
             if (position <= 3 && currentPage === 0) {
                 const container = podiumElements[position];
                 if (container) {

@@ -29,17 +29,11 @@ public class GamificacaoController {
         return ResponseEntity.ok(usuarioService.carregarPerfil());
     }
 
-    @GetMapping("/usuario/heatmap-data")
-    public ResponseEntity<Map<Long, Integer>> getHeatmapData() {
-        return ResponseEntity.ok(usuarioService.getHeatmapData());
-    }
-
     @GetMapping("/ranking")
     public ResponseEntity<Map<String, Object>> obterRanking(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String avatar) {
-        // CORREÇÃO: Utiliza o RankingService para retornar requisitos e cronômetro
         return ResponseEntity.ok(rankingService.carregarRankingPaginado(page, size, avatar));
     }
 
