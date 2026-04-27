@@ -17,29 +17,28 @@ public class UploadService {
     public Map<String, String> salvarImagem(MultipartFile file) {
         Map<String, String> response = new HashMap<>();
         try {
-            // Define o caminho absoluto para a pasta de uploads no projeto
-            String uploadDir = "src/main/resources/static/uploads/";
-            File dir = new File(uploadDir);
-            
-            if (!dir.exists()) {
-                dir.mkdirs();
+            // Cria a pasta uploads na raiz se não existir
+            Path uploadDir = Paths.get("uploads");
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
             }
 
-            // Gera um nome único para evitar conflitos de arquivos com o mesmo nome
+            // Gera um nome único usando UUID para evitar erros de duplicidade e caracteres
             String originalName = file.getOriginalFilename() != null ? file.getOriginalFilename() : "imagem.png";
-            String fileName = UUID.randomUUID().toString() + "_" + originalName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
-            
-            Path filePath = Paths.get(uploadDir + fileName);
+            String extensao = originalName.substring(originalName.lastIndexOf("."));
+            String fileName = UUID.randomUUID().toString() + extensao;
+
+            // Salva o arquivo no sistema
+            Path filePath = uploadDir.resolve(fileName);
             Files.copy(file.getInputStream(), filePath);
 
-            // Retorna a URL relativa que será salva no banco de dados
+            // Retorna a URL que o WebConfig vai interceptar
             response.put("url", "/uploads/" + fileName);
-            return response;
-
+            
         } catch (IOException e) {
             e.printStackTrace();
             response.put("erro", "Falha ao fazer upload da imagem: " + e.getMessage());
-            return response;
         }
+        return response;
     }
 }

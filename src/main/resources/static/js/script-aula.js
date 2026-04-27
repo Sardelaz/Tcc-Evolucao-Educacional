@@ -72,7 +72,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (questoes.length === 0) {
             alert("Esta fase ainda não possui questões cadastradas. Por favor, adicione questões no painel de administração.");
-            // CORREÇÃO: Redireciona para a rota dinâmica correta com prefixo /m/
             window.location.href = `/m/${moduloAtual}`; 
             return;
         }
@@ -205,7 +204,7 @@ function montarDOMDaQuestao(q) {
 
     const imgElem = document.getElementById('imagem-pergunta');
     if (q.imagemUrl && q.imagemUrl.trim() !== '') {
-        // CORREÇÃO: Limpeza profunda da URL para remover resíduos de JSON e aspas
+        // CORREÇÃO: Limpeza profunda da URL para remover resíduos de JSON, aspas e formatação incorreta
         let urlLimpa = q.imagemUrl.trim()
             .replace(/['"]/g, '')      
             .replace(/%22/g, '')      
@@ -213,9 +212,11 @@ function montarDOMDaQuestao(q) {
             .replace(/[{}]/g, '')      
             .replace(/url:/g, '');
 
-        // Verifica se a URL já é absoluta ou começa com barra, caso contrário, aponta para /uploads/
+        // Garante que a URL comece com /uploads/ se for um caminho relativo
         if (!urlLimpa.startsWith('/') && !urlLimpa.startsWith('http')) {
             urlLimpa = '/uploads/' + urlLimpa;
+        } else if (urlLimpa.startsWith('uploads/')) {
+            urlLimpa = '/' + urlLimpa;
         }
 
         imgElem.src = urlLimpa;
@@ -224,11 +225,11 @@ function montarDOMDaQuestao(q) {
         imgElem.style.maxWidth = '100%';
         imgElem.style.borderRadius = '10px';
 
-        // Fallback: Se a imagem ainda assim falhar, tenta carregar um placeholder
+        // CORREÇÃO: Tratamento de erro caso a imagem física não seja encontrada (comum no Render)
         imgElem.onerror = function() {
             console.warn("Falha ao carregar imagem:", urlLimpa);
-            this.src = '/img/placeholder.png'; // Garanta que este arquivo existe
-            this.onerror = null; // Evita loop infinito
+            this.src = '/img/placeholder.png'; // Fallback para placeholder
+            this.onerror = null; 
         };
     } else {
         imgElem.style.display = 'none';
