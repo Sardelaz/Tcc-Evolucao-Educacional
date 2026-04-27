@@ -35,6 +35,8 @@ body {
     background: var(--cor-container);
     border-bottom: 1px solid var(--cor-borda);
     z-index: 10;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .close-btn {
@@ -43,6 +45,11 @@ body {
     text-decoration: none;
     font-weight: bold;
     transition: color 0.2s;
+    flex-shrink: 0;
+}
+
+.close-btn:hover {
+    color: #fff;
 }
 
 /* SISTEMA DE VIDAS */
@@ -51,6 +58,7 @@ body {
     gap: 5px;
     margin: 0 15px;
     font-size: 1.3rem;
+    flex-shrink: 0;
 }
 
 .heart {
@@ -70,11 +78,9 @@ body {
     0% {
         transform: scale(1);
     }
-
     50% {
         transform: scale(1.15);
     }
-
     100% {
         transform: scale(1);
     }
@@ -88,6 +94,7 @@ body {
     border-radius: 10px;
     overflow: hidden;
     border: 1px solid var(--cor-borda);
+    min-width: 100px;
 }
 
 .progress-bar {
@@ -106,6 +113,7 @@ body {
     align-items: center;
     gap: 5px;
     margin-right: 20px;
+    flex-shrink: 0;
 }
 
 .timer-display {
@@ -115,6 +123,7 @@ body {
     display: flex;
     align-items: center;
     gap: 5px;
+    flex-shrink: 0;
 }
 
 /* MASCOTE E BALÃO DE FALA */
@@ -132,17 +141,26 @@ body {
     font-size: 5rem;
     filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
     animation: floatMascot 3s infinite ease-in-out;
+    flex-shrink: 0;
 }
 
 @keyframes floatMascot {
-
-    0%,
-    100% {
+    0%, 100% {
         transform: translateY(0);
     }
-
     50% {
         transform: translateY(-10px);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -181,6 +199,7 @@ body {
     max-width: 900px;
     margin: 0 auto;
     width: 100%;
+    overflow-y: auto;
 }
 
 .question-image {
@@ -196,12 +215,6 @@ body {
     grid-template-columns: 1fr;
     gap: 12px;
     width: 100%;
-}
-
-@media(min-width: 600px) {
-    .options-grid {
-        grid-template-columns: 1fr 1fr;
-    }
 }
 
 .option-btn {
@@ -226,6 +239,16 @@ body {
     border-color: var(--cor-primaria);
 }
 
+.option-btn.correct {
+    background: rgba(88, 204, 2, 0.1);
+    border-color: var(--cor-correta);
+}
+
+.option-btn.incorrect {
+    background: rgba(255, 75, 75, 0.1);
+    border-color: var(--cor-incorreta);
+}
+
 .bottom-bar {
     padding: 20px;
     background: var(--cor-container);
@@ -248,6 +271,23 @@ body {
     width: 100%;
     max-width: 400px;
     box-shadow: 0 4px 0 var(--cor-secundaria);
+    transition: 0.2s;
+}
+
+.check-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--cor-secundaria);
+}
+
+.check-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--cor-secundaria);
+}
+
+.check-btn:disabled {
+    background: #555;
+    box-shadow: 0 4px 0 #333;
+    cursor: not-allowed;
 }
 
 .feedback {
@@ -290,6 +330,7 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 10000;
+    padding: 20px;
 }
 
 .modal-overlay.active {
@@ -301,7 +342,7 @@ body {
     border: 2px solid var(--cor-primaria);
     border-radius: 20px;
     padding: 40px;
-    width: 90%;
+    width: 100%;
     max-width: 450px;
     text-align: center;
 }
@@ -340,4 +381,438 @@ body {
     justify-content: space-between;
     padding: 10px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+}
+
+/* ==========================================
+   RESPONSIVIDADE MELHORADA
+   ========================================== */
+
+/* Tablets grandes */
+@media (max-width: 1024px) {
+    .top-bar {
+        padding: 15px;
+    }
+
+    .question-area {
+        padding: 15px;
+    }
+
+    .mascot-img {
+        font-size: 4rem;
+    }
+
+    .speech-bubble {
+        padding: 15px 20px;
+        font-size: 1.1rem;
+        max-width: 400px;
+    }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+    .top-bar {
+        padding: 12px 15px;
+        justify-content: center;
+    }
+
+    .close-btn {
+        font-size: 1.3rem;
+    }
+
+    .lives-display {
+        font-size: 1.1rem;
+        margin: 0 10px;
+    }
+
+    .progress-container {
+        margin: 0 10px;
+        height: 12px;
+        order: 3;
+        flex-basis: 100%;
+        margin-top: 10px;
+    }
+
+    .streak-display {
+        font-size: 1rem;
+        margin-right: 10px;
+    }
+
+    .timer-display {
+        font-size: 1rem;
+    }
+
+    .mascot-container {
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .mascot-img {
+        font-size: 3.5rem;
+    }
+
+    .speech-bubble {
+        max-width: 90%;
+        padding: 15px 18px;
+        font-size: 1rem;
+        text-align: center;
+    }
+
+    .speech-bubble::after {
+        display: none;
+    }
+
+    .question-area {
+        padding: 15px;
+        justify-content: flex-start;
+        padding-top: 20px;
+    }
+
+    .options-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .option-btn {
+        padding: 15px;
+        font-size: 1rem;
+        border-radius: 12px;
+    }
+
+    .bottom-bar {
+        padding: 15px;
+    }
+
+    .check-btn {
+        padding: 14px 30px;
+        font-size: 1.1rem;
+    }
+
+    .feedback {
+        bottom: 75px;
+        padding: 15px;
+        font-size: 1.1rem;
+    }
+
+    .modal-content {
+        padding: 30px 25px;
+        border-radius: 16px;
+    }
+
+    .summary-screen {
+        padding: 30px 15px;
+    }
+
+    .summary-card {
+        padding: 25px 20px;
+    }
+}
+
+/* Smartphones grandes */
+@media (max-width: 576px) {
+    body {
+        height: 100dvh; /* Dynamic viewport height para mobile */
+    }
+
+    .top-bar {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    .close-btn {
+        font-size: 1.2rem;
+    }
+
+    .lives-display {
+        font-size: 1rem;
+        gap: 3px;
+        margin: 0 8px;
+    }
+
+    .progress-container {
+        height: 10px;
+        margin: 8px 0 0 0;
+    }
+
+    .streak-display {
+        font-size: 0.9rem;
+        margin-right: 8px;
+    }
+
+    .timer-display {
+        font-size: 0.9rem;
+    }
+
+    .mascot-container {
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .mascot-img {
+        font-size: 3rem;
+    }
+
+    .speech-bubble {
+        padding: 12px 15px;
+        font-size: 0.95rem;
+        border-radius: 16px;
+    }
+
+    .question-area {
+        padding: 12px;
+    }
+
+    .question-image {
+        max-height: 150px;
+        margin-bottom: 15px;
+    }
+
+    .options-grid {
+        gap: 8px;
+    }
+
+    .option-btn {
+        padding: 14px 12px;
+        font-size: 0.95rem;
+        border-radius: 10px;
+    }
+
+    .bottom-bar {
+        padding: 12px;
+    }
+
+    .check-btn {
+        padding: 12px 25px;
+        font-size: 1rem;
+        border-radius: 10px;
+    }
+
+    .feedback {
+        bottom: 65px;
+        padding: 12px;
+        font-size: 1rem;
+    }
+
+    .modal-content {
+        padding: 25px 20px;
+        max-width: 95%;
+    }
+
+    .summary-screen {
+        padding: 20px 12px;
+    }
+
+    .summary-card {
+        padding: 20px 15px;
+        border-radius: 16px;
+    }
+
+    .stat-row {
+        padding: 8px 0;
+        font-size: 0.95rem;
+    }
+}
+
+/* Smartphones pequenos */
+@media (max-width: 400px) {
+    .top-bar {
+        padding: 8px 10px;
+    }
+
+    .close-btn {
+        font-size: 1.1rem;
+    }
+
+    .lives-display {
+        font-size: 0.9rem;
+        margin: 0 5px;
+    }
+
+    .progress-container {
+        height: 8px;
+    }
+
+    .streak-display,
+    .timer-display {
+        font-size: 0.85rem;
+    }
+
+    .mascot-img {
+        font-size: 2.5rem;
+    }
+
+    .speech-bubble {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+    }
+
+    .option-btn {
+        padding: 12px 10px;
+        font-size: 0.9rem;
+    }
+
+    .check-btn {
+        padding: 11px 20px;
+        font-size: 0.95rem;
+    }
+
+    .feedback {
+        font-size: 0.95rem;
+        padding: 10px;
+    }
+
+    .modal-content {
+        padding: 20px 15px;
+    }
+}
+
+/* Smartphones muito pequenos */
+@media (max-width: 320px) {
+    .lives-display {
+        font-size: 0.85rem;
+    }
+
+    .mascot-img {
+        font-size: 2.2rem;
+    }
+
+    .speech-bubble {
+        font-size: 0.85rem;
+        padding: 8px 10px;
+    }
+
+    .option-btn {
+        padding: 10px 8px;
+        font-size: 0.85rem;
+    }
+
+    .check-btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Duas colunas para opções em telas maiores */
+@media (min-width: 600px) {
+    .options-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Modo paisagem em dispositivos móveis */
+@media (max-height: 500px) and (orientation: landscape) {
+    .top-bar {
+        padding: 8px 15px;
+    }
+
+    .progress-container {
+        order: 0;
+        flex-basis: auto;
+        margin-top: 0;
+    }
+
+    .mascot-container {
+        flex-direction: row;
+        margin-bottom: 10px;
+    }
+
+    .mascot-img {
+        font-size: 2.5rem;
+    }
+
+    .speech-bubble {
+        max-width: 350px;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+
+    .speech-bubble::after {
+        display: block;
+    }
+
+    .question-area {
+        padding: 10px 15px;
+    }
+
+    .options-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .option-btn {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    .bottom-bar {
+        padding: 10px;
+    }
+
+    .check-btn {
+        padding: 10px 30px;
+        font-size: 1rem;
+    }
+
+    .feedback {
+        bottom: 55px;
+        padding: 10px;
+        font-size: 0.95rem;
+    }
+
+    .summary-screen {
+        padding: 15px;
+    }
+}
+
+/* Suporte para touch em dispositivos móveis */
+@media (hover: none) and (pointer: coarse) {
+    .option-btn:hover {
+        background: var(--cor-container);
+        border-color: var(--cor-borda);
+    }
+
+    .option-btn:active {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--cor-primaria);
+    }
+
+    .option-btn.selected {
+        background: rgba(28, 176, 246, 0.1);
+        border-color: var(--cor-primaria);
+    }
+
+    .check-btn:hover {
+        transform: none;
+        box-shadow: 0 4px 0 var(--cor-secundaria);
+    }
+
+    .check-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 var(--cor-secundaria);
+    }
+}
+
+/* Acessibilidade - Reduzir movimento */
+@media (prefers-reduced-motion: reduce) {
+    .mascot-img {
+        animation: none;
+    }
+
+    .heart.active {
+        animation: none;
+    }
+
+    .mascot-container {
+        animation: none;
+    }
+
+    .progress-bar,
+    .feedback,
+    .option-btn {
+        transition: none;
+    }
 }

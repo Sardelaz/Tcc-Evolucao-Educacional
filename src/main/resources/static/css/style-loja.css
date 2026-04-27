@@ -46,6 +46,8 @@ body {
     position: sticky;
     top: 0;
     z-index: 50;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .top-nav h2 {
@@ -60,6 +62,7 @@ body {
     display: flex;
     align-items: center;
     gap: 20px;
+    flex-wrap: wrap;
 }
 
 .coin-display {
@@ -109,7 +112,7 @@ body {
     font-size: 2.5rem;
     color: white;
     margin-bottom: 10px;
-    text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
 .loja-header p {
@@ -169,24 +172,39 @@ body {
     font-weight: bold;
     letter-spacing: 1px;
     text-transform: uppercase;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
-.loja-card.epico .raridade-badge { background: var(--cor-epico); }
-.loja-card.lendario .raridade-badge { background: var(--cor-lendario); }
-.loja-card.mitico .raridade-badge { background: var(--cor-mitico); color: #000; }
+.loja-card.epico .raridade-badge {
+    background: var(--cor-epico);
+}
+
+.loja-card.lendario .raridade-badge {
+    background: var(--cor-lendario);
+}
+
+.loja-card.mitico .raridade-badge {
+    background: var(--cor-mitico);
+    color: #000;
+}
 
 .item-icon {
     font-size: 5rem;
     margin-bottom: 20px;
-    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
     animation: float 4s ease-in-out infinite;
 }
 
 @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-15px); }
-    100% { transform: translateY(0px); }
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
 }
 
 .item-title {
@@ -195,9 +213,17 @@ body {
     font-weight: 700;
 }
 
-.loja-card.epico .item-title { color: var(--cor-epico); }
-.loja-card.lendario .item-title { color: var(--cor-lendario); }
-.loja-card.mitico .item-title { color: var(--cor-mitico); }
+.loja-card.epico .item-title {
+    color: var(--cor-epico);
+}
+
+.loja-card.lendario .item-title {
+    color: var(--cor-lendario);
+}
+
+.loja-card.mitico .item-title {
+    color: var(--cor-mitico);
+}
 
 .item-desc {
     color: #aaa;
@@ -222,7 +248,7 @@ body {
     align-items: center;
     gap: 8px;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 0 #B8860B, 0 10px 20px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 0 #B8860B, 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 .btn-comprar:hover:not(:disabled) {
@@ -244,8 +270,330 @@ body {
     transform: none;
 }
 
+/* ==========================================
+   RESPONSIVIDADE MELHORADA
+   ========================================== */
+
+/* Tablets grandes */
+@media (max-width: 1024px) {
+    .top-nav {
+        padding: 18px 25px;
+    }
+
+    .loja-container {
+        margin: 30px auto 0;
+        padding: 0 15px;
+    }
+
+    .loja-header h1 {
+        font-size: 2.2rem;
+    }
+
+    .loja-header {
+        margin-bottom: 40px;
+    }
+
+    .loja-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+    }
+
+    .loja-card {
+        padding: 35px 20px 25px;
+    }
+}
+
+/* Tablets */
 @media (max-width: 768px) {
-    .top-nav { padding: 15px 20px; flex-direction: column; gap: 15px; }
-    .loja-header h1 { font-size: 2rem; }
-    .loja-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+    .top-nav {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .top-nav h2 {
+        font-size: 1.3rem;
+    }
+
+    .nav-actions {
+        width: 100%;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+    .coin-display {
+        padding: 6px 15px;
+        font-size: 1.1rem;
+    }
+
+    .btn-voltar {
+        font-size: 0.9rem;
+    }
+
+    .loja-container {
+        margin: 25px auto 0;
+    }
+
+    .loja-header {
+        margin-bottom: 30px;
+    }
+
+    .loja-header h1 {
+        font-size: 2rem;
+    }
+
+    .loja-header p {
+        font-size: 1rem;
+        padding: 0 10px;
+    }
+
+    .loja-grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .loja-card {
+        padding: 30px 18px 22px;
+    }
+
+    .item-icon {
+        font-size: 4rem;
+        margin-bottom: 15px;
+    }
+
+    .item-title {
+        font-size: 1.25rem;
+    }
+
+    .item-desc {
+        font-size: 0.9rem;
+        margin-bottom: 25px;
+        min-height: 40px;
+    }
+
+    .btn-comprar {
+        padding: 12px;
+        font-size: 1rem;
+    }
+
+    .raridade-badge {
+        font-size: 0.75rem;
+        padding: 4px 12px;
+        top: -12px;
+    }
+}
+
+/* Smartphones grandes */
+@media (max-width: 576px) {
+    .top-nav {
+        padding: 12px 15px;
+    }
+
+    .top-nav h2 {
+        font-size: 1.2rem;
+        gap: 8px;
+    }
+
+    .nav-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .coin-display {
+        padding: 5px 12px;
+        font-size: 1rem;
+        gap: 6px;
+    }
+
+    .loja-container {
+        margin: 20px auto 0;
+        padding: 0 12px;
+    }
+
+    .loja-header {
+        margin-bottom: 25px;
+    }
+
+    .loja-header h1 {
+        font-size: 1.7rem;
+    }
+
+    .loja-header p {
+        font-size: 0.9rem;
+    }
+
+    .loja-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
+        gap: 25px;
+    }
+
+    .loja-card {
+        padding: 35px 20px 25px;
+    }
+
+    .item-icon {
+        font-size: 4.5rem;
+    }
+
+    .item-title {
+        font-size: 1.3rem;
+    }
+
+    .item-desc {
+        font-size: 0.95rem;
+        min-height: auto;
+    }
+
+    .btn-comprar {
+        padding: 14px;
+        font-size: 1.05rem;
+    }
+}
+
+/* Smartphones pequenos */
+@media (max-width: 400px) {
+    .top-nav {
+        padding: 10px 12px;
+    }
+
+    .top-nav h2 {
+        font-size: 1.1rem;
+    }
+
+    .coin-display {
+        padding: 4px 10px;
+        font-size: 0.9rem;
+    }
+
+    .btn-voltar {
+        font-size: 0.85rem;
+    }
+
+    .loja-container {
+        padding: 0 10px;
+    }
+
+    .loja-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .loja-header p {
+        font-size: 0.85rem;
+    }
+
+    .loja-grid {
+        gap: 20px;
+    }
+
+    .loja-card {
+        padding: 30px 15px 20px;
+        border-radius: 16px;
+    }
+
+    .item-icon {
+        font-size: 4rem;
+    }
+
+    .item-title {
+        font-size: 1.2rem;
+    }
+
+    .item-desc {
+        font-size: 0.88rem;
+        margin-bottom: 20px;
+    }
+
+    .btn-comprar {
+        padding: 12px;
+        font-size: 1rem;
+        border-radius: 10px;
+    }
+
+    .raridade-badge {
+        font-size: 0.7rem;
+        padding: 3px 10px;
+    }
+}
+
+/* Modo paisagem em dispositivos móveis */
+@media (max-height: 500px) and (orientation: landscape) {
+    .top-nav {
+        padding: 10px 20px;
+        flex-direction: row;
+    }
+
+    .loja-container {
+        margin: 15px auto 0;
+    }
+
+    .loja-header {
+        margin-bottom: 20px;
+    }
+
+    .loja-header h1 {
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+    }
+
+    .loja-header p {
+        font-size: 0.85rem;
+    }
+
+    .loja-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px;
+    }
+
+    .loja-card {
+        padding: 25px 15px 18px;
+    }
+
+    .item-icon {
+        font-size: 3rem;
+        margin-bottom: 10px;
+    }
+
+    .item-title {
+        font-size: 1.1rem;
+    }
+
+    .item-desc {
+        font-size: 0.8rem;
+        margin-bottom: 15px;
+        min-height: 30px;
+    }
+
+    .btn-comprar {
+        padding: 10px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Suporte para touch em dispositivos móveis */
+@media (hover: none) and (pointer: coarse) {
+    .loja-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .loja-card:active {
+        transform: scale(0.98);
+    }
+
+    .coin-display:hover {
+        transform: none;
+    }
+
+    .btn-comprar:hover:not(:disabled) {
+        transform: none;
+        filter: none;
+    }
+
+    .btn-comprar:active:not(:disabled) {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #B8860B;
+    }
 }

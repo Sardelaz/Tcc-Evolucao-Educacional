@@ -1,285 +1,706 @@
 :root {
-  --cor-fundo: #0F0F1A;
-  --cor-texto: #EAEAEA;
-  --cor-container: rgba(26, 26, 46, 0.7);
-  --cor-borda: rgba(255, 255, 255, 0.1);
-  --cor-primaria: #1cb0f6;
-  --cor-ranking: #FFD700;
-  --cor-prata: #C0C0C0;
-  --cor-bronze: #CD7F32;
-  --cor-xp: #1cb0f6;
+    --cor-fundo: #0F0F1A;
+    --cor-texto: #EAEAEA;
+    --cor-container: rgba(26, 26, 46, 0.7);
+    --cor-borda: rgba(255, 255, 255, 0.1);
+    --cor-primaria: #1cb0f6;
+    --cor-ranking: #FFD700;
+    --cor-prata: #C0C0C0;
+    --cor-bronze: #CD7F32;
+    --cor-xp: #1cb0f6;
 }
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
-  background-color: var(--cor-fundo);
-  color: var(--cor-texto);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #art-background {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  z-index: -1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
 }
 
 /* ==========================================
    NAVEGAÇÃO SUPERIOR
    ========================================== */
 .top-nav-ranking {
-  width: 100%;
-  padding: 30px 20px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+    width: 100%;
+    padding: 30px 20px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
 }
 
 .nav-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .nav-title-group {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
-.nav-icon { font-size: 2.5rem; }
+.nav-icon {
+    font-size: 2.5rem;
+}
 
 .nav-title-group h2 {
-  font-size: 2.2rem;
-  font-weight: 800;
-  letter-spacing: -1px;
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
 }
 
 .btn-voltar-home {
-  text-decoration: none;
-  background: var(--cor-container);
-  padding: 12px 25px;
-  border-radius: 14px;
-  color: #fff;
-  border: 1px solid var(--cor-borda);
-  font-weight: 700;
-  transition: 0.3s;
-  display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+    background: var(--cor-container);
+    padding: 12px 25px;
+    border-radius: 14px;
+    color: #fff;
+    border: 1px solid var(--cor-borda);
+    font-weight: 700;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .btn-voltar-home:hover {
-  background: rgba(255,255,255,0.1);
-  transform: translateX(-5px);
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-5px);
 }
 
 /* ==========================================
    PÓDIO (TOP 3) - DESIGN AMPLIADO
    ========================================== */
 .ranking-wrapper {
-  width: 100%;
-  max-width: 1000px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 50px;
+    width: 100%;
+    max-width: 1000px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
 }
 
 .podium-section {
-  padding-top: 40px;
+    padding-top: 40px;
 }
 
 .podium-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 20px;
-  height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 20px;
+    height: 400px;
 }
 
 .podium-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 220px;
-  position: relative;
-  transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 220px;
+    position: relative;
+    transition: transform 0.3s ease;
 }
 
-.podium-item:hover { transform: translateY(-10px); }
+.podium-item:hover {
+    transform: translateY(-10px);
+}
 
 /* Avatares no Pódio */
 .avatar-wrapper {
-  position: relative;
-  margin-bottom: 15px;
+    position: relative;
+    margin-bottom: 15px;
 }
 
 .user-avatar {
-  width: 100px; height: 100px;
-  background: var(--cor-container);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 3rem;
-  border: 4px solid transparent;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    width: 100px;
+    height: 100px;
+    background: var(--cor-container);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    border: 4px solid transparent;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
 .rank-badge {
-  position: absolute;
-  top: -5px; right: -5px;
-  width: 35px; height: 35px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 900;
-  font-size: 1.2rem;
-  border: 2px solid var(--cor-fundo);
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.2rem;
+    border: 2px solid var(--cor-fundo);
 }
 
 /* Estilos Específicos por Posição */
-.gold .user-avatar { border-color: var(--cor-ranking); width: 130px; height: 130px; font-size: 4rem; }
-.gold .rank-badge { background: var(--cor-ranking); color: #000; width: 45px; height: 45px; font-size: 1.5rem; }
-.gold .crown { font-size: 2.5rem; margin-bottom: -10px; animation: float 3s infinite ease-in-out; }
+.gold .user-avatar {
+    border-color: var(--cor-ranking);
+    width: 130px;
+    height: 130px;
+    font-size: 4rem;
+}
 
-.silver .user-avatar { border-color: var(--cor-prata); }
-.silver .rank-badge { background: var(--cor-prata); color: #000; }
+.gold .rank-badge {
+    background: var(--cor-ranking);
+    color: #000;
+    width: 45px;
+    height: 45px;
+    font-size: 1.5rem;
+}
 
-.bronze .user-avatar { border-color: var(--cor-bronze); }
-.bronze .rank-badge { background: var(--cor-bronze); color: #fff; }
+.gold .crown {
+    font-size: 2.5rem;
+    margin-bottom: -10px;
+    animation: float 3s infinite ease-in-out;
+}
+
+.silver .user-avatar {
+    border-color: var(--cor-prata);
+}
+
+.silver .rank-badge {
+    background: var(--cor-prata);
+    color: #000;
+}
+
+.bronze .user-avatar {
+    border-color: var(--cor-bronze);
+}
+
+.bronze .rank-badge {
+    background: var(--cor-bronze);
+    color: #fff;
+}
 
 .podium-item .user-name {
-  font-size: 1.3rem;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 5px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 5px;
 }
 
 .podium-item .user-xp {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--cor-primaria);
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--cor-primaria);
 }
 
 /* Bases do Pódio */
 .podium-item .base {
-  width: 100%;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
-  border: 1px solid var(--cor-borda);
-  border-bottom: none;
-  border-radius: 15px 15px 0 0;
-  margin-top: 20px;
+    width: 100%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+    border: 1px solid var(--cor-borda);
+    border-bottom: none;
+    border-radius: 15px 15px 0 0;
+    margin-top: 20px;
 }
 
-.gold .base { height: 180px; background: linear-gradient(to bottom, rgba(255, 215, 0, 0.15), transparent); border-color: rgba(255, 215, 0, 0.3); }
-.silver .base { height: 130px; }
-.bronze .base { height: 90px; }
+.gold .base {
+    height: 180px;
+    background: linear-gradient(to bottom, rgba(255, 215, 0, 0.15), transparent);
+    border-color: rgba(255, 215, 0, 0.3);
+}
+
+.silver .base {
+    height: 130px;
+}
+
+.bronze .base {
+    height: 90px;
+}
 
 @keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(5deg); }
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(5deg);
+    }
 }
 
 /* ==========================================
    LISTA DE RANKING (GLASSMORPHISM)
    ========================================== */
 .ranking-list-container {
-  background: var(--cor-container);
-  border: 1px solid var(--cor-borda);
-  border-radius: 24px;
-  overflow: hidden;
-  backdrop-filter: blur(15px);
-  margin-bottom: 50px;
+    background: var(--cor-container);
+    border: 1px solid var(--cor-borda);
+    border-radius: 24px;
+    overflow: hidden;
+    backdrop-filter: blur(15px);
+    margin-bottom: 50px;
 }
 
 .list-header {
-  display: grid;
-  grid-template-columns: 100px 1fr 150px;
-  padding: 20px 30px;
-  background: rgba(255,255,255,0.05);
-  font-weight: 800;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  letter-spacing: 1px;
-  color: var(--cor-primaria);
-  border-bottom: 1px solid var(--cor-borda);
+    display: grid;
+    grid-template-columns: 100px 1fr 150px;
+    padding: 20px 30px;
+    background: rgba(255, 255, 255, 0.05);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    color: var(--cor-primaria);
+    border-bottom: 1px solid var(--cor-borda);
 }
 
 .ranking-scroll-area {
-  max-height: 600px;
-  overflow-y: auto;
+    max-height: 600px;
+    overflow-y: auto;
 }
 
 .ranking-item {
-  display: grid;
-  grid-template-columns: 100px 1fr 150px;
-  padding: 20px 30px;
-  align-items: center;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  transition: 0.2s;
+    display: grid;
+    grid-template-columns: 100px 1fr 150px;
+    padding: 20px 30px;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: 0.2s;
 }
 
 .ranking-item:hover {
-  background: rgba(255,255,255,0.03);
+    background: rgba(255, 255, 255, 0.03);
 }
 
-.ranking-item:last-child { border-bottom: none; }
+.ranking-item:last-child {
+    border-bottom: none;
+}
 
 .item-rank {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: #666;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #666;
 }
 
 .item-user {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
 .item-avatar {
-  width: 45px; height: 45px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem;
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
 }
 
 .item-name {
-  font-size: 1.1rem;
-  font-weight: 600;
+    font-size: 1.1rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .item-xp {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--cor-primaria);
-  text-align: right;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--cor-primaria);
+    text-align: right;
 }
 
 /* Destaque para o próprio usuário */
 .ranking-item.is-me {
-  background: rgba(28, 176, 246, 0.1);
-  border-left: 4px solid var(--cor-primaria);
+    background: rgba(28, 176, 246, 0.1);
+    border-left: 4px solid var(--cor-primaria);
 }
 
 .loading-state {
-  padding: 50px;
-  text-align: center;
-  color: #666;
-  font-style: italic;
+    padding: 50px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
 }
 
-/* Responsividade */
+/* ==========================================
+   RESPONSIVIDADE MELHORADA
+   ========================================== */
+
+/* Tablets grandes */
+@media (max-width: 1024px) {
+    .ranking-wrapper {
+        padding: 15px;
+        gap: 40px;
+    }
+
+    .podium-container {
+        height: 350px;
+        gap: 15px;
+    }
+
+    .podium-item {
+        width: 180px;
+    }
+
+    .gold .user-avatar {
+        width: 110px;
+        height: 110px;
+        font-size: 3.5rem;
+    }
+
+    .user-avatar {
+        width: 85px;
+        height: 85px;
+        font-size: 2.5rem;
+    }
+
+    .gold .base {
+        height: 150px;
+    }
+
+    .silver .base {
+        height: 110px;
+    }
+
+    .bronze .base {
+        height: 75px;
+    }
+}
+
+/* Tablets */
 @media (max-width: 768px) {
-  .podium-container { gap: 10px; height: auto; align-items: center; flex-direction: column; }
-  .podium-item { width: 100%; max-width: 300px; }
-  .podium-item .base { display: none; }
-  .nav-title-group h2 { font-size: 1.5rem; }
-  .list-header, .ranking-item { grid-template-columns: 60px 1fr 100px; padding: 15px; }
+    .top-nav-ranking {
+        padding: 20px 15px;
+    }
+
+    .nav-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .nav-title-group {
+        justify-content: center;
+    }
+
+    .nav-title-group h2 {
+        font-size: 1.5rem;
+    }
+
+    .nav-icon {
+        font-size: 2rem;
+    }
+
+    .btn-voltar-home {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    .btn-voltar-home:hover {
+        transform: none;
+    }
+
+    .podium-section {
+        padding-top: 20px;
+    }
+
+    .podium-container {
+        gap: 10px;
+        height: auto;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .podium-item {
+        width: 100%;
+        max-width: 300px;
+        flex-direction: row;
+        gap: 20px;
+        padding: 15px;
+        background: var(--cor-container);
+        border-radius: 16px;
+        border: 1px solid var(--cor-borda);
+    }
+
+    .podium-item .base {
+        display: none;
+    }
+
+    .gold .user-avatar,
+    .silver .user-avatar,
+    .bronze .user-avatar {
+        width: 70px;
+        height: 70px;
+        font-size: 2rem;
+    }
+
+    .gold .rank-badge {
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+    }
+
+    .rank-badge {
+        width: 25px;
+        height: 25px;
+        font-size: 0.9rem;
+    }
+
+    .gold .crown {
+        font-size: 1.5rem;
+        position: absolute;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .avatar-wrapper {
+        margin-bottom: 0;
+    }
+
+    .podium-item .user-name {
+        font-size: 1.1rem;
+        text-align: left;
+    }
+
+    .podium-item .user-xp {
+        font-size: 1rem;
+    }
+
+    .list-header,
+    .ranking-item {
+        grid-template-columns: 60px 1fr 100px;
+        padding: 15px;
+    }
+
+    .list-header {
+        font-size: 0.75rem;
+    }
+
+    .item-rank {
+        font-size: 1.2rem;
+    }
+
+    .item-avatar {
+        width: 38px;
+        height: 38px;
+        font-size: 1.2rem;
+    }
+
+    .item-name {
+        font-size: 0.95rem;
+    }
+
+    .item-xp {
+        font-size: 0.95rem;
+    }
+
+    .ranking-scroll-area {
+        max-height: 400px;
+    }
+}
+
+/* Smartphones grandes */
+@media (max-width: 576px) {
+    .top-nav-ranking {
+        padding: 15px 10px;
+    }
+
+    .nav-title-group h2 {
+        font-size: 1.3rem;
+    }
+
+    .nav-icon {
+        font-size: 1.8rem;
+    }
+
+    .btn-voltar-home {
+        padding: 8px 15px;
+        font-size: 0.85rem;
+        border-radius: 10px;
+    }
+
+    .ranking-wrapper {
+        padding: 10px;
+        gap: 30px;
+    }
+
+    .podium-item {
+        max-width: 100%;
+        padding: 12px;
+        gap: 15px;
+    }
+
+    .gold .user-avatar,
+    .silver .user-avatar,
+    .bronze .user-avatar {
+        width: 60px;
+        height: 60px;
+        font-size: 1.8rem;
+    }
+
+    .podium-item .user-name {
+        font-size: 1rem;
+    }
+
+    .podium-item .user-xp {
+        font-size: 0.9rem;
+    }
+
+    .ranking-list-container {
+        border-radius: 16px;
+    }
+
+    .list-header,
+    .ranking-item {
+        grid-template-columns: 50px 1fr 80px;
+        padding: 12px 10px;
+        gap: 8px;
+    }
+
+    .list-header {
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
+    }
+
+    .item-rank {
+        font-size: 1rem;
+    }
+
+    .item-user {
+        gap: 10px;
+    }
+
+    .item-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+
+    .item-name {
+        font-size: 0.85rem;
+    }
+
+    .item-xp {
+        font-size: 0.85rem;
+    }
+}
+
+/* Smartphones pequenos */
+@media (max-width: 400px) {
+    .nav-title-group h2 {
+        font-size: 1.1rem;
+    }
+
+    .nav-icon {
+        font-size: 1.5rem;
+    }
+
+    .btn-voltar-home {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .list-header,
+    .ranking-item {
+        grid-template-columns: 40px 1fr 70px;
+        padding: 10px 8px;
+    }
+
+    .item-rank {
+        font-size: 0.9rem;
+    }
+
+    .item-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
+    }
+
+    .item-name {
+        font-size: 0.8rem;
+    }
+
+    .item-xp {
+        font-size: 0.8rem;
+    }
+
+    .gold .user-avatar,
+    .silver .user-avatar,
+    .bronze .user-avatar {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+}
+
+/* Modo paisagem em dispositivos móveis */
+@media (max-height: 500px) and (orientation: landscape) {
+    .top-nav-ranking {
+        padding: 10px 15px;
+    }
+
+    .nav-content {
+        flex-direction: row;
+    }
+
+    .podium-container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .podium-item {
+        max-width: 200px;
+    }
+
+    .ranking-scroll-area {
+        max-height: 250px;
+    }
+}
+
+/* Suporte para touch em dispositivos móveis */
+@media (hover: none) and (pointer: coarse) {
+    .podium-item:hover {
+        transform: none;
+    }
+
+    .ranking-item:hover {
+        background: transparent;
+    }
+
+    .btn-voltar-home:hover {
+        transform: none;
+        background: var(--cor-container);
+    }
+
+    .ranking-item:active {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .btn-voltar-home:active {
+        background: rgba(255, 255, 255, 0.1);
+    }
 }

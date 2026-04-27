@@ -8,6 +8,7 @@
     --cor-erro: #e74c3c;
     --cor-sutil: #888;
     --cor-card-bg: rgba(0, 0, 0, 0.3);
+    --cor-primaria: #1cb0f6;
 }
 
 * {
@@ -35,8 +36,10 @@ body {
     align-items: center;
     background: var(--cor-container);
     border-bottom: 1px solid var(--cor-borda);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .top-nav h2 {
@@ -151,6 +154,7 @@ body {
 
 .aluno-avatar {
     font-size: 1.8rem;
+    flex-shrink: 0;
 }
 
 .aluno-info h4 {
@@ -162,6 +166,11 @@ body {
 .aluno-info span {
     font-size: 0.75rem;
     color: var(--cor-sutil);
+}
+
+.aluno-info strong {
+    display: block;
+    color: #fff;
 }
 
 .dashboard-container {
@@ -222,7 +231,6 @@ body {
     border-color: #f39c12;
 }
 
-/* NOVO ESTILO DO CARD DE SIMULADO */
 .card-simulado:hover {
     box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
     border-color: var(--cor-erro);
@@ -305,10 +313,13 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .question-info {
     flex: 1;
+    min-width: 200px;
 }
 
 .question-module {
@@ -332,15 +343,20 @@ body {
     min-width: 60px;
 }
 
-.stat-erro { color: var(--cor-erro); }
-.stat-acerto { color: var(--cor-salvar); }
+.stat-erro {
+    color: var(--cor-erro);
+}
+
+.stat-acerto {
+    color: var(--cor-salvar);
+}
 
 .progress-section {
     background: var(--cor-container);
     padding: 30px;
     border-radius: 12px;
     border: 1px solid var(--cor-borda);
-    margin-top: -15px; 
+    margin-top: -15px;
 }
 
 .modulos-grid {
@@ -385,26 +401,40 @@ body {
     transition: width 0.8s ease-out;
 }
 
-/* NOVO: ESTILOS DO MODAL DO SIMULADO */
+/* MODAL DO SIMULADO */
 .modal-overlay {
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.8);
-    display: none; justify-content: center; align-items: center;
-    z-index: 1000; opacity: 0; transition: opacity 0.3s;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s;
+    padding: 20px;
 }
 
 .modal-overlay.active {
-    display: flex; opacity: 1;
+    display: flex;
+    opacity: 1;
 }
 
 .modal-content {
     background: var(--cor-container);
     border: 1px solid var(--cor-borda);
-    border-radius: 16px; padding: 40px; width: 90%; max-width: 450px;
-    text-align: center; position: relative;
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+    position: relative;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-    transform: translateY(-20px); transition: transform 0.3s;
+    transform: translateY(-20px);
+    transition: transform 0.3s;
     backdrop-filter: blur(10px);
 }
 
@@ -413,8 +443,15 @@ body {
 }
 
 .modal-close {
-    position: absolute; top: 15px; right: 15px; background: none; border: none;
-    color: #999; font-size: 1.5rem; cursor: pointer; transition: 0.2s;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
 .modal-close:hover {
@@ -423,8 +460,16 @@ body {
 
 .btn-salvar-simulado {
     background: var(--cor-destaque);
-    color: white; border: none; padding: 15px; border-radius: 8px; width: 100%;
-    font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    width: 100%;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.2s;
     font-family: inherit;
 }
 
@@ -440,25 +485,6 @@ body {
     transform: none;
 }
 
-.aluno-item {
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    margin-bottom: 8px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.3s;
-    border: 1px solid transparent;
-}
-.aluno-item:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: var(--cor-primaria);
-}
-.aluno-avatar { font-size: 1.5rem; margin-right: 12px; }
-.aluno-info strong { display: block; color: #fff; }
-.aluno-info span { font-size: 0.8rem; color: #888; }
-
 .btn-export-csv {
     background: #27ae60;
     color: #fff;
@@ -469,23 +495,480 @@ body {
     margin-top: 15px;
     cursor: pointer;
     font-weight: bold;
+    font-family: inherit;
+    transition: 0.2s;
 }
 
+.btn-export-csv:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+}
+
+/* ==========================================
+   RESPONSIVIDADE MELHORADA
+   ========================================== */
+
+/* Tablets grandes */
+@media (max-width: 1200px) {
+    .painel-layout {
+        gap: 25px;
+    }
+
+    .sidebar-alunos {
+        width: 280px;
+        padding: 20px 15px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+}
+
+/* Tablets */
 @media (max-width: 1024px) {
     .painel-layout {
         flex-direction: column;
     }
+
     .sidebar-alunos {
         width: 100%;
         max-height: 400px;
         position: relative;
         top: 0;
     }
+
+    .alunos-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .aluno-item {
+        flex: 1 1 calc(50% - 5px);
+        min-width: 200px;
+    }
+
+    .top-nav {
+        margin-bottom: 30px;
+    }
+
+    .charts-section,
+    .progress-section {
+        padding: 25px;
+    }
+
+    .chart-container {
+        height: 300px;
+    }
 }
 
+/* Tablets menores */
 @media (max-width: 768px) {
-    .stats-grid { grid-template-columns: 1fr; }
-    .chart-container { height: 300px; }
-    .top-nav { flex-direction: column; gap: 15px; text-align: center; }
-    .modulos-grid { grid-template-columns: 1fr; }
+    .top-nav {
+        padding: 15px 4%;
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .top-nav h2 {
+        font-size: 1.3rem;
+    }
+
+    .btn-voltar {
+        padding: 8px 18px;
+        font-size: 0.9rem;
+    }
+
+    .painel-layout {
+        padding: 0 15px;
+        gap: 25px;
+    }
+
+    .sidebar-alunos {
+        padding: 18px 15px;
+        max-height: 350px;
+    }
+
+    .sidebar-title {
+        font-size: 1.1rem;
+    }
+
+    .aluno-item {
+        padding: 10px 12px;
+        flex: 1 1 100%;
+    }
+
+    .aluno-avatar {
+        font-size: 1.5rem;
+    }
+
+    .aluno-info h4 {
+        font-size: 0.95rem;
+    }
+
+    .dashboard-container {
+        gap: 30px;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+    }
+
+    .destaque-aluno {
+        font-size: 1.3rem;
+    }
+
+    .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .action-card {
+        padding: 25px 20px;
+    }
+
+    .action-card .icon {
+        font-size: 2.5rem;
+    }
+
+    .action-card h4 {
+        font-size: 1.2rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .stats-card {
+        padding: 20px;
+    }
+
+    .chart-container {
+        height: 280px;
+        padding: 15px;
+    }
+
+    .modulos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        padding: 30px 20px;
+    }
+}
+
+/* Smartphones grandes */
+@media (max-width: 576px) {
+    .top-nav {
+        padding: 12px 3%;
+    }
+
+    .top-nav h2 {
+        font-size: 1.2rem;
+    }
+
+    .btn-voltar {
+        padding: 7px 15px;
+        font-size: 0.85rem;
+    }
+
+    .painel-layout {
+        padding: 0 12px;
+        gap: 20px;
+    }
+
+    .sidebar-alunos {
+        padding: 15px 12px;
+        max-height: 300px;
+        border-radius: 10px;
+    }
+
+    .sidebar-title {
+        font-size: 1rem;
+    }
+
+    .sidebar-subtitle {
+        font-size: 0.8rem;
+    }
+
+    .search-input {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    .aluno-item {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .aluno-avatar {
+        font-size: 1.3rem;
+    }
+
+    .aluno-info h4 {
+        font-size: 0.9rem;
+    }
+
+    .aluno-info span {
+        font-size: 0.7rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        padding-bottom: 8px;
+    }
+
+    .destaque-aluno {
+        font-size: 1.2rem;
+    }
+
+    .action-card {
+        padding: 22px 18px;
+        border-radius: 10px;
+    }
+
+    .action-card .icon {
+        font-size: 2.2rem;
+    }
+
+    .action-card h4 {
+        font-size: 1.1rem;
+    }
+
+    .action-card p {
+        font-size: 0.88rem;
+    }
+
+    .charts-section,
+    .progress-section {
+        padding: 20px 15px;
+        border-radius: 10px;
+    }
+
+    .chart-container {
+        height: 250px;
+        padding: 12px;
+    }
+
+    .stats-card {
+        padding: 18px 15px;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+    }
+
+    .card-subtitle {
+        font-size: 0.85rem;
+    }
+
+    .question-item {
+        padding: 12px;
+    }
+
+    .question-module {
+        font-size: 0.75rem;
+    }
+
+    .question-text {
+        font-size: 0.88rem;
+    }
+
+    .question-stat {
+        font-size: 1.1rem;
+        padding-left: 10px;
+    }
+
+    .modulo-progress-card {
+        padding: 15px;
+    }
+
+    .mod-info h4 {
+        font-size: 0.95rem;
+    }
+
+    .modal-content {
+        padding: 25px 15px;
+        border-radius: 12px;
+    }
+
+    .btn-salvar-simulado {
+        padding: 13px;
+        font-size: 1rem;
+    }
+
+    .btn-export-csv {
+        padding: 10px;
+    }
+}
+
+/* Smartphones pequenos */
+@media (max-width: 400px) {
+    .top-nav {
+        padding: 10px 3%;
+    }
+
+    .top-nav h2 {
+        font-size: 1.1rem;
+    }
+
+    .btn-voltar {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .painel-layout {
+        padding: 0 10px;
+    }
+
+    .sidebar-alunos {
+        padding: 12px 10px;
+        max-height: 260px;
+    }
+
+    .sidebar-title {
+        font-size: 0.95rem;
+    }
+
+    .aluno-item {
+        padding: 8px;
+    }
+
+    .aluno-avatar {
+        font-size: 1.2rem;
+    }
+
+    .aluno-info h4 {
+        font-size: 0.85rem;
+    }
+
+    .section-title {
+        font-size: 1rem;
+    }
+
+    .destaque-aluno {
+        font-size: 1.1rem;
+    }
+
+    .action-card {
+        padding: 18px 15px;
+    }
+
+    .action-card .icon {
+        font-size: 2rem;
+    }
+
+    .action-card h4 {
+        font-size: 1rem;
+    }
+
+    .charts-section,
+    .progress-section {
+        padding: 15px 12px;
+    }
+
+    .chart-container {
+        height: 220px;
+    }
+
+    .question-item {
+        padding: 10px;
+    }
+}
+
+/* Modo paisagem em dispositivos móveis */
+@media (max-height: 500px) and (orientation: landscape) {
+    .top-nav {
+        padding: 10px 4%;
+        margin-bottom: 20px;
+    }
+
+    .painel-layout {
+        flex-direction: row;
+        gap: 20px;
+    }
+
+    .sidebar-alunos {
+        width: 250px;
+        max-height: 70vh;
+        position: sticky;
+        top: 10px;
+    }
+
+    .alunos-list {
+        flex-direction: column;
+    }
+
+    .aluno-item {
+        flex: 1 1 auto;
+    }
+
+    .chart-container {
+        height: 200px;
+    }
+
+    .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+}
+
+/* Suporte para touch em dispositivos móveis */
+@media (hover: none) and (pointer: coarse) {
+    .action-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .action-card:active {
+        transform: scale(0.98);
+    }
+
+    .aluno-item:hover {
+        border-color: var(--cor-borda);
+        background: var(--cor-card-bg);
+    }
+
+    .aluno-item:active {
+        border-color: var(--cor-destaque);
+        background: rgba(0, 168, 255, 0.1);
+    }
+
+    .btn-voltar:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-voltar:active {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-salvar-simulado:hover,
+    .btn-export-csv:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .btn-salvar-simulado:active,
+    .btn-export-csv:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Acessibilidade - Reduzir movimento */
+@media (prefers-reduced-motion: reduce) {
+    .aluno-item,
+    .action-card,
+    .btn-voltar,
+    .search-input,
+    .modal-overlay,
+    .modal-content,
+    .mod-bar-fill {
+        transition: none;
+    }
 }
