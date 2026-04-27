@@ -27,6 +27,9 @@ public class Fase {
     // Link opcional para a videoaula de reforço
     private String videoAulaUrl;
 
+    // Novo campo para identificar se a fase é especial (Bônus de XP e Moedas)
+    private boolean especial;
+
     @NotEmpty(message = "A fase deve conter pelo menos uma questão")
     @Valid
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

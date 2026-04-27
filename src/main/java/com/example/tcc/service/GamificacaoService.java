@@ -44,16 +44,25 @@ public class GamificacaoService {
         }
 
         String chaveUnica = resultado.getModulo() + "_fase" + resultado.getFase() + "_id" + faseOriginal.getId();
+        
+        if (user.getStatusDasFases() == null) {
+            user.setStatusDasFases(new HashMap<>());
+        }
+        
         boolean jaEstavaConcluida = "completed".equals(user.getStatusDasFases().get(chaveUnica));
 
-        // Registro de Questões Erradas para Relatório de Fases Críticas
         if (resultado.getEnunciadosErrados() != null) {
             String nomeModuloBonito = resultado.getModulo().replace("_", " ").toUpperCase();
+            
+            if (user.getUltimasQuestoesErradas() == null) {
+                user.setUltimasQuestoesErradas(new ArrayList<>());
+            }
+            
             for (String enunciado : resultado.getEnunciadosErrados()) {
                 String detalhe = String.format("[%s - FASE %d] %s", nomeModuloBonito, resultado.getFase(), enunciado);
-                user.getUltimasQuestoesErradas().add(0, detalhe); // Adiciona no início da lista
+                user.getUltimasQuestoesErradas().add(0, detalhe);
             }
-            // Limita o histórico aos últimos 15 erros
+            
             if (user.getUltimasQuestoesErradas().size() > 15) {
                 user.setUltimasQuestoesErradas(new ArrayList<>(user.getUltimasQuestoesErradas().subList(0, 15)));
             }
@@ -70,6 +79,10 @@ public class GamificacaoService {
         }
 
         LocalDate hoje = LocalDate.now();
+        
+        if (user.getLogAtividade() == null) {
+            user.setLogAtividade(new HashMap<>());
+        }
         user.getLogAtividade().put(hoje, user.getLogAtividade().getOrDefault(hoje, 0) + resultado.getTotalQuestoes());
 
         if (!jaEstavaConcluida) {
@@ -77,20 +90,38 @@ public class GamificacaoService {
             user.setTotalErros(user.getTotalErros() + resultado.getErros());
             user.setDesafiosVencidos(user.getDesafiosVencidos() + resultado.getDesafiosVencidosNestaFase());
 
+            // Cálculo base de XP
             xpGanho = (resultado.getAcertos() * 10) + (resultado.getMaxStreak() * 5);
-            moedasGanhas = xpGanho / 5; 
+            
+            // Lógica de Recompensa Especial
+            int baseMoedas = faseOriginal.isEspecial() ? 50 : 30;
+            
+            // Se a fase for especial, o XP ganho é dobrado
+            if (faseOriginal.isEspecial()) {
+                xpGanho *= 2;
+            }
+
+            moedasGanhas = baseMoedas - (resultado.getErros() * 5);
+            
+            if (moedasGanhas < 0) {
+                moedasGanhas = 0;
+            }
 
             user.setXp(user.getXp() + xpGanho);
             user.setMoedas(user.getMoedas() + moedasGanhas);
 
             if (resultado.getAcertos() == resultado.getTotalQuestoes() && resultado.getTotalQuestoes() > 0) {
+                if (user.getFasesPerfeitas() == null) user.setFasesPerfeitas(new HashSet<>());
                 user.getFasesPerfeitas().add(chaveUnica);
                 user.setFasesPerfeitasHoje(user.getFasesPerfeitasHoje() + 1);
             }
         } else {
-            if (resultado.getAcertos() == resultado.getTotalQuestoes() && resultado.getTotalQuestoes() > 0 && !user.getFasesPerfeitas().contains(chaveUnica)) {
-                user.getFasesPerfeitas().add(chaveUnica);
-                user.setFasesPerfeitasHoje(user.getFasesPerfeitasHoje() + 1);
+            if (resultado.getAcertos() == resultado.getTotalQuestoes() && resultado.getTotalQuestoes() > 0) {
+                if (user.getFasesPerfeitas() == null) user.setFasesPerfeitas(new HashSet<>());
+                if (!user.getFasesPerfeitas().contains(chaveUnica)) {
+                    user.getFasesPerfeitas().add(chaveUnica);
+                    user.setFasesPerfeitasHoje(user.getFasesPerfeitasHoje() + 1);
+                }
             }
         }
 
@@ -98,7 +129,7 @@ public class GamificacaoService {
         atualizarLiga(user); 
         verificarConquistas(user, resultado);
 
-        if ("ROLE_ADMIN".equals(user.getRole())) {
+        if ("ROLE_ADMIN".equals(user.getRole()) && user.getMoedas() < 9999999) {
             user.setMoedas(9999999);
         }
 
@@ -107,8 +138,11 @@ public class GamificacaoService {
         Map<String, Object> resposta = new HashMap<>();
         resposta.put("xpGanho", xpGanho);
         resposta.put("moedasGanhas", moedasGanhas);
+        resposta.put("moedasTotais", user.getMoedas());
+        resposta.put("xpTotal", user.getXp());
         resposta.put("nivel", user.getNivel());
         resposta.put("liga", user.getLiga());
+        resposta.put("faseEspecial", faseOriginal.isEspecial());
         return resposta;
     }
 
@@ -123,8 +157,12 @@ public class GamificacaoService {
     }
 
     private void verificarConquistas(Usuario user, ResultadoFaseDTO resultado) {
-        if (user.getXp() >= 500) user.getEmblemas().add("badge_iniciante");
-        if (user.getStreakDiaria() >= 7) user.getEmblemas().add("badge_ofensiva_7");
+        if (user.getEmblemas() == null) user.setEmblemas(new HashSet<>());
+        
+        if (user.getXp() >= 500 && !user.getEmblemas().contains("badge_iniciante")) 
+            user.getEmblemas().add("badge_iniciante");
+        if (user.getStreakDiaria() >= 7 && !user.getEmblemas().contains("badge_ofensiva_7")) 
+            user.getEmblemas().add("badge_ofensiva_7");
         
         List<Conquista> todasConquistas = conquistaRepository.findAll();
         for (Conquista c : todasConquistas) {
@@ -134,7 +172,7 @@ public class GamificacaoService {
             boolean conquistou = switch (c.getTipoRequisito()) {
                 case "XP" -> user.getXp() >= c.getValorObjetivo();
                 case "NIVEL" -> user.getNivel() >= c.getValorObjetivo();
-                case "PERFEITAS" -> user.getFasesPerfeitas().size() >= c.getValorObjetivo();
+                case "PERFEITAS" -> (user.getFasesPerfeitas() != null ? user.getFasesPerfeitas().size() : 0) >= c.getValorObjetivo();
                 default -> false;
             };
             if (conquistou) user.getEmblemas().add(badgeId);
@@ -156,7 +194,11 @@ public class GamificacaoService {
         atualizarLiga(user);
         usuarioRepository.save(user);
         
-        return Collections.singletonMap("sucesso", true);
+        Map<String, Object> resposta = new HashMap<>();
+        resposta.put("sucesso", true);
+        resposta.put("moedasTotais", user.getMoedas());
+        resposta.put("xpTotal", user.getXp());
+        return resposta;
     }
 
     public Map<String, Object> completarDesafioDiario(Map<String, Integer> payload) {
@@ -172,6 +214,10 @@ public class GamificacaoService {
         user.setDataUltimoDesafioCompletado(hoje);
         usuarioRepository.save(user);
 
-        return Collections.singletonMap("sucesso", true);
+        Map<String, Object> resposta = new HashMap<>();
+        resposta.put("sucesso", true);
+        resposta.put("moedasTotais", user.getMoedas());
+        resposta.put("xpTotal", user.getXp());
+        return resposta;
     }
 }

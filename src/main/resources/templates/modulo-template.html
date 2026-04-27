@@ -63,6 +63,15 @@
                         const item = document.createElement('div');
                         item.className = 'lesson-item';
                         
+                        // Lógica de Fase Especial no frontend
+                        if (faseObj.especial) {
+                            item.classList.add('especial');
+                            const badge = document.createElement('div');
+                            badge.className = 'badge-especial';
+                            badge.innerHTML = '👑';
+                            item.appendChild(badge);
+                        }
+                        
                         const chaveUnicaRobusta = `${moduloAtual}_fase${faseNum}_id${faseDbId}`;
                         const chaveFallbackAntiga = `${moduloAtual}-${faseNum}`;
                         
@@ -79,7 +88,7 @@
 
                         const title = document.createElement('p');
                         title.className = 'lesson-title';
-                        title.textContent = `Fase ${faseNum}`;
+                        title.textContent = faseObj.especial ? `Fase Especial!` : `Fase ${faseNum}`;
 
                         const status = document.createElement('p');
                         status.className = 'lesson-status';

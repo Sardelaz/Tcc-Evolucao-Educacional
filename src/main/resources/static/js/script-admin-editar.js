@@ -24,6 +24,8 @@ async function buscarFase() {
             });
 
             document.getElementById('edit_video_aula_url').value = data.videoAulaUrl || '';
+            // Preenche o checkbox de fase especial
+            document.getElementById('edit_especial').checked = data.especial || false;
 
             renderizarQuestoes();
             document.getElementById('editor-area').classList.remove('hidden');
@@ -208,6 +210,7 @@ async function salvarEdicao() {
         fase: faseNum,
         qtd: questoesLimpas.length,
         videoAulaUrl: document.getElementById('edit_video_aula_url').value,
+        especial: document.getElementById('edit_especial').checked, // Envia o dado de especial
         questoes: questoesLimpas
     };
 
