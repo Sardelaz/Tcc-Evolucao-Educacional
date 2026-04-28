@@ -20,7 +20,20 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/error", "/login", "/api/auth/**", "/css/**", "/js/**", "/audio/**", "/uploads/**", "/api/upload").permitAll()
+                .requestMatchers(
+                    "/error", 
+                    "/login", 
+                    "/landing", 
+                    "/admin/cadastro", // Rota de cadastro docente liberada
+                    "/favicon.ico",
+                    "/css/**", 
+                    "/js/**", 
+                    "/img/**", 
+                    "/audio/**", 
+                    "/uploads/**", 
+                    "/downloads/**", 
+                    "/api/auth/**"
+                ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/modulos").permitAll()
                 .requestMatchers("/admin/**", "/painel-geral", "/admin-video", "/admin-conquistas", "/admin-modulos").hasAnyRole("ADMIN", "PROFESSOR")
                 .requestMatchers("/api/missoes/**", "/api/ranking/**", "/api/perfil", "/api/progresso", "/api/progresso/**", "/api/fases/**", "/api/usuario/**", "/api/checkin", "/api/desafio-diario").authenticated()
