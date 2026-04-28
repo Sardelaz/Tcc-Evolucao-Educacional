@@ -13,11 +13,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const promoDescEl = document.getElementById("promotion-desc");
     const promoBarEl = document.getElementById("promotion-progress");
     const cycleDateEl = document.getElementById("cycle-end-date");
+    const promoLimitText = document.getElementById("promo-limit-text");
+    const relegLimitText = document.getElementById("releg-limit-text");
     
     let currentPage = 0;
     const pageSize = 10;
     let promoLimit = 0;
     let relegationLimit = 0;
+    let currentLigaFilter = ""; // Vazio puxa a liga atual do usuário
+
+    // Controle das abas de navegação de ligas
+    document.querySelectorAll('.tab-liga').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.tab-liga').forEach(b => b.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+            currentLigaFilter = e.currentTarget.getAttribute('data-liga');
+            fetchRanking(0);
+        });
+    });
 
     function atualizarInterfaceLiga(data) {
         const ligaStr = data.liga || 'FERRO';
@@ -29,10 +42,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (cycleDateEl) cycleDateEl.textContent = data.dataFimCiclo || '--/-- às --:--';
 
         if (data.requisitos) {
-            nextLigaEl.textContent = `Rumo à Liga ${data.requisitos.proximaLiga}`;
-            promoDescEl.textContent = data.requisitos.descricao;
-            promoLimit = data.requisitos.promocaoTop;
-            relegationLimit = data.requisitos.rebaixamentoPos;
+            nextLigaEl.textContent = data.requisitos.proximaLiga ? `Rumo à Liga ${data.requisitos.proximaLiga}` : 'Liga Máxima';
+            promoDescEl.textContent = data.requisitos.descricao || 'Detalhes da liga carregados.';
+            promoLimit = data.requisitos.promocaoTop || 0;
+            relegationLimit = data.requisitos.rebaixamentoPos || 0;
+            
+            promoLimitText.textContent = promoLimit > 0 ? promoLimit : '-';
+            relegLimitText.textContent = relegationLimit > 0 ? relegationLimit : '-';
+        } else {
+            nextLigaEl.textContent = 'Classificação da Liga';
+            promoDescEl.textContent = 'Requisitos não disponíveis no momento.';
+            promoLimitText.textContent = '-';
+            relegLimitText.textContent = '-';
         }
     }
 
@@ -100,16 +121,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function fetchRanking(targetPage = 0) {
         const currentAvatar = localStorage.getItem('userAvatar') || '👨‍🎓';
-        fetch(`/api/ranking?page=${targetPage}&size=${pageSize}&avatar=${currentAvatar}`)
+        let url = `/api/ranking?page=${targetPage}&size=${pageSize}&avatar=${currentAvatar}`;
+        
+        if (currentLigaFilter !== "") {
+            url += `&liga=${currentLigaFilter}`;
+        }
+        
+        fetch(url)
             .then(res => res.json())
             .then(data => {
-                currentPage = data.currentPage;
+                currentPage = data.currentPage || 0;
                 atualizarInterfaceLiga(data);
                 renderRanking(data.usuarios || [], currentPage * pageSize);
                 
+                const totalPages = data.totalPages || 0;
                 pageInfo.textContent = `Página ${currentPage + 1}`;
                 btnPrev.disabled = currentPage === 0;
-                btnNext.disabled = (currentPage + 1) >= data.totalPages || data.totalPages === 0;
+                btnNext.disabled = (currentPage + 1) >= totalPages || totalPages === 0;
             })
             .catch(err => console.error("Erro ao carregar ranking:", err));
     }

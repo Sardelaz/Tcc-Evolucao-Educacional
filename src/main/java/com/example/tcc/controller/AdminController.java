@@ -7,6 +7,7 @@ import com.example.tcc.repository.FaseRepository;
 import com.example.tcc.repository.ModuloRepository;
 import com.example.tcc.repository.UsuarioRepository;
 import com.example.tcc.service.AnalisePreditivaService;
+import com.example.tcc.service.RankingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -23,17 +24,20 @@ public class AdminController {
     private final PasswordEncoder passwordEncoder;
     private final FaseRepository faseRepository;
     private final ModuloRepository moduloRepository;
+    private final RankingService rankingService;
 
     public AdminController(UsuarioRepository usuarioRepository, 
                            AnalisePreditivaService analisePreditivaService, 
                            PasswordEncoder passwordEncoder,
                            FaseRepository faseRepository,
-                           ModuloRepository moduloRepository) {
+                           ModuloRepository moduloRepository,
+                           RankingService rankingService) {
         this.usuarioRepository = usuarioRepository;
         this.analisePreditivaService = analisePreditivaService;
         this.passwordEncoder = passwordEncoder;
         this.faseRepository = faseRepository;
         this.moduloRepository = moduloRepository;
+        this.rankingService = rankingService;
     }
 
     @GetMapping("/usuarios/lista")
@@ -66,20 +70,18 @@ public class AdminController {
         analise.put("acertos", (int) usuarios.stream().mapToInt(Usuario::getTotalAcertos).average().orElse(0));
         analise.put("erros", (int) usuarios.stream().mapToInt(Usuario::getTotalErros).average().orElse(0));
 
-        // Ranking de Fases Perfeitas
         Map<String, Long> rankingPerfeitas = usuarios.stream()
                 .flatMap(u -> u.getFasesPerfeitas().stream())
                 .filter(chavesValidas::contains)
                 .collect(Collectors.groupingBy(chave -> formatarNomeFase(chave, nomesModulos), Collectors.counting()));
 
-        // Ranking de Fases Críticas (Aqui mostramos as questões reais erradas pelos alunos)
         List<String> todasQuestoesErradas = usuarios.stream()
                 .flatMap(u -> u.getUltimasQuestoesErradas().stream())
-                .limit(20) // Mostra as 20 questões mais críticas do sistema global
+                .limit(20) 
                 .collect(Collectors.toList());
 
         analise.put("fasesMaisPerfeitas", formatarRanking(rankingPerfeitas));
-        analise.put("questoesCriticasGeral", todasQuestoesErradas); // Alterado para mostrar questões
+        analise.put("questoesCriticasGeral", todasQuestoesErradas); 
         
         return ResponseEntity.ok(analise);
     }
@@ -97,8 +99,9 @@ public class AdminController {
         analise.put("nivel", u.getNivel());
         analise.put("acertos", u.getTotalAcertos());
         analise.put("erros", u.getTotalErros());
-        
-        // Relatório de Fases Críticas Individual: Lista as questões específicas que este aluno errou
+        analise.put("streakDiaria", u.getStreakDiaria());
+        analise.put("emblemas", u.getEmblemas());
+        analise.put("statusFases", u.getStatusDasFases());
         analise.put("questoesErradasRecentes", u.getUltimasQuestoesErradas());
 
         List<String> perfeitasFormatadas = u.getFasesPerfeitas().stream()
@@ -109,8 +112,44 @@ public class AdminController {
         analise.put("fasesPerfeitas", perfeitasFormatadas);
         analise.put("previsaoXp", analisePreditivaService.preverProximoDesempenho(u));
         analise.put("sugestao", analisePreditivaService.sugerirFocoEstudo(u));
+
+        String ligaAtual = u.getLiga() != null ? u.getLiga() : "FERRO";
+        analise.put("liga", ligaAtual);
+
+        // CORREÇÃO: Usando !"ROLE_ADMIN".equals(...) para ignorar professores na posição do aluno
+        List<Usuario> rankingLiga = usuarioRepository.findAll().stream()
+                .filter(user -> !"ROLE_ADMIN".equals(user.getRole())) 
+                .filter(user -> ligaAtual.equals(user.getLiga() != null ? user.getLiga() : "FERRO"))
+                .sorted((a, b) -> Integer.compare(b.getXp(), a.getXp()))
+                .collect(Collectors.toList());
+
+        int posicao = rankingLiga.indexOf(u) + 1;
+        analise.put("posicao", posicao);
+
+        Map<String, Object> requisitos = rankingService.obterRequisitosLiga(ligaAtual);
+        int promocaoTop = (int) requisitos.getOrDefault("promocaoTop", 0);
+        int rebaixamentoPos = (int) requisitos.getOrDefault("rebaixamentoPos", 0);
+
+        String statusRanking = "MANTIDO";
+        if (promocaoTop > 0 && posicao <= promocaoTop) {
+            statusRanking = "PROMOVIDO";
+        } else if (rebaixamentoPos > 0 && posicao >= rebaixamentoPos) {
+            statusRanking = "REBAIXADO";
+        }
+        analise.put("statusRanking", statusRanking);
         
         return ResponseEntity.ok(analise);
+    }
+
+    @PostMapping("/usuarios/alterar-senha/{id}")
+    public ResponseEntity<Map<String, String>> alterarSenha(@PathVariable String id, @RequestBody Map<String, String> payload) {
+        Usuario u = usuarioRepository.findById(id).orElseThrow();
+        String novaSenha = payload.get("novaSenha");
+        u.setSenha(passwordEncoder.encode(novaSenha));
+        usuarioRepository.save(u);
+        Map<String, String> resp = new HashMap<>();
+        resp.put("mensagem", "Senha alterada com sucesso!");
+        return ResponseEntity.ok(resp);
     }
 
     private Set<String> obterChavesDeFasesAtivas() {

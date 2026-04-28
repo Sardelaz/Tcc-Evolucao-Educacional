@@ -101,9 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const listaC = document.getElementById('lista-mais-erradas');
                 if (listaC) {
                     listaC.innerHTML = '';
-                    (data.fasesMaisCriticas || []).forEach(item => {
+                    (data.questoesCriticasGeral || []).forEach(item => {
                         const li = document.createElement('li');
-                        li.textContent = `❌ ${formatarNomeChave(item.nomeFase)} (${item.quantidade} alunos com erros)`;
+                        li.textContent = `❌ ${item}`;
                         listaC.appendChild(li);
                     });
                 }
@@ -127,14 +127,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 const elNivel = document.getElementById('nivel-aluno-perfil');
                 const elStreak = document.getElementById('streak-aluno-perfil');
                 const elXp = document.getElementById('xp-aluno-perfil');
+                const elLiga = document.getElementById('liga-aluno-perfil');
+                const elPosicao = document.getElementById('posicao-aluno-perfil');
+                const elStatusRanking = document.getElementById('status-ranking-perfil');
 
                 if (elNome) elNome.textContent = data.nome;
                 if (elEmail) elEmail.textContent = data.email;
                 if (elNivel) elNivel.textContent = data.nivel;
-                
-                // CORREÇÃO: Usar 'streakDiaria' que é o nome do campo no Java
                 if (elStreak) elStreak.textContent = `${data.streakDiaria || 0} 🔥`;
                 if (elXp) elXp.textContent = data.xp;
+                if (elLiga) elLiga.textContent = data.liga || 'FERRO';
+                if (elPosicao) elPosicao.textContent = `#${data.posicao || '-'}`;
+
+                if (elStatusRanking) {
+                    if (data.statusRanking === 'PROMOVIDO') {
+                        elStatusRanking.innerHTML = `<span class="status-tag promo">↑ Subindo</span>`;
+                    } else if (data.statusRanking === 'REBAIXADO') {
+                        elStatusRanking.innerHTML = `<span class="status-tag rebaix">↓ Caindo</span>`;
+                    } else {
+                        elStatusRanking.innerHTML = `<span class="status-tag mantem">↔ Estável</span>`;
+                    }
+                }
                 
                 const conquistaContainer = document.getElementById('conquistas-aluno-perfil');
                 if (conquistaContainer) {
@@ -179,14 +192,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // CORREÇÃO: Adicionar o loop para listar as questões/fases críticas individuais
                 const listaR = document.getElementById('lista-mais-erradas');
                 if (listaR) {
                     listaR.innerHTML = `<li style="border-left:3px solid #e74c3c; padding-left:10px; color:#e74c3c; margin-bottom:10px;"><strong>Sugestão IA:</strong> ${data.sugestao || 'Continue praticando!'}</li>`;
                     
-                    // Lista os erros registrados na conta do aluno
-                    if (data.ultimasQuestoesErradas && data.ultimasQuestoesErradas.length > 0) {
-                        data.ultimasQuestoesErradas.forEach(erro => {
+                    if (data.questoesErradasRecentes && data.questoesErradasRecentes.length > 0) {
+                        data.questoesErradasRecentes.forEach(erro => {
                             const li = document.createElement('li');
                             li.style.marginBottom = "5px";
                             li.textContent = `❌ ${erro}`;

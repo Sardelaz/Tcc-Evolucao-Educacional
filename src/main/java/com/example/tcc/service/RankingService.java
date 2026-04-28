@@ -20,32 +20,40 @@ public class RankingService {
         this.usuarioService = usuarioService;
     }
 
-    public Map<String, Object> carregarRankingPaginado(int page, int size, String avatar) {
+    public Map<String, Object> carregarRankingPaginado(int page, int size, String avatar, String ligaParam) {
         Usuario currentUser = usuarioService.getCurrentUser();
-        String ligaDoUsuario = currentUser.getLiga(); 
+        
+        // Define qual liga deve ser renderizada: a solicitada pela aba ou a do usuário atual
+        String ligaAlvo = (ligaParam != null && !ligaParam.trim().isEmpty()) 
+                          ? ligaParam 
+                          : currentUser.getLiga(); 
         
         // Garante que a liga nunca seja nula
-        if (ligaDoUsuario == null || ligaDoUsuario.trim().isEmpty()) {
-            ligaDoUsuario = "FERRO";
+        if (ligaAlvo == null || ligaAlvo.trim().isEmpty()) {
+            ligaAlvo = "FERRO";
         }
         
-        // BUSCA 100% SEGURA: Ignora o problema de nulos no banco de dados de produção
         // Busca todos e filtra na memória do Java.
         List<Usuario> todosUsuarios = usuarioRepository.findAll();
         List<Usuario> usuariosDaLiga = new ArrayList<>();
         
         for (Usuario u : todosUsuarios) {
+            // CORREÇÃO: Compara a String corretamente para ocultar administradores/professores do ranking
+            if ("ROLE_ADMIN".equals(u.getRole())) {
+                continue;
+            }
+
             String ligaUser = u.getLiga();
             if (ligaUser == null || ligaUser.trim().isEmpty()) {
                 ligaUser = "FERRO"; // Trata usuários antigos do banco
             }
             
-            if (ligaUser.equalsIgnoreCase(ligaDoUsuario)) {
+            if (ligaUser.equalsIgnoreCase(ligaAlvo)) {
                 usuariosDaLiga.add(u);
             }
         }
         
-        // Ordenação garantida pelo XP Real (Vitalício), igual ao que aparece no Perfil
+        // Ordenação pelo XP Real
         usuariosDaLiga.sort((a, b) -> Integer.compare(b.getXp(), a.getXp()));
         
         // Paginação Manual Segura
@@ -61,10 +69,10 @@ public class RankingService {
         response.put("usuarios", mapearUsuarios(usuariosPaginados, currentUser, avatar));
         response.put("currentPage", page);
         response.put("totalPages", totalPages == 0 ? 1 : totalPages);
-        response.put("liga", ligaDoUsuario);
+        response.put("liga", ligaAlvo);
         response.put("totalJogadoresLiga", totalUsuarios);
         
-        response.put("requisitos", obterRequisitosLiga(ligaDoUsuario));
+        response.put("requisitos", obterRequisitosLiga(ligaAlvo));
         response.put("dataFimCiclo", calcularFimCiclo());
 
         return response;
@@ -79,10 +87,7 @@ public class RankingService {
             uData.put("nome", isCurrent ? "Você" : (u.getNome() != null && !u.getNome().isEmpty() ? u.getNome() : "Estudante"));
             uData.put("avatar", isCurrent ? avatarParam : (u.getAvatar() != null ? u.getAvatar() : "👨‍🎓"));
             uData.put("nivel", u.getNivel());
-            
-            // Garante que o frontend receba o XP Real (nunca 0 se o usuário tiver XP)
             uData.put("xp", u.getXp()); 
-            
             uData.put("isCurrentUser", isCurrent);
             listaMapeada.add(uData);
         }
@@ -102,7 +107,7 @@ public class RankingService {
         return fimCiclo.format(formatter);
     }
 
-    private Map<String, Object> obterRequisitosLiga(String ligaAtual) {
+    public Map<String, Object> obterRequisitosLiga(String ligaAtual) {
         Map<String, Object> req = new HashMap<>();
         switch (ligaAtual) {
             case "FERRO":

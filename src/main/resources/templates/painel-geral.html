@@ -69,21 +69,39 @@
             <h3 class="section-title destaque-aluno" id="titulo-analise" style="margin-top: 30px;">Visão Geral</h3>
 
             <section id="perfil-aluno" class="perfil-aluno-detalhes">
-                <div style="display: flex; gap: 25px; align-items: start;">
+                <div style="display: flex; gap: 25px; align-items: start; flex-wrap: wrap;">
                     <div id="avatar-aluno-grande" style="font-size: 4.5rem; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 50%;">👨‍🎓</div>
-                    <div style="flex: 1;">
+                    <div style="flex: 1; min-width: 300px;">
                         <h2 id="nome-aluno-perfil" style="color: #fff; margin: 0;">Nome</h2>
                         <p id="email-aluno-perfil" style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">email@exemplo.com</p>
-                        <div style="display: flex; gap: 40px; margin-bottom: 20px;">
+                        
+                        <div style="display: flex; gap: 30px; margin-bottom: 20px; flex-wrap: wrap;">
                             <div><small style="color:#aaa;">Nível</small><div id="nivel-aluno-perfil" style="font-weight:bold; color:#1cb0f6; font-size: 1.3rem;">0</div></div>
                             <div><small style="color:#aaa;">Ofensiva</small><div id="streak-aluno-perfil" style="font-weight:bold; color:#FF4B4B; font-size: 1.3rem;">0🔥</div></div>
                             <div><small style="color:#aaa;">XP</small><div id="xp-aluno-perfil" style="font-weight:bold; color:#fff; font-size: 1.3rem;">0</div></div>
+                            
+                            <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 30px;">
+                                <small style="color:#aaa;">Liga Atual</small>
+                                <div id="liga-aluno-perfil" style="font-weight:900; color:#FFD700; font-size: 1.3rem; text-transform: uppercase;">FERRO</div>
+                            </div>
+                            <div>
+                                <small style="color:#aaa;">Posição na Liga</small>
+                                <div id="posicao-aluno-perfil" style="font-weight:bold; color:#1cb0f6; font-size: 1.3rem;">#0</div>
+                            </div>
+                            <div>
+                                <small style="color:#aaa;">Status Atual</small>
+                                <div id="status-ranking-perfil" style="margin-top: 5px;"></div>
+                            </div>
                         </div>
+
                         <div id="conquistas-aluno-perfil"></div>
+                        
                         <div class="senha-box">
                             <label style="display:block; color:#aaa; font-size:0.8rem; margin-bottom:8px;">Gestão de Segurança:</label>
-                            <input type="password" id="nova-senha-input" class="input-senha" placeholder="Nova Senha">
-                            <button class="btn-senha" id="btn-alterar-senha">Alterar Senha</button>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="password" id="nova-senha-input" class="input-senha" placeholder="Nova Senha">
+                                <button class="btn-senha" id="btn-alterar-senha">Alterar Senha</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -91,7 +109,7 @@
 
             <section class="progress-section" id="secao-progresso" style="display: none;">
                 <h3 class="section-title" style="border: none; margin-bottom: 15px; font-size: 1.1rem; color: #888;">📍 Progresso nos Módulos</h3>
-                <div class="modulos-grid" id="lista-progresso-modulos" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;"></div>
+                <div class="modulos-grid" id="lista-progresso-modulos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;"></div>
             </section>
 
             <section class="charts-section" style="margin-top: 30px;">
@@ -103,9 +121,15 @@
             </section>
 
             <section class="questions-stats-section">
-                <div class="stats-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                    <div class="stats-card erro-card" style="background:rgba(231, 76, 60, 0.05); padding:20px; border-radius:12px; border:1px solid rgba(231, 76, 60, 0.2);"><h3 class="card-title" style="color:#e74c3c;">🚨 Fases Críticas</h3><ul id="lista-mais-erradas" class="question-list" style="list-style:none; padding:0; margin-top:15px; color:#fff; font-size:0.9rem;"></ul></div>
-                    <div class="stats-card acerto-card" style="background:rgba(46, 204, 113, 0.05); padding:20px; border-radius:12px; border:1px solid rgba(46, 204, 113, 0.2);"><h3 class="card-title" style="color:#2ecc71;">⭐ Fases Perfeitas</h3><ul id="lista-fases-perfeitas" class="question-list" style="list-style:none; padding:0; margin-top:15px; color:#fff; font-size:0.9rem;"></ul></div>
+                <div class="stats-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
+                    <div class="stats-card erro-card" style="background:rgba(231, 76, 60, 0.05); padding:20px; border-radius:12px; border:1px solid rgba(231, 76, 60, 0.2);">
+                        <h3 class="card-title" style="color:#e74c3c;">🚨 Fases Críticas</h3>
+                        <ul id="lista-mais-erradas" class="question-list" style="list-style:none; padding:0; margin-top:15px; color:#fff; font-size:0.9rem;"></ul>
+                    </div>
+                    <div class="stats-card acerto-card" style="background:rgba(46, 204, 113, 0.05); padding:20px; border-radius:12px; border:1px solid rgba(46, 204, 113, 0.2);">
+                        <h3 class="card-title" style="color:#2ecc71;">⭐ Fases Perfeitas</h3>
+                        <ul id="lista-fases-perfeitas" class="question-list" style="list-style:none; padding:0; margin-top:15px; color:#fff; font-size:0.9rem;"></ul>
+                    </div>
                 </div>
             </section>
         </main>

@@ -18,7 +18,9 @@ public class GamificacaoController {
     private final GamificacaoService gamificacaoService;
     private final RankingService rankingService;
 
-    public GamificacaoController(UsuarioService usuarioService, GamificacaoService gamificacaoService, RankingService rankingService) {
+    public GamificacaoController(UsuarioService usuarioService, 
+                                GamificacaoService gamificacaoService, 
+                                RankingService rankingService) {
         this.usuarioService = usuarioService;
         this.gamificacaoService = gamificacaoService;
         this.rankingService = rankingService;
@@ -33,8 +35,9 @@ public class GamificacaoController {
     public ResponseEntity<Map<String, Object>> obterRanking(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String avatar) {
-        return ResponseEntity.ok(rankingService.carregarRankingPaginado(page, size, avatar));
+            @RequestParam(required = false) String avatar,
+            @RequestParam(required = false) String liga) {
+        return ResponseEntity.ok(rankingService.carregarRankingPaginado(page, size, avatar, liga));
     }
 
     @GetMapping("/usuario/heatmap-data")

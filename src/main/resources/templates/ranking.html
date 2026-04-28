@@ -15,15 +15,31 @@
         </div>
     </div>
 
+    <div class="league-navigation">
+        <div class="league-tabs">
+            <button class="tab-liga active" data-liga="">🏆 Minha Liga</button>
+            <button class="tab-liga" data-liga="FERRO">⚙️ Ferro</button>
+            <button class="tab-liga" data-liga="BRONZE">🥉 Bronze</button>
+            <button class="tab-liga" data-liga="PRATA">🥈 Prata</button>
+            <button class="tab-liga" data-liga="OURO">🥇 Ouro</button>
+            <button class="tab-liga" data-liga="DIAMANTE">💎 Diamante</button>
+            <button class="tab-liga" data-liga="LENDA">🔥 Lenda</button>
+        </div>
+    </div>
+
     <main class="ranking-wrapper">
-        <section class="promotion-info-card">
+        <section class="promotion-info-card" id="promotion-container">
             <div class="info-grid">
                 <div class="info-main">
                     <div class="info-header">
-                        <span class="info-badge">Temporada Semanal</span>
-                        <h3 id="next-liga-name">Rumo à Próxima Liga</h3>
+                        <span class="info-badge">Regras da Liga</span>
+                        <h3 id="next-liga-name">Requisitos de Classificação</h3>
                     </div>
                     <p id="promotion-desc">Carregando requisitos...</p>
+                    <div class="requirements-details">
+                        <span class="req-item promo">⬆️ Zona de Promoção: Top <span id="promo-limit-text">-</span></span>
+                        <span class="req-item releg">⬇️ Zona de Rebaixamento: Abaixo de <span id="releg-limit-text">-</span></span>
+                    </div>
                 </div>
                 <div class="info-timer">
                     <span class="timer-label">A liga encerra em:</span>
@@ -68,24 +84,6 @@
             </div>
         </section>
     </main>
-
-    <style>
-        .promotion-info-card { background: rgba(15, 15, 25, 0.85); border: 1px solid var(--cor-borda); border-radius: 20px; padding: 25px; margin-bottom: 30px; backdrop-filter: blur(12px); }
-        .info-grid { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
-        .info-badge { background: #e67e22; color: #fff; padding: 5px 14px; border-radius: 25px; font-size: 0.7rem; font-weight: 900; text-transform: uppercase; }
-        .info-timer { text-align: right; background: rgba(255,255,255,0.04); padding: 12px; border-radius: 14px; }
-        .timer-label { font-size: 0.7rem; color: #888; display: block; }
-        .timer-value { color: #58cc02; font-weight: 700; font-size: 1.1rem; }
-        .promotion-threshold-bar { height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; margin-top: 25px; overflow: hidden; }
-        .bar-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #58cc02, #2ecc71); transition: width 1.5s ease; }
-        .pagination-controls { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 35px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; }
-        .pagination-controls button { background: #1e1e2e; border: 1px solid #3f3f5a; color: #fff; padding: 10px 24px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-        .pagination-controls button:hover:not(:disabled) { border-color: #58cc02; color: #58cc02; }
-        .pagination-controls button:disabled { opacity: 0.3; cursor: not-allowed; }
-        .pagination-controls span { font-weight: 700; color: #fff; }
-        .tag-promo { background: rgba(88, 204, 2, 0.15); color: #58cc02; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; border: 1px solid #58cc02; margin-left: 10px; }
-        .tag-releg { background: rgba(231, 76, 60, 0.15); color: #e74c3c; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; border: 1px solid #e74c3c; margin-left: 10px; }
-    </style>
 
     <div th:replace="~{layout/base :: audio-player}"></div>
     <div th:replace="~{layout/base :: settings-modal}"></div>
