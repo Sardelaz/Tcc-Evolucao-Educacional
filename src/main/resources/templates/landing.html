@@ -18,395 +18,348 @@
     <style>
         :root {
             --bg-base: #050508;
-            --bg-surface: rgba(18, 18, 24, 0.6);
-            --border-subtle: rgba(255, 255, 255, 0.06);
+            --bg-surface: rgba(18, 18, 24, 0.7);
+            --border-subtle: rgba(255, 255, 255, 0.08);
             --accent-main: #3b82f6; 
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --gold-accent: #d97706;
             --success-color: #10b981;
+            --nav-height: 80px;
         }
 
         body.light-theme {
             --bg-base: #f8fafc;
-            --bg-surface: rgba(255, 255, 255, 0.8);
-            --border-subtle: rgba(0, 0, 0, 0.08);
+            --bg-surface: rgba(255, 255, 255, 0.9);
+            --border-subtle: rgba(0, 0, 0, 0.1);
             --text-primary: #0f172a;
             --text-secondary: #475569;
             --accent-main: #2563eb;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-base); color: var(--text-primary); line-height: 1.7; overflow-x: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
         
-        nav, header, section, footer, .live-stats { position: relative; z-index: 10; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: var(--bg-base); 
+            color: var(--text-primary); 
+            line-height: 1.6; 
+            overflow-x: hidden; 
+        }
 
         /* PRELOADER */
         #preloader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-base); display: flex; justify-content: center; align-items: center;
-            z-index: 99999; transition: opacity 0.5s ease;
+            z-index: 10000; transition: opacity 0.4s ease;
         }
-        .loader-logo { font-size: 2rem; font-weight: 800; color: var(--accent-main); margin-bottom: 20px; animation: pulse 1.5s infinite; }
-        .loader-bar { width: 200px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 5px; position: relative; overflow: hidden; }
-        .loader-bar span { position: absolute; width: 0%; height: 100%; background: var(--accent-main); animation: loading 2s infinite; }
-        @keyframes loading { 0% { width: 0; } 100% { width: 100%; } }
+        .loader-logo { font-size: 1.8rem; font-weight: 800; color: var(--accent-main); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        /* PARTICLES BG */
-        #particles-js { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 0; pointer-events: none; }
-
-        /* NAVEGAÇÃO */
-        nav { position: fixed; width: 100%; top: 0; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; background: rgba(5,5,8,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-subtle); z-index: 1000; }
-        .logo { font-weight: 800; font-size: 1.2rem; }
-        .logo span { color: var(--accent-main); }
-        .nav-links { display: flex; list-style: none; gap: 25px; align-items: center; }
-        .nav-links a { text-decoration: none; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
-        .nav-links a:hover { color: var(--text-primary); }
-        .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; transition: all 0.3s; }
-        .btn-primary { background: var(--accent-main); color: white !important; }
-        .btn-primary:hover { transform: translateY(-2px); background: #2563eb; }
-        .btn-outline { border: 1px solid var(--border-subtle); color: var(--text-primary) !important; }
-        .btn-outline:hover { background: var(--bg-surface); }
-        .btn-gold { border: 1px solid var(--gold-accent); color: var(--gold-accent) !important; }
-        .btn-gold:hover { background: rgba(217, 119, 6, 0.1); }
-        
-        .utility-controls { display: flex; gap: 10px; align-items: center; }
-        .theme-btn { background: transparent; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; }
-        .custom-lang-select { background: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 5px 10px; outline: none; }
-
-        /* HERO SECTION */
-        .hero { padding: 180px 5% 100px; text-align: center; }
-        .hero h1 { font-size: clamp(2.5rem, 5vw, 4.5rem); margin-bottom: 20px; letter-spacing: -1px; line-height: 1.1; }
-        .hero h1 span { color: var(--accent-main); }
-        .hero p { color: var(--text-secondary); max-width: 700px; margin: 0 auto 40px; font-size: 1.1rem; }
-        .cta-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        
-        .hero-screenshot { max-width: 900px; margin: 60px auto 0; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
-        .browser-header { height: 40px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; padding: 0 15px; gap: 8px; background: rgba(0,0,0,0.3); }
-        .browser-dot { width: 12px; height: 12px; border-radius: 50%; }
-        .browser-dot.red { background: #ef4444; } .browser-dot.yellow { background: #f59e0b; } .browser-dot.green { background: #10b981; }
-        .browser-url { margin-left: 10px; background: rgba(255,255,255,0.05); padding: 3px 15px; border-radius: 20px; font-size: 0.75rem; color: var(--text-secondary); }
-        .real-app-image { width: 100%; display: block; object-fit: cover; }
-
-        /* LIVE STATS */
-        .live-stats { display: flex; justify-content: center; flex-wrap: wrap; gap: clamp(30px, 5vw, 80px); padding: 60px 5%; background: var(--bg-surface); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); text-align: center; }
-        .stat-item h3 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; color: var(--accent-main); margin-bottom: 5px; }
-        .stat-item p { font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
-
-        /* SEÇÕES E GRIDS */
-        section { padding: 100px 5%; max-width: 1200px; margin: 0 auto; }
-        h2.section-title { text-align: center; font-size: clamp(1.8rem, 3vw, 2.2rem); margin-bottom: 50px; }
-        .purpose-text { max-width: 800px; margin: 0 auto; text-align: center; font-size: 1.1rem; color: var(--text-secondary); }
-        .purpose-text strong { color: var(--text-primary); }
-
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
-        .feature-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); padding: 40px 30px; border-radius: 12px; transition: transform 0.3s; }
-        .feature-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.15); }
-        .feature-icon { font-size: 2rem; margin-bottom: 20px; color: var(--accent-main); }
-        .feature-card h3 { margin-bottom: 10px; }
-        .feature-card p { color: var(--text-secondary); font-size: 0.95rem; }
-
-        /* LIGAS E INFORMAÇÕES DO SISTEMA (MODIFICADO COM ÍCONES) */
-        .system-info-wrapper { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
-        .leagues-container { flex: 1; min-width: 300px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        .league-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); padding: 25px; border-radius: 16px; width: 140px; text-align: center; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
-        .league-card.active { border-color: var(--accent-main); box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); transform: scale(1.05); }
-        .league-icon-emoji { font-size: 3rem; margin-bottom: 10px; line-height: 1; }
-        .league-card h4 { margin-bottom: 5px; font-size: 1.1rem; }
-        .league-card p { font-size: 0.8rem; color: var(--text-secondary); }
-
-        /* PAINEL DE INFORMAÇÕES DE XP */
-        .info-panel { flex: 1; min-width: 300px; max-width: 500px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 30px; text-align: left; }
-        .info-panel h3 { font-size: 1.5rem; color: var(--accent-main); margin-bottom: 15px; }
-        .info-panel p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px; }
-        .info-panel ul { list-style: none; margin-bottom: 20px; }
-        .info-panel ul li { margin-bottom: 10px; font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
-        .info-panel ul li span { font-size: 1.2rem; }
-        .bonus-box { background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--success-color); padding: 15px; border-radius: 8px; font-size: 0.9rem; }
-
-        /* MASCOTES COMO EMOJIS ANIMADOS */
-        .mascot-display { display: flex; align-items: center; gap: 50px; flex-wrap: wrap; }
-        .mascot-info { flex: 1; min-width: 300px; }
-        .mascot-visual { flex: 1; text-align: center; position: relative; }
-        .speech-bubble { position: relative; background: var(--text-primary); color: var(--bg-base); padding: 15px 25px; border-radius: 15px; font-weight: 600; font-size: 0.95rem; display: inline-block; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-        .speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: var(--text-primary) transparent transparent transparent; }
-        
-        .emoji-mascots { display: flex; justify-content: center; align-items: center; gap: 20px; font-size: 5rem; margin-top: 10px; }
-        .mascot-emoji { filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4)); user-select: none; }
-        .floating-1 { animation: floatEmoji 4s ease-in-out infinite; }
-        .floating-2 { animation: floatEmoji 5s ease-in-out infinite 1s; }
-        .floating-3 { animation: floatEmoji 4.5s ease-in-out infinite 2s; }
-        @keyframes floatEmoji { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-
-        /* DEPOIMENTOS & FAQ */
-        .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .testimonial-card { background: var(--bg-surface); padding: 30px; border-radius: 12px; border-left: 4px solid var(--accent-main); }
-        .testimonial-card p { font-style: italic; margin-bottom: 15px; }
-        .testimonial-card span { color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; }
-
-        .faq-container { max-width: 800px; margin: 0 auto; }
-        .faq-item { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 10px; margin-bottom: 10px; cursor: pointer; overflow: hidden; }
-        .faq-question { padding: 20px; font-weight: 600; display: flex; justify-content: space-between; }
-        .faq-answer { padding: 0 20px; max-height: 0; transition: all 0.3s ease; color: var(--text-secondary); font-size: 0.9rem; }
-        .faq-item.active .faq-answer { padding: 0 20px 20px; max-height: 150px; }
-
-        /* ANIMAÇÕES REVEAL E RODAPÉ */
-        .reveal { opacity: 0; transform: translateY(30px); transition: 0.8s all ease; }
-        .reveal.active { opacity: 1; transform: translateY(0); }
+        /* ANIMAÇÕES DE REVEAL (SCROLL) */
+        .reveal { 
+            opacity: 0; 
+            transform: translateY(40px); 
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+        }
+        .reveal.active { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
         .delay-1 { transition-delay: 0.2s; }
         .delay-2 { transition-delay: 0.4s; }
 
-        footer { text-align: center; padding: 40px 5%; border-top: 1px solid var(--border-subtle); color: var(--text-secondary); font-size: 0.85rem; }
-
-        @media (max-width: 992px) {
-            nav { flex-direction: column; padding: 15px; gap: 15px; }
-            .nav-links { flex-wrap: wrap; justify-content: center; }
-            .emoji-mascots { font-size: 4rem; }
+        /* NAVEGAÇÃO */
+        nav { 
+            position: fixed; width: 100%; top: 0; height: var(--nav-height);
+            padding: 0 5%; display: flex; justify-content: space-between; align-items: center; 
+            background: rgba(5,5,8,0.85); backdrop-filter: blur(15px); 
+            border-bottom: 1px solid var(--border-subtle); z-index: 1000; 
+            transition: all 0.3s ease;
         }
+        .logo { font-weight: 800; font-size: 1.3rem; white-space: nowrap; }
+        .logo span { color: var(--accent-main); }
+
+        .nav-content { display: flex; align-items: center; gap: 30px; }
+        .nav-links { display: flex; list-style: none; gap: 25px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; transition: 0.3s; }
+        .nav-links a:hover { color: var(--accent-main); }
+
+        .menu-toggle { display: none; font-size: 1.5rem; background: none; border: none; color: var(--text-primary); cursor: pointer; }
+
+        /* BOTÕES */
+        .btn { padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; transition: 0.3s; align-items: center; justify-content: center; }
+        .btn-primary { background: var(--accent-main); color: white !important; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); }
+        .btn-gold { border: 2px solid var(--gold-accent); color: var(--gold-accent) !important; }
+        .btn-gold:hover { background: var(--gold-accent); color: white !important; }
+
+        /* HERO SECTION */
+        .hero { padding: calc(var(--nav-height) + 60px) 5% 80px; text-align: center; max-width: 1300px; margin: 0 auto; }
+        .hero h1 { font-size: clamp(2.2rem, 6vw, 4rem); margin-bottom: 20px; line-height: 1.1; font-weight: 800; }
+        .hero h1 span { color: var(--accent-main); }
+        .hero p { color: var(--text-secondary); max-width: 750px; margin: 0 auto 40px; font-size: clamp(1rem, 2vw, 1.15rem); }
+        
+        .cta-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+
+        .hero-screenshot { 
+            max-width: 1000px; margin: 60px auto 0; background: var(--bg-surface); 
+            border: 1px solid var(--border-subtle); border-radius: 24px; overflow: hidden; 
+            box-shadow: 0 40px 100px rgba(0,0,0,0.6); transform: perspective(1200px) rotateX(4deg);
+            transition: 0.5s;
+        }
+        .hero-screenshot:hover { transform: perspective(1200px) rotateX(0deg); }
+        .real-app-image { width: 100%; display: block; filter: brightness(0.95); }
+
+        /* LIVE STATS GRID */
+        .live-stats { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 40px; padding: 80px 10%; background: var(--bg-surface); 
+            border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); text-align: center; 
+        }
+        .stat-item h3 { font-size: 3rem; color: var(--accent-main); margin-bottom: 5px; font-weight: 800; }
+        .stat-item p { color: var(--text-secondary); text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; font-weight: 600; }
+
+        /* SEÇÕES E LIGAS */
+        section { padding: 100px 5%; max-width: 1200px; margin: 0 auto; }
+        .section-title { text-align: center; font-size: clamp(1.8rem, 4vw, 2.8rem); margin-bottom: 60px; font-weight: 800; }
+
+        .system-info-wrapper { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 50px; align-items: start; }
+        
+        .leagues-container { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; 
+        }
+        .league-card { 
+            background: var(--bg-surface); border: 1px solid var(--border-subtle); 
+            padding: 30px 20px; border-radius: 20px; text-align: center; transition: 0.3s;
+        }
+        .league-card:hover { border-color: var(--accent-main); transform: translateY(-5px); }
+        .league-card.active { border-color: var(--accent-main); background: rgba(59, 130, 246, 0.12); box-shadow: 0 10px 30px rgba(59, 130, 246, 0.1); }
+        .league-icon-emoji { font-size: 3rem; margin-bottom: 15px; display: block; }
+
+        .info-panel { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 24px; padding: 40px; }
+        .info-panel h3 { margin-bottom: 20px; color: var(--accent-main); }
+        .info-panel ul { list-style: none; }
+        .info-panel ul li { margin-bottom: 15px; display: flex; align-items: center; gap: 15px; font-size: 1rem; color: var(--text-primary); }
+        .info-panel ul li span { font-size: 1.4rem; }
+
+        /* MASCOTES */
+        .mascot-display { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+        .mascot-visual { text-align: center; position: relative; }
+        .speech-bubble { 
+            position: relative; background: var(--text-primary); color: var(--bg-base); 
+            padding: 25px; border-radius: 24px; font-weight: 700; margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3); display: inline-block;
+        }
+        .speech-bubble::after {
+            content: ''; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%);
+            border-left: 15px solid transparent; border-right: 15px solid transparent;
+            border-top: 15px solid var(--text-primary);
+        }
+
+        /* RESPONSIVIDADE ADICIONAL */
+        @media (max-width: 1024px) {
+            .system-info-wrapper, .mascot-display { grid-template-columns: 1fr; gap: 40px; }
+            .hero-screenshot { transform: none; }
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; z-index: 1100; }
+            .nav-content {
+                position: fixed; top: 0; right: -100%; width: 85%; height: 100vh;
+                background: var(--bg-base); flex-direction: column; justify-content: center;
+                transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -15px 0 50px rgba(0,0,0,0.7);
+                padding: 40px;
+            }
+            .nav-content.active { right: 0; }
+            .nav-links { flex-direction: column; gap: 30px; width: 100%; text-align: center; }
+            .nav-links a { font-size: 1.3rem; }
+            
+            .hero { padding-top: 130px; }
+            .cta-buttons .btn { width: 100%; }
+        }
+
+        footer { padding: 80px 5% 40px; text-align: center; border-top: 1px solid var(--border-subtle); color: var(--text-secondary); font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
     <div id="preloader">
-        <div class="loader-content">
-            <div class="loader-logo">// Evolução</div>
-            <div class="loader-bar"><span></span></div>
-        </div>
+        <div class="loader-logo">// Evolução Educacional</div>
     </div>
 
-    <div id="particles-js"></div>
-
-    <div th:replace="~{layout/base :: acessibilidade}"></div>
-    <div id="google_translate_element" style="display:none;"></div>
-
-    <nav>
+    <nav id="main-nav">
         <div class="logo"><span>//</span> Evolução Educacional</div>
-        <ul class="nav-links">
-            <li><a href="#proposito">Missão</a></li>
-            <li><a href="#ligas">Sistema</a></li>
-            <li><a href="#mascotes">Mentores</a></li>
-            <li><a th:href="@{/admin/cadastro}" class="btn btn-gold">Acesso Docente</a></li>
-        </ul>
-        <div class="utility-controls">
-            <button class="theme-btn" id="theme-toggle">☀️</button>
-            <select class="custom-lang-select" onchange="changeLanguage(this.value)">
-                <option value="pt">Português</option>
-                <option value="en">English (US)</option>
-                <option value="es">Español</option>
-            </select>
+        
+        <button class="menu-toggle" id="mobile-menu-btn">☰</button>
+        
+        <div class="nav-content" id="nav-content">
+            <ul class="nav-links">
+                <li><a href="#ligas">O Sistema</a></li>
+                <li><a href="#mascotes">Mentores</a></li>
+                <li><a th:href="@{/admin/cadastro}" class="btn btn-gold">Portal Docente</a></li>
+            </ul>
+            <div class="utility-controls">
+                <button class="btn btn-primary" id="theme-toggle">☀️</button>
+            </div>
         </div>
     </nav>
 
     <header class="hero reveal">
-        <div class="hero-content">
-            <h1>Ensino projetado para <span>resultados.</span></h1>
-            <p>A primeira plataforma baseada na BNCC que utiliza gamificação de elite para transformar o teu estudo numa progressão constante.</p>
-            <div class="cta-buttons">
-                <a th:href="@{/login}" class="btn btn-primary">Acessar Plataforma Web</a>
-                <a th:href="@{/downloads/app.apk}" download="EvolucaoEducacional.apk" class="btn btn-outline">Baixar App Mobile</a>
-            </div>
+        <h1>Aprendizado projetado para <span>resultados reais.</span></h1>
+        <p>A primeira plataforma baseada na BNCC que une preparação para o ENEM a sistemas avançados de gamificação e trilhas adaptativas.</p>
+        <div class="cta-buttons">
+            <a th:href="@{/login}" class="btn btn-primary">Entrar na Jornada</a>
+            <a th:href="@{/downloads/app.apk}" class="btn btn-gold">Baixar para Android</a>
         </div>
 
         <div class="hero-screenshot reveal delay-1">
-            <div class="browser-header">
-                <div class="browser-dot red"></div><div class="browser-dot yellow"></div><div class="browser-dot green"></div>
-                <div class="browser-url">evolucaoeducacional.com.br/painel</div>
-            </div>
-            <img th:src="@{/img/home.png}" alt="Interface do Sistema" class="real-app-image" loading="lazy" onerror="this.style.display='none';">
+            <img th:src="@{/img/home.png}" alt="Painel de Controle" class="real-app-image" loading="lazy">
         </div>
     </header>
 
-    <div class="live-stats reveal">
-        <div class="stat-item stat-counter">
+    <div class="live-stats">
+        <div class="stat-item reveal">
             <h3 class="counter" th:data-target="${totalQuestoes}" th:text="${totalQuestoes}">15000</h3>
             <p>Questões Resolvidas</p>
         </div>
-        <div class="stat-item stat-counter delay-1">
+        <div class="stat-item reveal delay-1">
             <h3 class="counter" th:data-target="${totalAlunos}" th:text="${totalAlunos}">850</h3>
-            <p>Alunos Ativos</p>
+            <p>Estudantes Ativos</p>
         </div>
-        <div class="stat-item stat-counter delay-2">
+        <div class="stat-item reveal delay-2">
             <h3 class="counter" th:data-target="${totalXp}" th:text="${totalXp}">24000</h3>
             <p>XP Acumulado</p>
         </div>
     </div>
 
     <section id="ligas">
-        <h2 class="section-title reveal">O Caminho da Glória</h2>
-        
+        <h2 class="section-title reveal">Sistema de Progressão</h2>
         <div class="system-info-wrapper">
-            
             <div class="leagues-container reveal delay-1">
                 <div class="league-card">
-                    <div class="league-icon-emoji">🔘</div>
-                    <h4>Ferro</h4><p>O Início</p>
+                    <span class="league-icon-emoji">🔘</span>
+                    <h4>Ferro</h4><p>Base Sólida</p>
                 </div>
                 <div class="league-card">
-                    <div class="league-icon-emoji">🥉</div>
-                    <h4>Bronze</h4><p>Persistência</p>
+                    <span class="league-icon-emoji">🥉</span>
+                    <h4>Bronze</h4><p>Determinação</p>
                 </div>
                 <div class="league-card">
-                    <div class="league-icon-emoji">🥈</div>
-                    <h4>Prata</h4><p>Evolução</p>
-                </div>
-                <div class="league-card">
-                    <div class="league-icon-emoji">🥇</div>
-                    <h4>Ouro</h4><p>Maestria</p>
+                    <span class="league-icon-emoji">🥇</span>
+                    <h4>Ouro</h4><p>Domínio</p>
                 </div>
                 <div class="league-card active">
-                    <div class="league-icon-emoji">💎</div>
-                    <h4>Lenda</h4><p>O Topo</p>
+                    <span class="league-icon-emoji">💎</span>
+                    <h4>Lenda</h4><p>Excelência</p>
                 </div>
             </div>
 
             <div class="info-panel reveal delay-2">
-                <h3>📊 Como Evoluir?</h3>
-                <p>O teu progresso é medido por <strong>Pontos de Experiência (XP)</strong>. Ganhas XP ao resolver questões e completar módulos.</p>
+                <h3>📊 Gamificação de Elite</h3>
+                <p>Nossa plataforma recompensa cada acerto e persistência, garantindo que o foco no ENEM seja envolvente e viciante.</p>
                 <ul>
-                    <li><span>🔘</span> Ferro: 0 a 1000 XP</li>
-                    <li><span>🥉</span> Bronze: 1001 a 3000 XP</li>
-                    <li><span>🥈</span> Prata: 3001 a 6000 XP</li>
-                    <li><span>🥇</span> Ouro: 6001 a 10000 XP</li>
-                    <li><span>💎</span> Lenda: +10000 XP</li>
+                    <li><span>🔥</span> <strong>Ofensivas:</strong> Multiplicadores de XP diários.</li>
+                    <li><span>🏆</span> <strong>Leagues:</strong> Rankings competitivos saudáveis.</li>
+                    <li><span>💰</span> <strong>Economy:</strong> Loja de avatares e itens raros.</li>
                 </ul>
-                <div class="bonus-box">
-                    🔥 <strong>Dica:</strong> Mantém a tua ofensiva diária ativa para multiplicar os teus ganhos de XP!
-                </div>
             </div>
-
         </div>
     </section>
 
     <section id="mascotes">
         <div class="mascot-display reveal">
+            <div class="mascot-visual">
+                <div class="speech-bubble">"Vamos desbravar as matrizes do ENEM hoje?"</div>
+                <div style="font-size: 6rem; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));">🦉 🦊 🤖</div>
+            </div>
             <div class="mascot-info">
-                <h2 class="section-title" style="text-align: left; margin-bottom: 20px;">Mentores de <span>Evolução</span></h2>
-                <p>Não estás sozinho na tua jornada. Os nossos mascotes interativos guiam o teu raciocínio, desconstruindo problemas complexos em passos simples e compreensíveis através de balões de fala dinâmicos.</p>
-            </div>
-            <div class="mascot-visual reveal delay-1">
-                <div class="speech-bubble">"Vamos resolver esta função quadrática juntos?"</div>
-                <div class="emoji-mascots">
-                    <span class="mascot-emoji floating-1">🦉</span>
-                    <span class="mascot-emoji floating-2">🦊</span>
-                    <span class="mascot-emoji floating-3">🤖</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="faq">
-        <h2 class="section-title reveal">Dúvidas Frequentes</h2>
-        <div class="faq-container reveal delay-1">
-            <div class="faq-item">
-                <div class="faq-question">A plataforma é gratuita? <span>+</span></div>
-                <div class="faq-answer">Sim, a nossa missão é democratizar o acesso ao ensino de matemática para o ENEM.</div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-question">Como ganho XP e Moedas? <span>+</span></div>
-                <div class="faq-answer">Ganhas recompensas ao acertar questões, completar missões diárias e manter as tuas ofensivas ativas.</div>
+                <h2 class="section-title" style="text-align: left;">Mentores <span>Interativos</span></h2>
+                <p>O <strong>Evolução Educacional</strong> oferece feedback dinâmico por meio de mascotes mentores que guiam seu raciocínio em tempo real através de balões de fala contextuais.</p>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>&copy; 2026 Evolução Educacional — Desenvolvido por João Augusto Sardela do Amaral.</p>
+        <p>&copy; 2026 Evolução Educacional. Desenvolvido por João Augusto Sardela do Amaral.</p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             // 1. PRELOADER
             window.addEventListener("load", () => {
                 const preloader = document.getElementById("preloader");
                 preloader.style.opacity = "0";
-                setTimeout(() => preloader.style.display = "none", 500);
+                setTimeout(() => preloader.style.display = "none", 400);
             });
 
-            // 2. PARTICLES.JS
-            if(document.getElementById('particles-js')){
-                particlesJS("particles-js", {
-                    "particles": {
-                        "number": { "value": 40, "density": { "enable": true, "value_area": 800 } },
-                        "color": { "value": "#3b82f6" },
-                        "shape": { "type": "circle" },
-                        "opacity": { "value": 0.3, "random": true },
-                        "size": { "value": 3, "random": true },
-                        "line_linked": { "enable": true, "distance": 150, "color": "#3b82f6", "opacity": 0.2, "width": 1 },
-                        "move": { "enable": true, "speed": 2, "direction": "none", "random": true, "out_mode": "out" }
-                    },
-                    "interactivity": { "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" } } }
-                });
-            }
+            // 2. MENU MOBILE
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const navContent = document.getElementById('nav-content');
+            
+            menuBtn.addEventListener('click', () => {
+                navContent.classList.toggle('active');
+                menuBtn.textContent = navContent.classList.contains('active') ? '✕' : '☰';
+            });
 
-            // 3. TEMA CLARO / ESCURO
+            // 3. TEMA CLARO/ESCURO
             const themeBtn = document.getElementById('theme-toggle');
-            if (localStorage.getItem('theme') === 'light') {
-                document.body.classList.add('light-theme');
-                themeBtn.textContent = '🌙';
-            }
             themeBtn.addEventListener('click', () => {
                 document.body.classList.toggle('light-theme');
-                const isLight = document.body.classList.contains('light-theme');
-                themeBtn.textContent = isLight ? '🌙' : '☀️';
-                localStorage.setItem('theme', isLight ? 'light' : 'dark');
+                themeBtn.textContent = document.body.classList.contains('light-theme') ? '🌙' : '☀️';
             });
 
-            // 4. OBSERVER (ANIMAÇÕES E CONTADORES)
+            // 4. INTERSECTION OBSERVER (ANIMAÇÕES SCROLL & CONTADORES)
+            const observerOptions = { threshold: 0.2 };
+            
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
+                        // Ativa animação de reveal
                         entry.target.classList.add('active');
                         
-                        if (entry.target.classList.contains('stat-counter') && !entry.target.classList.contains('counted')) {
+                        // Lógica específica para os contadores de estatísticas
+                        if (entry.target.classList.contains('stat-item') && !entry.target.dataset.counted) {
                             const counter = entry.target.querySelector('.counter');
-                            let target = parseInt(counter.getAttribute('data-target'), 10);
-                            
-                            // Fallback caso o atributo falhe
-                            if (isNaN(target) || target <= 0) {
-                                target = parseInt(counter.innerText.replace(/[^0-9]/g, '')) || 0;
-                            }
-                            
-                            let current = 0;
-                            const duration = 2000; 
-                            const speed = 30; 
-                            const step = target / (duration / speed);
-
-                            const updateCounter = setInterval(() => {
-                                current += step;
-                                if (current >= target) {
-                                    counter.innerText = target.toLocaleString('pt-PT') + "+";
-                                    clearInterval(updateCounter);
-                                } else {
-                                    counter.innerText = Math.ceil(current).toLocaleString('pt-PT');
-                                }
-                            }, speed);
-                            
-                            entry.target.classList.add('counted');
+                            const target = parseInt(counter.getAttribute('data-target'));
+                            animateCounter(counter, target);
+                            entry.target.dataset.counted = "true";
                         }
                     }
                 });
-            }, { threshold: 0.1 });
+            }, observerOptions);
 
-            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            document.querySelectorAll('.reveal, .stat-item').forEach(el => observer.observe(el));
 
-            // 5. FAQ ACCORDION
-            document.querySelectorAll('.faq-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    item.classList.toggle('active');
-                    item.querySelector('span').innerText = item.classList.contains('active') ? '-' : '+';
-                });
+            // Função para animar os números
+            function animateCounter(el, target) {
+                let current = 0;
+                const duration = 2000; // 2 segundos
+                const increment = target / (duration / 30);
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        el.innerText = target.toLocaleString('pt-PT') + "+";
+                        clearInterval(timer);
+                    } else {
+                        el.innerText = Math.floor(current).toLocaleString('pt-PT');
+                    }
+                }, 30);
+            }
+
+            // 5. NAVBAR SCROLL EFFECT
+            window.addEventListener('scroll', () => {
+                const nav = document.getElementById('main-nav');
+                if (window.scrollY > 50) {
+                    nav.style.height = "70px";
+                    nav.style.background = "rgba(5,5,8,0.95)";
+                } else {
+                    nav.style.height = "80px";
+                    nav.style.background = "rgba(5,5,8,0.85)";
+                }
             });
         });
-
-        // 6. TRADUÇÃO GOOGLE
-        function changeLanguage(langCode) {
-            const googleSelect = document.querySelector(".goog-te-combo");
-            if (googleSelect) {
-                googleSelect.value = langCode;
-                googleSelect.dispatchEvent(new Event('change'));
-            }
-        }
     </script>
 </body>
 </html>
