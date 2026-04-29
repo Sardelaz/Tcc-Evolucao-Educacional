@@ -42,7 +42,10 @@ public class AuthController {
     private final Map<String, String> otpStorage = new ConcurrentHashMap<>();
     private final Map<String, RegisterDTO> pendingUsers = new ConcurrentHashMap<>();
 
-    public AuthController(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, EmailService emailService) {
+    public AuthController(UsuarioRepository usuarioRepository, 
+                          PasswordEncoder passwordEncoder, 
+                          AuthenticationManager authenticationManager, 
+                          EmailService emailService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
@@ -54,12 +57,12 @@ public class AuthController {
         // PASSO 1: VERIFICAR BASE DE DADOS
         try {
             if (usuarioRepository.findByEmail(dto.getEmail()).isPresent()) {
-                return ResponseEntity.badRequest().body(Map.of("mensagem", "E-mail já está em uso."));
+                return ResponseEntity.badRequest().body(Map.of("mensagem", "E-mail já cadastrado."));
             }
         } catch (Exception dbError) {
             dbError.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("mensagem", "ERRO DE BASE DE DADOS NA NUVEM: O seu servidor não conseguiu ligar ao MySQL. Detalhe: " + dbError.getMessage()));
+                    .body(Map.of("mensagem", "Erro de ligação à base de dados: " + dbError.getMessage()));
         }
 
         // PASSO 2: GERAR CÓDIGO E ENVIAR E-MAIL
@@ -70,18 +73,18 @@ public class AuthController {
             pendingUsers.put(dto.getEmail(), dto);
 
             emailService.enviarEmailVerificacao(dto.getEmail(), otp);
-            System.out.println("E-mail enviado com sucesso pelo Render para: " + dto.getEmail());
+            System.out.println("Código OTP enviado para: " + dto.getEmail());
 
-            return ResponseEntity.ok(Map.of("mensagem", "Conta pré-criada. Verifique o seu e-mail."));
+            return ResponseEntity.ok(Map.of("mensagem", "Código de verificação enviado para o seu e-mail."));
             
         } catch (Exception emailError) {
             emailError.printStackTrace();
-            // Limpa da memória porque o e-mail falhou
+            // Limpa da memória caso o envio falhe
             otpStorage.remove(dto.getEmail());
             pendingUsers.remove(dto.getEmail());
             
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("mensagem", "ERRO AO ENVIAR E-MAIL: Verifique as configurações do Gmail no Render. Detalhe: " + emailError.getMessage()));
+                    .body(Map.of("mensagem", "Falha ao enviar e-mail: " + emailError.getMessage()));
         }
     }
 
@@ -97,10 +100,11 @@ public class AuthController {
 
         if (!otpStorage.get(email).equals(codigo)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("mensagem", "Código incorreto."));
+                    .body(Map.of("mensagem", "Código de verificação incorreto."));
         }
 
         try {
+            // CÓDIGO CORRETO! Agora gravamos o utilizador no Banco de Dados
             RegisterDTO pendingData = pendingUsers.get(email);
 
             Usuario u = new Usuario();
@@ -114,15 +118,16 @@ public class AuthController {
 
             usuarioRepository.save(u);
 
+            // Limpa a memória temporária
             otpStorage.remove(email);
             pendingUsers.remove(email);
 
-            return ResponseEntity.ok(Map.of("mensagem", "Conta verificada e ativada com sucesso."));
+            return ResponseEntity.ok(Map.of("mensagem", "Conta verificada e ativada com sucesso!"));
 
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("mensagem", "ERRO AO SALVAR NA BASE DE DADOS: Não foi possível gravar o utilizador validado. " + e.getMessage()));
+                    .body(Map.of("mensagem", "Erro ao salvar utilizador: " + e.getMessage()));
         }
     }
 
@@ -132,7 +137,7 @@ public class AuthController {
 
         if (!pendingUsers.containsKey(email)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("mensagem", "Não existe nenhum registo pendente para este e-mail."));
+                    .body(Map.of("mensagem", "Não existe um registo pendente para este e-mail."));
         }
 
         try {
@@ -141,26 +146,29 @@ public class AuthController {
 
             emailService.enviarEmailVerificacao(email, novoOtp);
 
-            return ResponseEntity.ok(Map.of("mensagem", "Novo código enviado com sucesso."));
+            return ResponseEntity.ok(Map.of("mensagem", "Um novo código foi enviado para o seu e-mail."));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("mensagem", "ERRO AO REENVIAR E-MAIL: Falha no servidor. " + e.getMessage()));
+                    .body(Map.of("mensagem", "Erro ao reenviar e-mail: " + e.getMessage()));
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDTO dto, HttpServletRequest request, HttpServletResponse response) {
         try {
+            // 1. Efetua a autenticação
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getSenha())
             );
 
+            // 2. Salva no contexto de segurança
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
             securityContextRepository.saveContext(context, request, response);
 
+            // 3. Resposta de sucesso
             Map<String, String> body = new HashMap<>();
             body.put("mensagem", "Login efetuado com sucesso");
             body.put("redirect", "/");
@@ -169,15 +177,15 @@ public class AuthController {
 
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("mensagem", "Credenciais inválidas. Verifique o seu e-mail e a palavra-passe."));
+                    .body(Map.of("mensagem", "Credenciais inválidas. Verifique o seu e-mail e senha."));
         } catch (Exception e) {
             e.printStackTrace(); 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("mensagem", "ERRO FATAL NO SERVIDOR DE BASE DE DADOS: " + e.getMessage()));
+                    .body(Map.of("mensagem", "Erro interno no servidor: " + e.getMessage()));
         }
     }
 
-    // ================= DTOs ================= //
+    // ================= DTOs (Data Transfer Objects) ================= //
 
     @Data
     public static class LoginDTO {
@@ -185,7 +193,7 @@ public class AuthController {
         @Email(message = "O formato do e-mail é inválido")
         private String email;
 
-        @NotBlank(message = "A palavra-passe não pode estar vazia")
+        @NotBlank(message = "A senha não pode estar vazia")
         private String senha;
     }
 
@@ -198,8 +206,8 @@ public class AuthController {
         @Email(message = "O formato do e-mail é inválido")
         private String email;
 
-        @NotBlank(message = "A palavra-passe não pode estar vazia")
-        @Size(min = 6, message = "A palavra-passe deve conter pelo menos 6 caracteres")
+        @NotBlank(message = "A senha não pode estar vazia")
+        @Size(min = 6, message = "A senha deve conter pelo menos 6 caracteres")
         private String senha;
     }
 
