@@ -16,8 +16,7 @@ public class EmailService {
     public void enviarEmailVerificacao(String para, String codigoOtp) {
         SimpleMailMessage mensagem = new SimpleMailMessage();
         
-        // CORREÇÃO CRÍTICA: Removido o @Value("${spring.mail.username}")
-        // O e-mail de envio DEVE ser o seu e-mail real e validado no Brevo.
+        // IMPORTANTE: O remetente fixado com o seu e-mail validado na plataforma
         mensagem.setFrom("joaoaugustosardelasardela@gmail.com"); 
         
         mensagem.setTo(para);
@@ -30,7 +29,6 @@ public class EmailService {
         try {
             mailSender.send(mensagem);
         } catch (Exception e) {
-            // Lança a exceção para que o AuthController saiba que falhou
             throw new RuntimeException("Erro ao disparar e-mail: " + e.getMessage());
         }
     }
