@@ -109,6 +109,25 @@
         </div>
     </div>
 
+    <div class="tutorial-backdrop" id="tutorial-backdrop"></div>
+    <div class="modal-overlay" id="tutorial-modal" style="z-index: 10002; transition: opacity 0.4s ease;">
+        <div class="modal-content" style="max-width: 450px; text-align: center;">
+            <div class="modal-icon-wrapper" style="border-color: #58CC02; margin-bottom: 15px;">
+                <div class="modal-icon" id="tutorial-icon">👋</div>
+            </div>
+            <h2 class="modal-title" id="tutorial-title" style="color: #58CC02; font-size: 1.8rem;">Bem-vindo à Evolução Educacional!</h2>
+            <p class="modal-desc" id="tutorial-desc" style="font-size: 1rem; margin-bottom: 25px;">Vamos fazer um tour rápido para você conhecer a plataforma?</p>
+            
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+                <button class="primary-modal-btn" id="tutorial-next-btn" style="background: #58CC02; box-shadow: 0 6px 0 #3d8f01; padding: 15px;">Começar Tour</button>
+                <button class="primary-modal-btn" id="tutorial-skip-btn" style="background: transparent; box-shadow: none; border: 2px solid rgba(255,255,255,0.2); color: #888; padding: 12px; margin-top: 5px;">Pular Tutorial</button>
+            </div>
+            
+            <div id="tutorial-progress" style="margin-top: 25px; display: flex; justify-content: center; gap: 8px;">
+                </div>
+        </div>
+    </div>
+
     <div th:replace="~{layout/base :: audio-player}"></div>
     <div th:replace="~{layout/base :: settings-modal}"></div>
     <div th:replace="~{layout/base :: scripts('/js/script-home.js')}"></div>

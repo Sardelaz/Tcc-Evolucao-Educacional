@@ -342,7 +342,7 @@ body {
 }
 
 /* ==========================================
-   MODAIS
+   MODAIS PADRÕES
    ========================================== */
 .modal-overlay {
     position: fixed;
@@ -523,6 +523,73 @@ body {
 .avatar-option:hover {
     border-color: var(--cor-primaria);
     transform: scale(1.1);
+}
+
+/* ==========================================
+   SISTEMA DE TUTORIAL GUIADO
+   ========================================== */
+.tutorial-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100dvh;
+    background: rgba(0, 0, 0, 0.2); /* Fundo extremamente suave e claro */
+    backdrop-filter: blur(3px); /* Desfoque menor para ver a página de fundo */
+    z-index: 9999;
+    display: none;
+    pointer-events: all;
+    transition: opacity 0.4s ease;
+}
+
+.tutorial-backdrop.active {
+    display: block;
+}
+
+/* O elemento ganha brilho verde, formatação de pílula para grupos e bloqueia o clique */
+.tutorial-highlight {
+    position: relative !important;
+    z-index: 10001 !important;
+    box-shadow: 0 0 0 5px #58cc02, 0 0 35px 15px rgba(88, 204, 2, 0.6) !important;
+    background-color: rgba(30, 30, 54, 0.95) !important;
+    pointer-events: none; /* Bloqueia clique no item durante o tutorial */
+    border-radius: 20px !important; /* Arredondado para ficar estético no "Action Group" */
+    padding: 12px !important; /* Padding interno extra para os botões respirarem */
+    transition: all 0.3s ease;
+    transform: scale(1.05); /* Salto evidente */
+}
+
+/* O elemento ganha brilho Dourado, pulsa e PERMITE o clique (Último passo) */
+.tutorial-highlight-clickable {
+    position: relative !important;
+    z-index: 10001 !important;
+    box-shadow: 0 0 0 5px #FFD700, 0 0 40px 15px rgba(255, 215, 0, 0.7) !important;
+    background-color: rgba(30, 30, 54, 0.95) !important;
+    pointer-events: all; 
+    border-radius: 20px !important;
+    padding: 12px !important;
+    transition: all 0.3s ease;
+    animation: pulse-target 2s infinite;
+    transform: scale(1.05);
+}
+
+/* Corrige problema de Stacking Context para pais (ex: .profile-panel) */
+.tutorial-parent-fix {
+    position: relative !important;
+    z-index: 10000 !important; /* Traz o pai acima do backdrop (9999) mas abaixo do modal (10002) */
+}
+
+.tutorial-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #444;
+    transition: 0.3s;
+}
+
+.tutorial-dot.active {
+    background: #58CC02;
+    transform: scale(1.4);
 }
 
 /* ==========================================

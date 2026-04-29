@@ -2,6 +2,7 @@ const btnCheckin = document.getElementById('checkin-btn');
 const countStreak = document.getElementById('day-streak-count');
 const btnDesafioCard = document.getElementById('desafio-card');
 let desafioJaConcluidoHoje = false;
+let currentTutorialKey = ""; 
 
 // LER DADOS DO PERFIL E APLICAR COSMÉTICOS DA LOJA
 fetch('/api/perfil')
@@ -90,6 +91,19 @@ fetch('/api/perfil')
                 avatarGrid.appendChild(opt);
             });
         }
+
+        // ===============================================
+        // VERIFICAÇÃO DO TUTORIAL DE PRIMEIRO ACESSO
+        // ===============================================
+        setTimeout(() => {
+            currentTutorialKey = 'tutorialConcluido_' + (perfil.email || perfil.id || 'anon');
+            const tutorialConcluido = localStorage.getItem(currentTutorialKey);
+            
+            // Inicia o tutorial se não estiver concluído e se o usuário for nível 1 (XP 0)
+            if (!tutorialConcluido && perfil.nivel <= 1 && perfil.xp <= 0) {
+                iniciarTutorial();
+            }
+        }, 1000);
     })
     .catch(err => console.error("Erro ao carregar perfil:", err));
 
@@ -226,3 +240,151 @@ function carregarMissoes() {
 
 // Inicia as missões
 carregarMissoes();
+
+// ===============================================
+// SISTEMA DE TUTORIAL GUIADO
+// ===============================================
+const tutorialPassos = [
+    {
+        title: "Bem-vindo à Evolução Educacional!",
+        desc: "Que bom ter você aqui! Vamos fazer um tour bem rápido para você entender como ser o melhor aluno da plataforma?",
+        icon: "👋",
+        target: null
+    },
+    {
+        title: "Seu Perfil de Jogador",
+        desc: "Neste painel superior você visualiza seu Avatar, Nível atual, a Liga que você está competindo e suas Moedas Virtuais.",
+        icon: "👨‍🎓",
+        target: ".profile-panel"
+    },
+    {
+        title: "Botões de Ação",
+        desc: "Acesse a Loja Virtual para comprar avatares com suas Moedas, faça o seu Check-in diário e acompanhe suas Missões aqui!",
+        icon: "🎯",
+        target: ".action-group"
+    },
+    {
+        title: "Menu de Exploração",
+        desc: "Pelo menu lateral você acessa Relatórios do seu Desempenho, assiste Videoaulas, faz Simulados oficiais e acompanha o Ranking da Turma.",
+        icon: "📊",
+        target: ".sidebar"
+    },
+    {
+        title: "Hora da Ação!",
+        desc: "Este é o seu trilho de aprendizagem! Para encerrar o tutorial, clique no seu primeiro módulo e comece a estudar. Boa sorte!",
+        icon: "🚀",
+        target: "#modulos-grid",
+        action: "finish"
+    }
+];
+
+let passoAtual = 0;
+const modalTutorial = document.getElementById('tutorial-modal');
+const fundoTutorial = document.getElementById('tutorial-backdrop');
+const tituloTut = document.getElementById('tutorial-title');
+const descTut = document.getElementById('tutorial-desc');
+const iconTut = document.getElementById('tutorial-icon');
+const btnNextTut = document.getElementById('tutorial-next-btn');
+const btnSkipTut = document.getElementById('tutorial-skip-btn');
+const containerProgresso = document.getElementById('tutorial-progress');
+
+function renderizarBolinhas() {
+    if (!containerProgresso) return;
+    containerProgresso.innerHTML = '';
+    tutorialPassos.forEach((_, index) => {
+        const bolinha = document.createElement('div');
+        bolinha.className = `tutorial-dot ${index === passoAtual ? 'active' : ''}`;
+        containerProgresso.appendChild(bolinha);
+    });
+}
+
+function destacarElemento(seletor, ehUltimoPasso = false) {
+    // 1. Remove destaques anteriores
+    document.querySelectorAll('.tutorial-highlight, .tutorial-highlight-clickable').forEach(el => {
+        el.classList.remove('tutorial-highlight');
+        el.classList.remove('tutorial-highlight-clickable');
+    });
+    document.querySelectorAll('.tutorial-parent-fix').forEach(el => {
+        el.classList.remove('tutorial-parent-fix');
+    });
+
+    // 2. Aplica o novo destaque
+    if (seletor) {
+        const elemento = document.querySelector(seletor);
+        if (elemento) {
+            elemento.classList.add(ehUltimoPasso ? 'tutorial-highlight-clickable' : 'tutorial-highlight');
+            
+            // CORREÇÃO CRÍTICA: Se o alvo estiver dentro de um container com stacking context (ex: profile-panel)
+            // Precisamos elevar o container inteiro acima do backdrop para que o elemento brilhe.
+            const parentPanel = elemento.closest('.profile-panel');
+            if (parentPanel && parentPanel !== elemento) {
+                parentPanel.classList.add('tutorial-parent-fix');
+            }
+
+            elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+}
+
+function mostrarPasso(index) {
+    if (index >= tutorialPassos.length) {
+        encerrarTutorial();
+        return;
+    }
+
+    const passo = tutorialPassos[index];
+    if(tituloTut) tituloTut.textContent = passo.title;
+    if(descTut) descTut.textContent = passo.desc;
+    if(iconTut) iconTut.textContent = passo.icon;
+
+    if (btnNextTut && btnSkipTut) {
+        if (index === 0) {
+            btnNextTut.textContent = "Começar Tour";
+        } else if (index === tutorialPassos.length - 1) {
+            btnNextTut.textContent = "Bora Estudar!";
+            btnNextTut.style.background = "#FFD700";
+            btnNextTut.style.color = "#000";
+            btnNextTut.style.boxShadow = "0 6px 0 #B8860B";
+            btnSkipTut.style.display = "none";
+        } else {
+            btnNextTut.textContent = "Próximo Passo";
+            btnNextTut.style.background = "#58CC02";
+            btnNextTut.style.color = "#fff";
+            btnNextTut.style.boxShadow = "0 6px 0 #3d8f01";
+            btnSkipTut.style.display = "block";
+        }
+    }
+
+    destacarElemento(passo.target, passo.action === 'finish');
+    renderizarBolinhas();
+}
+
+function iniciarTutorial() {
+    if(fundoTutorial) fundoTutorial.classList.add('active');
+    if(modalTutorial) modalTutorial.classList.add('active');
+    passoAtual = 0;
+    mostrarPasso(passoAtual);
+}
+
+function encerrarTutorial() {
+    if(fundoTutorial) fundoTutorial.classList.remove('active');
+    if(modalTutorial) modalTutorial.classList.remove('active');
+    if(currentTutorialKey) {
+        localStorage.setItem(currentTutorialKey, 'true');
+    }
+    // Deixa o módulo preparado para o clique final
+    destacarElemento('#modulos-grid', true); 
+}
+
+if(btnNextTut) {
+    btnNextTut.addEventListener('click', () => {
+        passoAtual++;
+        mostrarPasso(passoAtual);
+    });
+}
+
+if(btnSkipTut) {
+    btnSkipTut.addEventListener('click', () => {
+        encerrarTutorial();
+    });
+}
