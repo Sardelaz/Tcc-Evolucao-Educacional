@@ -92,6 +92,23 @@ html, body {
   color: #a0a0b5;
 }
 
+/* NOVO ESTILO: Mensagem exibindo o e-mail no painel de verificação */
+.email-display-msg {
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: var(--cor-texto);
+  background: rgba(28, 176, 246, 0.15);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(28, 176, 246, 0.3);
+  word-break: break-all;
+}
+
+.email-display-msg strong {
+  color: var(--cor-xp);
+  font-size: 1rem;
+}
+
 .input-group {
   margin-bottom: clamp(15px, 3vw, 20px);
   text-align: left;
@@ -121,6 +138,52 @@ html, body {
 .input-group input:focus {
   border-color: var(--cor-xp);
   box-shadow: 0 0 10px rgba(28, 176, 246, 0.3);
+}
+
+.code-input {
+  text-align: center;
+  letter-spacing: 10px;
+  font-size: 1.5rem !important;
+  font-weight: bold;
+}
+
+/* Wrapper da Senha e Botão de Visibilidade */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  padding-right: 45px; 
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #a0a0b5;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+  padding: 0;
+}
+
+.toggle-password:hover {
+  opacity: 0.8;
+}
+
+/* Mensagem de Erro (Validação) */
+.error-msg {
+  display: block;
+  color: #ff4c4c;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  min-height: 16px; 
 }
 
 .forgot-link {
@@ -155,7 +218,13 @@ html, body {
   background-color: var(--cor-ranking);
 }
 
-.auth-btn:hover {
+.auth-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.auth-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
 }
