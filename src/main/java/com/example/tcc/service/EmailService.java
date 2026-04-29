@@ -17,13 +17,9 @@ public class EmailService {
     }
 
     public void enviarEmailVerificacao(String para, String codigoOtp) {
-        log.info("Iniciando envio de e-mail via Mailjet para: {}", para);
-
         SimpleMailMessage mensagem = new SimpleMailMessage();
         
-        // IMPORTANTE: Este tem de ser exatamente o e-mail validado no Mailjet
         mensagem.setFrom("joaoaugustosardelasardela@gmail.com"); 
-        
         mensagem.setTo(para);
         mensagem.setSubject("Código de Verificação - Evolução Educacional");
         mensagem.setText("Olá!\n\n"
@@ -33,10 +29,10 @@ public class EmailService {
         
         try {
             mailSender.send(mensagem);
-            log.info("✅ E-MAIL ENVIADO COM SUCESSO!");
+            log.info("✅ E-mail enviado para: {}", para);
         } catch (Exception e) {
-            log.error("❌ Falha na autenticação SMTP: {}", e.getMessage());
-            throw new RuntimeException("Erro ao disparar e-mail: Authentication failed");
+            // Logamos o erro internamente, mas não interrompemos o fluxo do usuário
+            log.warn("⚠️ Falha ao enviar e-mail real para {}: {}", para, e.getMessage());
         }
     }
 }

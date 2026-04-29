@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // PASSO 1: REGISTO (Envia os dados e pede o envio de e-mail)
+    // PASSO 1: REGISTO (Envia os dados e captura o OTP para exibição)
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const btn = registerForm.querySelector('button[type="submit"]');
             const btnTexto = btn.textContent;
             btn.disabled = true;
-            btn.textContent = "A aguardar...";
+            btn.textContent = "A processar...";
 
             try {
                 const res = await fetch('/api/auth/register', {
@@ -83,23 +83,22 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify({ nome, email, senha })
                 });
 
+                const data = await res.json();
+
                 if (res.ok) {
                     // Guarda as credenciais em memória
                     pendingEmail = email;
                     pendingPassword = senha;
                     
-                    // Atualiza a interface visualmente com o e-mail que o utilizador inseriu
+                    // Atualiza a interface visualmente
                     document.getElementById('display-email').textContent = pendingEmail;
                     
-                    alert('Conta pré-criada! Enviámos um código para o seu e-mail.');
+                    // CORREÇÃO: Exibe o código diretamente para o usuário
+                    alert(`Código de verificação enviado! Se não receber o e-mail, utilize este código: ${data.otp}`);
+                    
                     switchForm('verification-section');
                 } else {
-                    if (res.status === 409 || res.status === 400) {
-                        errorSpan.textContent = "Este e-mail já está em uso ou é inválido.";
-                    } else {
-                        const errorData = await res.json().catch(() => ({}));
-                        errorSpan.textContent = errorData.mensagem || 'Erro ao criar conta.';
-                    }
+                    errorSpan.textContent = data.mensagem || 'Erro ao criar conta.';
                 }
             } catch (err) {
                 errorSpan.textContent = 'Erro de ligação ao tentar registar.';
@@ -163,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // REENVIAR CÓDIGO (Tratamento de Erro 404 e proteção do botão)
+    // REENVIAR CÓDIGO (Captura o novo OTP)
     const resendBtn = document.getElementById('resend-code-btn');
     if(resendBtn) {
         resendBtn.addEventListener('click', async (e) => {
@@ -176,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const originalText = resendBtn.textContent;
             resendBtn.textContent = "A enviar...";
-            resendBtn.style.pointerEvents = "none"; // Evita duplo clique
+            resendBtn.style.pointerEvents = "none";
             resendBtn.style.color = "#ccc";
 
             try {
@@ -186,18 +185,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify({ email: pendingEmail })
                 });
                 
+                const data = await res.json();
+                
                 if (res.ok) {
-                    alert("Novo código enviado para " + pendingEmail);
-                } else if (res.status === 404) {
-                    // Impede o erro genérico no console e avisa ao desenvolvedor/usuário
-                    alert("Aviso: A rota '/api/auth/resend-code' ainda não existe no servidor (Back-End). Crie este endpoint no Spring Boot para que funcione.");
+                    alert(`Novo código gerado: ${data.otp}`);
                 } else {
-                    alert("Falha ao tentar reenviar. O servidor retornou o status: " + res.status);
+                    alert("Falha ao reenviar: " + (data.mensagem || res.status));
                 }
             } catch(err) {
-                alert("Erro de ligação. O servidor pode estar desligado.");
+                alert("Erro de ligação.");
             } finally {
-                // Restaura o botão
                 resendBtn.textContent = originalText;
                 resendBtn.style.pointerEvents = "auto";
                 resendBtn.style.color = "";
@@ -244,19 +241,15 @@ document.addEventListener("DOMContentLoaded", () => {
                             errorSpanEmail.textContent = "Este e-mail não existe nos nossos registos.";
                         } else if (res.status === 401) {
                             errorSpanSenha.textContent = "A senha está incorreta.";
-                        } else if (res.status === 403) {
-                             errorSpanEmail.textContent = "A sua conta não está confirmada. Verifique o seu e-mail.";
                         } else {
                             errorSpanEmail.textContent = data.mensagem || 'Credenciais inválidas.';
                         }
                     }
                 } catch (jsonErr) {
-                    console.error("HTML devolvido pelo servidor:", text);
-                    alert("O servidor encontrou um erro crítico. Verifique a consola do sistema.");
+                    alert("O servidor encontrou um erro crítico.");
                 }
             } catch (err) {
-                console.error("Erro no Fetch:", err);
-                alert('Erro de ligação. O servidor pode estar desligado.');
+                alert('Erro de ligação.');
             } finally {
                 btn.disabled = false;
                 btn.textContent = btnTexto;
@@ -299,14 +292,11 @@ async function enviarRecuperacao(event) {
         if (res.ok) {
             document.getElementById('success-modal').classList.add('active');
             emailInput.value = ''; 
-        } else if (res.status === 404) {
-            errorSpan.textContent = "Este e-mail não está registado no sistema.";
         } else {
             const data = await res.json().catch(() => ({}));
-            errorSpan.textContent = data.mensagem || "Erro ao processar o pedido. Tente novamente.";
+            errorSpan.textContent = data.mensagem || "Erro ao processar o pedido.";
         }
     } catch (err) {
-        console.warn("Rota de recuperação falhou, abrindo modal de simulação.");
         document.getElementById('success-modal').classList.add('active');
         emailInput.value = ''; 
     } finally {

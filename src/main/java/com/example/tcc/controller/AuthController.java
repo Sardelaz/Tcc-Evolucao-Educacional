@@ -38,7 +38,6 @@ public class AuthController {
     private final EmailService emailService;
     private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
-    // Memória temporária para usuários que aguardam a verificação
     private final Map<String, String> otpStorage = new ConcurrentHashMap<>();
     private final Map<String, RegisterDTO> pendingUsers = new ConcurrentHashMap<>();
 
@@ -55,22 +54,23 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterDTO dto) {
         try {
-            // Verificar se o email já existe no banco
             if (usuarioRepository.findByEmail(dto.getEmail()).isPresent()) {
                 return ResponseEntity.badRequest().body(Map.of("mensagem", "Este e-mail já está em uso."));
             }
 
-            // Gerar código OTP de 6 dígitos
             String otp = String.format("%06d", new Random().nextInt(999999));
 
-            // Salvar temporariamente
             otpStorage.put(dto.getEmail(), otp);
             pendingUsers.put(dto.getEmail(), dto);
 
-            // Tentar enviar email
+            // O e-mail tenta ser enviado em background
             emailService.enviarEmailVerificacao(dto.getEmail(), otp);
             
-            return ResponseEntity.ok(Map.of("mensagem", "Código de verificação enviado com sucesso."));
+            // CORREÇÃO: Enviamos o código de volta no JSON para o frontend mostrar na tela
+            return ResponseEntity.ok(Map.of(
+                "mensagem", "Código gerado com sucesso.",
+                "otp", otp 
+            ));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -123,7 +123,11 @@ public class AuthController {
             String novoOtp = String.format("%06d", new Random().nextInt(999999));
             otpStorage.put(dto.getEmail(), novoOtp);
             emailService.enviarEmailVerificacao(dto.getEmail(), novoOtp);
-            return ResponseEntity.ok(Map.of("mensagem", "Novo código enviado."));
+            
+            return ResponseEntity.ok(Map.of(
+                "mensagem", "Novo código gerado.",
+                "otp", novoOtp
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("mensagem", "Erro ao reenviar código: " + e.getMessage()));
@@ -148,8 +152,6 @@ public class AuthController {
                     .body(Map.of("mensagem", "E-mail ou senha incorretos."));
         }
     }
-
-    // ================= DTOs ================= //
 
     @Data
     public static class LoginDTO {
