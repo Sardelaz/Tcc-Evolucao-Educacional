@@ -16,7 +16,7 @@ public class EmailService {
     public void enviarEmailVerificacao(String para, String codigoOtp) {
         SimpleMailMessage mensagem = new SimpleMailMessage();
         
-        // IMPORTANTE: O remetente fixado com o seu e-mail validado na plataforma
+        // Remetente fixado. DEVE ser o seu e-mail do Gmail validado no Brevo
         mensagem.setFrom("joaoaugustosardelasardela@gmail.com"); 
         
         mensagem.setTo(para);
