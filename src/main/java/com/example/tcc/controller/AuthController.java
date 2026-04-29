@@ -190,7 +190,7 @@ public class AuthController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("mensagem", "Erro interno no servidor ao tentar iniciar sessão."));
+                    .body(Map.of("mensagem", "Erro fatal no servidor ao tentar iniciar sessão."));
         }
     }
 
@@ -224,12 +224,16 @@ public class AuthController {
 
     @Data
     public static class VerifyDTO {
-        @NotBlank private String email;
-        @NotBlank private String codigo;
+        @NotBlank(message = "O e-mail é obrigatório")
+        private String email;
+
+        @NotBlank(message = "O código é obrigatório")
+        private String codigo;
     }
 
     @Data
     public static class ResendDTO {
-        @NotBlank private String email;
+        @NotBlank(message = "O e-mail é obrigatório")
+        private String email;
     }
 }
