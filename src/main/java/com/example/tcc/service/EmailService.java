@@ -10,7 +10,6 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    // Recupera o email do remetente das propriedades
     @Value("${spring.mail.username}")
     private String remetente;
 
@@ -21,6 +20,7 @@ public class EmailService {
     public void enviarEmailVerificacao(String para, String codigoOtp) {
         SimpleMailMessage mensagem = new SimpleMailMessage();
         
+        // O remetente deve ser o mesmo usuário da autenticação ou um e-mail validado no Brevo
         mensagem.setFrom(remetente); 
         mensagem.setTo(para);
         mensagem.setSubject("Código de Verificação - Evolução Educacional");
@@ -32,7 +32,6 @@ public class EmailService {
         try {
             mailSender.send(mensagem);
         } catch (Exception e) {
-            // Lança a exceção para que o AuthController saiba que falhou
             throw new RuntimeException("Erro ao disparar e-mail: " + e.getMessage());
         }
     }
