@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminToggle = document.getElementById('admin-toggle');
     const adminContent = document.getElementById('admin-content');
     
-    // Filtros de Fase
     const selectModulo = document.getElementById('select-modulo-filtro');
     const selectFase = document.getElementById('select-fase-filtro');
     const btnDetalhes = document.getElementById('btn-buscar-detalhes');
@@ -77,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const partes = chave.split('_fase');
             const mod = mapaNomesModulos[partes[0].toLowerCase()] || partes[0].toUpperCase();
             const num = partes[1].split('_id')[0];
-            return `${mod} - FASE ${num}`;
+            return `${mod} - Fase ${num}`;
         }
         return chave.toUpperCase().replace('MAT-', 'FASE ').replace('-', ' FASE ');
     }
@@ -86,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alunoSelecionadoId = null;
         areaDetalhes.style.display = 'none';
         if (tituloAnalise) tituloAnalise.innerHTML = `Visão Geral: <span style="color:#FFD700;">Desempenho da Turma</span>`;
-        
         const perf = document.getElementById('perfil-aluno');
         const prog = document.getElementById('secao-progresso');
         if (perf) perf.style.display = 'none';
@@ -100,73 +98,64 @@ document.addEventListener('DOMContentLoaded', () => {
                 const listaP = document.getElementById('lista-fases-perfeitas');
                 if (listaP) {
                     listaP.innerHTML = '';
-                    (data.fasesMaisPerfeitas || []).forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = `⭐ ${formatarNomeChave(item.nomeFase)} (${item.quantidade} alunos gabaritaram)`;
-                        listaP.appendChild(li);
-                    });
+                    if (data.fasesMaisPerfeitas && data.fasesMaisPerfeitas.length > 0) {
+                        data.fasesMaisPerfeitas.forEach(item => {
+                            const li = document.createElement('li');
+                            li.textContent = `⭐ ${item.nomeFase} - ${item.quantidade} concluídas`;
+                            listaP.appendChild(li);
+                        });
+                    } else {
+                        listaP.innerHTML = '<li style="color:#888;">Nenhuma fase perfeita na turma ainda.</li>';
+                    }
                 }
-
+                
                 const listaC = document.getElementById('lista-mais-erradas');
                 if (listaC) {
                     listaC.innerHTML = '';
-                    (data.questoesCriticasGeral || []).forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = `❌ ${item}`;
-                        listaC.appendChild(li);
-                    });
+                    if (data.questoesCriticasGeral && data.questoesCriticasGeral.length > 0) {
+                        data.questoesCriticasGeral.forEach(item => {
+                            const li = document.createElement('li');
+                            li.textContent = `❌ ${item}`;
+                            listaC.appendChild(li);
+                        });
+                    } else {
+                        listaC.innerHTML = '<li style="color:#888;">Nenhum erro crítico registrado na turma.</li>';
+                    }
                 }
             });
     };
 
-    // LEITOR COM LOGS DETALHADOS
     function lerDadosMisturados(str) {
-        console.log("LOG EXTRATOR: Recebido do Servidor ->", str);
         let obj = {};
         if (!str) return obj;
-        
-        if (typeof str === 'object') {
-            str = JSON.stringify(str);
-        }
-
-        // Tenta Parse JSON primeiro
-        try {
-            let parsed = JSON.parse(str);
-            while (typeof parsed === 'string') { parsed = JSON.parse(parsed); }
-            if (typeof parsed === 'object' && parsed !== null && ('acertos' in parsed || 'tempoSegundos' in parsed)) {
-                console.log("LOG EXTRATOR: JSON extraido com sucesso ->", parsed);
-                return parsed;
-            }
-        } catch (e) {
-            console.log("LOG EXTRATOR: Falha no parse JSON (Pode ser string do lombok), usando Regex Forte.");
-        }
-
-        // Extrator por Regex Forte
+        if (typeof str === 'object') str = JSON.stringify(str);
         const extrair = (regex) => {
             const match = str.match(regex);
             return match ? Number(match[1]) : undefined;
         };
-
         obj.acertos = extrair(/acertos["']?\s*[:=]\s*(\d+)/i);
         obj.erros = extrair(/erros["']?\s*[:=]\s*(\d+)/i);
         obj.tempoSegundos = extrair(/tempo(?:Segundos)?["']?\s*[:=]\s*(\d+)/i);
         obj.vidasRestantes = extrair(/vidas(?:Restantes)?["']?\s*[:=]\s*(\d+)/i);
         obj.totalDesafiosFase = extrair(/totalDesafiosFase["']?\s*[:=]\s*(\d+)/i);
         obj.desafiosVencidosNestaFase = extrair(/desafiosVencidos(?:NestaFase)?["']?\s*[:=]\s*(\d+)/i);
-        
-        console.log("LOG EXTRATOR: Dados capturados via Regex ->", obj);
+        if (obj.acertos === undefined && obj.tempoSegundos === undefined) {
+            try {
+                let parsed = JSON.parse(str);
+                while (typeof parsed === 'string') { parsed = JSON.parse(parsed); }
+                if (typeof parsed === 'object' && parsed !== null) return parsed;
+            } catch (e) {}
+        }
         return obj;
     }
 
     window.carregarAnaliseIndividual = function(id) {
         alunoSelecionadoId = id;
         areaDetalhes.style.display = 'none';
-        
         fetch(`/api/admin/relatorios/usuarios/analise/${id}?t=${Date.now()}`)
             .then(res => res.json())
             .then(data => {
                 if (tituloAnalise) tituloAnalise.innerHTML = `Análise de <span style="color:var(--cor-xp)">${data.nome}</span>`;
-                
                 const perf = document.getElementById('perfil-aluno');
                 const prog = document.getElementById('secao-progresso');
                 if (perf) perf.style.display = 'block';
@@ -175,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectModulo.innerHTML = '<option value="">Selecionar Módulo</option>';
                 progressoGlobalAluno = data.statusFases || {};
                 const modulosEncontrados = new Set();
-                
                 Object.keys(progressoGlobalAluno).forEach(key => {
                     const kLower = key.toLowerCase();
                     const modId = kLower.split('_fase')[0].split('-')[0].trim();
@@ -192,7 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     selectFase.innerHTML = '<option value="">Fase</option>';
                     const mod = selectModulo.value;
                     if (!mod) return;
-                    
                     const fasesUnicas = new Set();
                     Object.keys(progressoGlobalAluno).forEach(key => {
                         const kLower = key.toLowerCase();
@@ -200,13 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             let num;
                             if (kLower.includes('_fase')) num = kLower.split('_fase')[1].split('_id')[0];
                             else if (kLower.includes('-')) num = kLower.split('-')[1];
-                            
-                            if (num && !isNaN(parseInt(num))) {
-                                fasesUnicas.add(parseInt(num));
-                            }
+                            if (num && !isNaN(parseInt(num))) fasesUnicas.add(parseInt(num));
                         }
                     });
-                    
                     [...fasesUnicas].sort((a,b) => a-b).forEach(f => {
                         const opt = document.createElement('option');
                         opt.value = f;
@@ -215,28 +198,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 };
 
-                // AÇÃO DO BOTÃO COM LOGS
                 btnDetalhes.onclick = () => {
                     const mod = selectModulo.value;
                     const fase = selectFase.value;
                     if (!mod || !fase) return alert("Selecione módulo e fase.");
-
-                    console.log(`LOG FRONTEND: Solicitando -> Módulo: ${mod} | Fase: ${fase}`);
-
                     fetch(`/api/admin/relatorios/usuarios/detalhes-fase/${alunoSelecionadoId}?modulo=${mod}&fase=${fase}&t=${Date.now()}`)
                         .then(res => res.json())
                         .then(det => {
-                            console.log("LOG FRONTEND: Resposta completa do servidor:", det);
-                            
                             if (det.encontrado && det.dadosBrutos) {
                                 let dados = lerDadosMisturados(det.dadosBrutos);
-                                
-                                if (!dados || typeof dados !== 'object') {
-                                    dados = {};
-                                }
-                                
+                                if (!dados || typeof dados !== 'object') dados = {};
                                 areaDetalhes.style.display = 'block';
-                                
                                 const acertos = dados.acertos !== undefined ? dados.acertos : 0;
                                 const erros = dados.erros !== undefined ? dados.erros : 0;
                                 const tempo = dados.tempoSegundos !== undefined ? dados.tempoSegundos : 0;
@@ -244,17 +216,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 const totalDesafios = dados.totalDesafiosFase !== undefined ? dados.totalDesafiosFase : 0;
                                 const desafiosVencidos = dados.desafiosVencidosNestaFase !== undefined ? dados.desafiosVencidosNestaFase : 0;
 
-                                console.log(`LOG FRONTEND: Aplicando na tela -> Acertos: ${acertos}, Erros: ${erros}, Tempo: ${tempo}`);
-
                                 document.getElementById('det-acertos').textContent = acertos;
                                 document.getElementById('det-erros').textContent = erros;
-                                
                                 const min = Math.floor(tempo / 60);
                                 const seg = tempo % 60;
                                 document.getElementById('det-tempo').textContent = `${min}:${seg.toString().padStart(2, '0')}`;
-                                
                                 document.getElementById('det-vidas').textContent = `${vidas} ❤️`;
-                                
                                 if (totalDesafios > 0) {
                                     const concluido = desafiosVencidos === totalDesafios;
                                     document.getElementById('det-desafio').textContent = concluido ? "Sim ✅" : "Não ❌";
@@ -264,14 +231,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                     document.getElementById('det-desafio').style.color = "#888";
                                 }
                             } else {
-                                console.warn("LOG FRONTEND: Fase não encontrada ou dados estão vazios.");
                                 alert("Nenhum dado detalhado encontrado para esta fase.");
                             }
                         })
-                        .catch(err => {
-                            console.error("LOG FRONTEND: Erro catastrófico no fetch:", err);
-                            alert("Erro ao ler os dados históricos desta fase.");
-                        });
+                        .catch(err => alert("Erro ao ler os dados históricos desta fase."));
                 };
 
                 const elNome = document.getElementById('nome-aluno-perfil');
@@ -292,13 +255,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (elPosicao) elPosicao.textContent = `#${data.posicao || '-'}`;
 
                 if (elStatusRanking) {
-                    if (data.statusRanking === 'PROMOVIDO') {
-                        elStatusRanking.innerHTML = `<span class="status-tag promo">↑ Subindo</span>`;
-                    } else if (data.statusRanking === 'REBAIXADO') {
-                        elStatusRanking.innerHTML = `<span class="status-tag rebaix">↓ Caindo</span>`;
-                    } else {
-                        elStatusRanking.innerHTML = `<span class="status-tag mantem">↔ Estável</span>`;
-                    }
+                    if (data.statusRanking === 'PROMOVIDO') elStatusRanking.innerHTML = `<span class="status-tag promo">↑ Subindo</span>`;
+                    else if (data.statusRanking === 'REBAIXADO') elStatusRanking.innerHTML = `<span class="status-tag rebaix">↓ Caindo</span>`;
+                    else elStatusRanking.innerHTML = `<span class="status-tag mantem">↔ Estável</span>`;
                 }
                 
                 const conquistaContainer = document.getElementById('conquistas-aluno-perfil');
@@ -316,7 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (gridProgresso) {
                     gridProgresso.innerHTML = '';
                     const progressoPorModulo = {};
-                    
                     Object.keys(data.statusFases || {}).forEach(key => {
                         const kLower = key.toLowerCase();
                         let modId, num;
@@ -328,14 +286,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             const partes = kLower.split('-');
                             modId = partes[0].trim();
                             num = parseInt(partes[1]) || 0;
-                        } else {
-                            return;
-                        }
-                        if (!progressoPorModulo[modId] || num > progressoPorModulo[modId]) {
-                            progressoPorModulo[modId] = num;
-                        }
+                        } else return;
+                        if (!progressoPorModulo[modId] || num > progressoPorModulo[modId]) progressoPorModulo[modId] = num;
                     });
-                    
                     for (const modId in progressoPorModulo) {
                         const nomeAmigavel = mapaNomesModulos[modId] || modId.toUpperCase();
                         const card = document.createElement('div');
@@ -348,7 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const listaR = document.getElementById('lista-mais-erradas');
                 if (listaR) {
                     listaR.innerHTML = `<li style="border-left:3px solid #e74c3c; padding-left:10px; color:#e74c3c; margin-bottom:10px;"><strong>Sugestão IA:</strong> ${data.sugestao || 'Continue praticando!'}</li>`;
-                    
                     if (data.questoesErradasRecentes && data.questoesErradasRecentes.length > 0) {
                         data.questoesErradasRecentes.forEach(erro => {
                             const li = document.createElement('li');
@@ -367,15 +319,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const listaP = document.getElementById('lista-fases-perfeitas');
                 if (listaP) {
                     listaP.innerHTML = '';
-                    (data.fasesPerfeitas || []).forEach(f => {
-                        const li = document.createElement('li');
-                        li.textContent = `⭐ ${formatarNomeChave(f)}`;
-                        listaP.appendChild(li);
-                    });
+                    if (data.fasesPerfeitas && data.fasesPerfeitas.length > 0) {
+                        data.fasesPerfeitas.forEach(f => {
+                            const li = document.createElement('li');
+                            li.textContent = `⭐ ${f}`;
+                            listaP.appendChild(li);
+                        });
+                    } else {
+                        listaP.innerHTML = '<li style="color:#888;">Nenhuma fase perfeita ainda.</li>';
+                    }
                 }
 
                 atualizarGrafico(data.acertos, data.erros);
-                
                 const elSubtitulo = document.getElementById('subtitulo-acertos');
                 if (elSubtitulo) {
                     const previsaoValue = (data.previsaoXp !== undefined && data.previsaoXp !== null) ? data.previsaoXp : 0;
@@ -389,12 +344,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         if (meuGrafico) meuGrafico.destroy();
+        
+        let valAcertos = parseInt(acertos) || 0;
+        let valErros = parseInt(erros) || 0;
+
         meuGrafico = new Chart(ctx, {
             type: 'pie',
             data: {
                 labels: ['Acertos', 'Erros'],
                 datasets: [{
-                    data: [acertos, erros],
+                    data: [valAcertos, valErros],
                     backgroundColor: ['#27ae60', '#e74c3c'],
                     borderWidth: 0
                 }]
@@ -413,7 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const inputSenha = document.getElementById('nova-senha-input');
             const novaSenha = inputSenha ? inputSenha.value : null;
             if (!alunoSelecionadoId || !novaSenha) return alert("Selecione um aluno e defina a senha.");
-
             fetch(`/api/admin/relatorios/usuarios/alterar-senha/${alunoSelecionadoId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

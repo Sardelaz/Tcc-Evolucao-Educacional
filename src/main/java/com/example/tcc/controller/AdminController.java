@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RestController
@@ -67,21 +69,75 @@ public class AdminController {
         Set<String> chavesValidas = obterChavesDeFasesAtivas();
         Map<String, String> nomesModulos = obterMapaNomesModulos();
 
-        analise.put("acertos", (int) usuarios.stream().mapToInt(Usuario::getTotalAcertos).average().orElse(0));
-        analise.put("erros", (int) usuarios.stream().mapToInt(Usuario::getTotalErros).average().orElse(0));
+        int acertosTotalGeral = 0;
+        int errosTotalGeral = 0;
+        Map<String, Integer> errosAgregadosGeral = new HashMap<>();
+        Map<String, Integer> perfeitasAgregadasGeral = new HashMap<>();
 
-        Map<String, Long> rankingPerfeitas = usuarios.stream()
-                .flatMap(u -> u.getFasesPerfeitas().stream())
-                .filter(chavesValidas::contains)
-                .collect(Collectors.groupingBy(chave -> formatarNomeFase(chave, nomesModulos), Collectors.counting()));
+        Pattern patternAcertos = Pattern.compile("acertos[\"']?\\s*[:=]\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
+        Pattern patternErros = Pattern.compile("erros[\"']?\\s*[:=]\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
 
-        List<String> todasQuestoesErradas = usuarios.stream()
-                .flatMap(u -> u.getUltimasQuestoesErradas().stream())
-                .limit(20) 
+        for (Usuario u : usuarios) {
+            if (u.getStatusDasFases() != null) {
+                for (Map.Entry<String, String> entry : u.getStatusDasFases().entrySet()) {
+                    String chave = entry.getKey();
+                    String json = entry.getValue();
+
+                    if (chavesValidas.contains(chave) && json != null) {
+                        String nomeFase = formatarNomeFase(chave, nomesModulos);
+                        int a = 0;
+                        int e = 0;
+                        boolean isJson = false;
+
+                        Matcher ma = patternAcertos.matcher(json);
+                        if (ma.find()) {
+                            a = Integer.parseInt(ma.group(1));
+                            isJson = true;
+                        }
+
+                        Matcher me = patternErros.matcher(json);
+                        if (me.find()) {
+                            e = Integer.parseInt(me.group(1));
+                            isJson = true;
+                        }
+
+                        if (isJson) {
+                            acertosTotalGeral += a;
+                            errosTotalGeral += e;
+
+                            if (e > 0) {
+                                errosAgregadosGeral.put(nomeFase, errosAgregadosGeral.getOrDefault(nomeFase, 0) + e);
+                            } else if (a > 0 && e == 0) {
+                                perfeitasAgregadasGeral.put(nomeFase, perfeitasAgregadasGeral.getOrDefault(nomeFase, 0) + 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        analise.put("acertos", acertosTotalGeral);
+        analise.put("erros", errosTotalGeral);
+
+        List<Map<String, Object>> fasesMaisPerfeitas = perfeitasAgregadasGeral.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .limit(5)
+                .map(e -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("nomeFase", e.getKey());
+                    map.put("quantidade", e.getValue());
+                    return map;
+                })
                 .collect(Collectors.toList());
 
-        analise.put("fasesMaisPerfeitas", formatarRanking(rankingPerfeitas));
-        analise.put("questoesCriticasGeral", todasQuestoesErradas); 
+        List<String> questoesCriticasGeral = errosAgregadosGeral.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .limit(5)
+                .map(e -> String.format("%s - %d erros", e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
+
+        analise.put("fasesMaisPerfeitas", fasesMaisPerfeitas);
+        analise.put("questoesCriticasGeral", questoesCriticasGeral); 
         
         return ResponseEntity.ok(analise);
     }
@@ -97,19 +153,66 @@ public class AdminController {
         analise.put("email", u.getEmail());
         analise.put("xp", u.getXp());
         analise.put("nivel", u.getNivel());
-        analise.put("acertos", u.getTotalAcertos());
-        analise.put("erros", u.getTotalErros());
         analise.put("streakDiaria", u.getStreakDiaria());
         analise.put("emblemas", u.getEmblemas());
         analise.put("statusFases", u.getStatusDasFases());
-        analise.put("questoesErradasRecentes", u.getUltimasQuestoesErradas());
 
-        List<String> perfeitasFormatadas = u.getFasesPerfeitas().stream()
-                .filter(chavesValidas::contains)
-                .map(chave -> formatarNomeFase(chave, nomesModulos))
+        int acertosTotalAluno = 0;
+        int errosTotalAluno = 0;
+        Map<String, Integer> errosAgregadosAluno = new HashMap<>();
+        List<String> perfeitasAluno = new ArrayList<>();
+
+        Pattern patternAcertos = Pattern.compile("acertos[\"']?\\s*[:=]\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
+        Pattern patternErros = Pattern.compile("erros[\"']?\\s*[:=]\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
+
+        if (u.getStatusDasFases() != null) {
+            for (Map.Entry<String, String> entry : u.getStatusDasFases().entrySet()) {
+                String chave = entry.getKey();
+                String json = entry.getValue();
+
+                if (chavesValidas.contains(chave) && json != null) {
+                    String nomeFase = formatarNomeFase(chave, nomesModulos);
+                    int a = 0;
+                    int e = 0;
+                    boolean isJson = false;
+
+                    Matcher ma = patternAcertos.matcher(json);
+                    if (ma.find()) {
+                        a = Integer.parseInt(ma.group(1));
+                        isJson = true;
+                    }
+
+                    Matcher me = patternErros.matcher(json);
+                    if (me.find()) {
+                        e = Integer.parseInt(me.group(1));
+                        isJson = true;
+                    }
+
+                    if (isJson) {
+                        acertosTotalAluno += a;
+                        errosTotalAluno += e;
+
+                        if (e > 0) {
+                            errosAgregadosAluno.put(nomeFase, errosAgregadosAluno.getOrDefault(nomeFase, 0) + e);
+                        } else if (a > 0 && e == 0) {
+                            perfeitasAluno.add(nomeFase);
+                        }
+                    }
+                }
+            }
+        }
+
+        analise.put("acertos", acertosTotalAluno);
+        analise.put("erros", errosTotalAluno);
+
+        List<String> questoesErradasRecentes = errosAgregadosAluno.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .limit(5)
+                .map(e -> String.format("%s - %d erros", e.getKey(), e.getValue()))
                 .collect(Collectors.toList());
 
-        analise.put("fasesPerfeitas", perfeitasFormatadas);
+        analise.put("fasesPerfeitas", perfeitasAluno);
+        analise.put("questoesErradasRecentes", questoesErradasRecentes);
         analise.put("previsaoXp", analisePreditivaService.preverProximoDesempenho(u));
         analise.put("sugestao", analisePreditivaService.sugerirFocoEstudo(u));
 
@@ -146,89 +249,45 @@ public class AdminController {
             @RequestParam String modulo, 
             @RequestParam int fase) {
         
-        System.out.println("========== INICIO BUSCA DETALHES DA FASE ==========");
         Usuario u = usuarioRepository.findById(id).orElseThrow();
-        System.out.println("LOG JAVA: Usuario -> " + u.getNome());
-        System.out.println("LOG JAVA: Modulo Buscado -> [" + modulo + "] | Fase Buscada -> [" + fase + "]");
-        
         Map<String, Object> detalhes = new HashMap<>();
-        Map<String, String> statusFases = u.getStatusDasFases();
         
-        if (statusFases == null || statusFases.isEmpty()) {
-            System.out.println("LOG JAVA: O usuario nao possui NENHUMA fase registrada.");
+        if (u.getStatusDasFases() == null || u.getStatusDasFases().isEmpty()) {
             detalhes.put("encontrado", false);
             return ResponseEntity.ok(detalhes);
         }
 
-        System.out.println("LOG JAVA: Chaves totais no banco para este usuario -> " + statusFases.keySet());
-
         String paramModulo = modulo.trim().toLowerCase();
-        String paramFase = String.valueOf(fase).trim();
-        List<String> chavesEncontradas = new ArrayList<>();
-
-        for (String k : statusFases.keySet()) {
-            if (k == null) continue;
-            String kLower = k.toLowerCase().trim();
-            boolean match = false;
-
-            // Tenta varios formatos de match para garantir que não vai perder
-            if (kLower.contains("_fase")) {
-                String[] partes = kLower.split("_fase");
-                String mod = partes[0].trim();
-                String num = partes[1].split("_id")[0].trim();
-                if ((mod.equals(paramModulo) || mod.contains(paramModulo) || paramModulo.contains(mod)) && num.equals(paramFase)) {
-                    match = true;
-                }
-            } else if (kLower.contains("-")) {
-                String[] partes = kLower.split("-");
-                String mod = partes[0].trim();
-                String num = partes[1].trim();
-                if ((mod.equals(paramModulo) || mod.contains(paramModulo) || paramModulo.contains(mod)) && num.equals(paramFase)) {
-                    match = true;
-                }
-            }
-            
-            // Fallback genérico se a chave tiver o nome do modulo e o numero da fase
-            if (!match && kLower.contains(paramModulo) && (kLower.contains("fase" + paramFase) || kLower.endsWith("-" + paramFase))) {
-                match = true;
-            }
-
-            if (match) {
-                chavesEncontradas.add(k);
-                System.out.println("LOG JAVA: -> Chave Correspondente Encontrada: " + k);
-            }
-        }
-
-        // Ordena para tentar pegar sempre o maior ID (tentativa mais recente)
-        chavesEncontradas.sort((k1, k2) -> Integer.compare(extrairIdDaChave(k2), extrairIdDaChave(k1)));
-
-        String melhorChave = null;
-        for (String key : chavesEncontradas) {
-            String val = statusFases.get(key);
-            if (val != null && val.toLowerCase().contains("acertos")) {
-                melhorChave = key;
-                break; // Achou a mais recente que contém os detalhes completos
-            }
-        }
         
-        // Se não achou nenhuma com "acertos", pega a primeira que apareceu
-        if (melhorChave == null && !chavesEncontradas.isEmpty()) {
-            melhorChave = chavesEncontradas.get(0);
-        }
+        Optional<String> chaveFase = u.getStatusDasFases().keySet().stream()
+                .filter(k -> {
+                    if (k == null) return false;
+                    try {
+                        String kLower = k.toLowerCase().trim();
+                        if (kLower.contains("_fase")) {
+                            String[] partes = kLower.split("_fase");
+                            String mod = partes[0].trim();
+                            String num = partes[1].split("_id")[0].trim();
+                            return mod.equals(paramModulo) && num.equals(String.valueOf(fase));
+                        } else if (kLower.contains("-")) {
+                            String[] partes = kLower.split("-");
+                            String mod = partes[0].trim();
+                            String num = partes[1].trim();
+                            return mod.equals(paramModulo) && num.equals(String.valueOf(fase));
+                        }
+                    } catch (Exception e) { return false; }
+                    return false;
+                })
+                .max((k1, k2) -> Integer.compare(extrairIdDaChave(k1), extrairIdDaChave(k2)));
 
-        System.out.println("LOG JAVA: Melhor chave selecionada para envio -> " + melhorChave);
-
-        if (melhorChave != null) {
-            String statusValue = statusFases.get(melhorChave);
-            System.out.println("LOG JAVA: Valor bruto que sera enviado ao JS -> " + statusValue);
+        if (chaveFase.isPresent()) {
+            String statusValue = u.getStatusDasFases().get(chaveFase.get());
             detalhes.put("encontrado", true);
             detalhes.put("dadosBrutos", statusValue); 
         } else {
-            System.out.println("LOG JAVA: FALHA! Nenhuma chave atendeu aos requisitos.");
             detalhes.put("encontrado", false);
         }
-        
-        System.out.println("========== FIM BUSCA DETALHES DA FASE ==========");
+
         return ResponseEntity.ok(detalhes);
     }
     
@@ -239,9 +298,7 @@ public class AdminController {
             if (kLower.contains("_id")) {
                 return Integer.parseInt(kLower.split("_id")[1].trim());
             }
-        } catch (Exception e) {
-            return -1;
-        }
+        } catch (Exception e) { return -1; }
         return -1;
     }
     
@@ -281,21 +338,9 @@ public class AdminController {
                 .findFirst()
                 .orElse(slugModulo.toUpperCase());
                 
-            return nomeExibicaoModulo + " - FASE " + numeroFase;
+            return nomeExibicaoModulo + " - Fase " + numeroFase;
         } catch (Exception e) {
             return "FASE DESCONHECIDA";
         }
-    }
-
-    private List<Map<String, Object>> formatarRanking(Map<String, Long> mapa) {
-        return mapa.entrySet().stream()
-                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                .limit(5)
-                .map(e -> {
-                    Map<String, Object> item = new HashMap<>();
-                    item.put("nomeFase", e.getKey());
-                    item.put("quantidade", e.getValue());
-                    return item;
-                }).collect(Collectors.toList());
     }
 }
