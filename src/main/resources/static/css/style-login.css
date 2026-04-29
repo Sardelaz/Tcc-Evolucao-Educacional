@@ -92,7 +92,6 @@ html, body {
   color: #a0a0b5;
 }
 
-/* NOVO ESTILO: Mensagem exibindo o e-mail no painel de verificação */
 .email-display-msg {
   margin-top: 15px;
   font-size: 0.9rem;
@@ -147,7 +146,6 @@ html, body {
   font-weight: bold;
 }
 
-/* Wrapper da Senha e Botão de Visibilidade */
 .password-wrapper {
   position: relative;
   display: flex;
@@ -177,7 +175,6 @@ html, body {
   opacity: 0.8;
 }
 
-/* Mensagem de Erro (Validação) */
 .error-msg {
   display: block;
   color: #ff4c4c;
@@ -247,7 +244,7 @@ html, body {
   color: #fff;
 }
 
-/* Modal de Sucesso */
+/* Modal de Sucesso e OTP */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -301,6 +298,42 @@ html, body {
   color: var(--cor-texto);
   margin-bottom: 25px;
   font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+/* ESTILOS PARA OS COMPONENTES DO MODAL */
+.otp-display-box {
+  background: var(--cor-input-bg);
+  border: 2px dashed var(--cor-xp);
+  border-radius: 12px;
+  padding: 15px;
+  font-size: clamp(1.8rem, 5vw, 2.2rem);
+  font-weight: 800;
+  color: var(--cor-xp);
+  letter-spacing: 6px;
+  margin: 20px 0;
+  text-align: center;
+  box-shadow: inset 0 0 15px rgba(28, 176, 246, 0.1);
+}
+
+.btn-modal {
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fff;
+  background-color: var(--cor-xp);
+  margin-top: 10px;
+}
+
+.btn-modal:hover {
+  background-color: #1590ca;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(28, 176, 246, 0.4);
 }
 
 @media (max-height: 500px) and (orientation: landscape) {
