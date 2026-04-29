@@ -1,6 +1,5 @@
 package com.example.tcc.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -10,9 +9,6 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
-    private String remetente;
-
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
@@ -20,8 +16,10 @@ public class EmailService {
     public void enviarEmailVerificacao(String para, String codigoOtp) {
         SimpleMailMessage mensagem = new SimpleMailMessage();
         
-        // O remetente deve ser o mesmo usuário da autenticação ou um e-mail validado no Brevo
-        mensagem.setFrom(remetente); 
+        // CORREÇÃO CRÍTICA: Removido o @Value("${spring.mail.username}")
+        // O e-mail de envio DEVE ser o seu e-mail real e validado no Brevo.
+        mensagem.setFrom("joaoaugustosardelasardela@gmail.com"); 
+        
         mensagem.setTo(para);
         mensagem.setSubject("Código de Verificação - Evolução Educacional");
         mensagem.setText("Olá!\n\n"
@@ -32,6 +30,7 @@ public class EmailService {
         try {
             mailSender.send(mensagem);
         } catch (Exception e) {
+            // Lança a exceção para que o AuthController saiba que falhou
             throw new RuntimeException("Erro ao disparar e-mail: " + e.getMessage());
         }
     }
