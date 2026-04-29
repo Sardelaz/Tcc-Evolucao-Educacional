@@ -1,6 +1,5 @@
 package com.example.tcc.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -28,9 +27,6 @@ public class Fase {
     // Link opcional para a videoaula de reforço
     private String videoAulaUrl;
 
-    // CORREÇÃO: Usar a classe Wrapper "Boolean" no lugar do primitivo "boolean".
-    // O banco de dados agora aceita valores nulos para fases que já existiam, 
-    // resolvendo o erro PSQLException e o Erro 500 em produção.
     @Column(name = "especial")
     private Boolean especial;
 
@@ -40,10 +36,11 @@ public class Fase {
     @JoinColumn(name = "fase_id")
     private List<Questao> questoes;
 
-    // Garante a leitura correta no frontend e evita NullPointerException.
-    // Se a fase for antiga e a coluna estiver nula no banco, ele assume false.
-    @JsonProperty("especial")
-    public boolean isEspecial() {
-        return this.especial != null && this.especial;
+    // RESOLUÇÃO DO ERRO 500:
+    // Sobrescrevemos o getEspecial gerado pelo Lombok.
+    // Isso impede que o Jackson fique confuso sobre qual método chamar para gerar o JSON 
+    // e garante a segurança contra NullPointerException.
+    public Boolean getEspecial() {
+        return this.especial != null ? this.especial : false;
     }
 }

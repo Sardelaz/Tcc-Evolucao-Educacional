@@ -129,9 +129,11 @@ public class GamificacaoService {
 
         if (!jaEstavaConcluida) {
             xpGanho = (resultado.getAcertos() * 10) + (resultado.getMaxStreak() * 5);
-            if (faseOriginal.isEspecial()) xpGanho *= 2;
+            // CORREÇÃO: Utilizando getEspecial() no lugar de isEspecial()
+            if (faseOriginal.getEspecial()) xpGanho *= 2;
 
-            moedasGanhas = Math.max(0, (faseOriginal.isEspecial() ? 50 : 30) - (resultado.getErros() * 5));
+            // CORREÇÃO: Utilizando getEspecial() no lugar de isEspecial()
+            moedasGanhas = Math.max(0, (faseOriginal.getEspecial() ? 50 : 30) - (resultado.getErros() * 5));
 
             user.setXp(user.getXp() + xpGanho);
             user.setXpTemporada(user.getXpTemporada() + xpGanho);

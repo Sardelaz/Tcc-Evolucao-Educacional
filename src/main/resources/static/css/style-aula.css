@@ -222,7 +222,8 @@ body {
 
 .options-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    /* CORREÇÃO: Força exatamente 2 colunas para as alternativas */
+    grid-template-columns: repeat(2, 1fr);
     gap: clamp(8px, 2vw, 12px);
     width: 100%;
 }

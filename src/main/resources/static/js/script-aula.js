@@ -125,7 +125,8 @@ function carregarQuestao() {
     btnVerificar.style.background = 'var(--cor-primaria)';
     btnVerificar.disabled = false;
 
-    if (q.desafio && !q.desafioFalho) {
+    // CORREÇÃO: Utilizando q.isDesafio ao invés de q.desafio para alinhar com o retorno do JSON
+    if (q.isDesafio && !q.desafioFalho) {
         if (!q.visto) {
             totalDesafiosNaFase++;
             q.visto = true;
@@ -204,7 +205,6 @@ function montarDOMDaQuestao(q) {
 
     const imgElem = document.getElementById('imagem-pergunta');
     if (q.imagemUrl && q.imagemUrl.trim() !== '') {
-        // CORREÇÃO: Limpeza profunda da URL para remover resíduos de JSON, aspas e formatação incorreta
         let urlLimpa = q.imagemUrl.trim()
             .replace(/['"]/g, '')      
             .replace(/%22/g, '')      
@@ -212,8 +212,7 @@ function montarDOMDaQuestao(q) {
             .replace(/[{}]/g, '')      
             .replace(/url:/g, '');
 
-        // Garante que a URL comece com /uploads/ se for um caminho relativo
-        if (!urlLimpa.startsWith('/') && !urlLimpa.startsWith('http')) {
+        if (!urlLimpa.startsWith('/') && !urlLimpa.startsWith('http') && !urlLimpa.startsWith('data:image')) {
             urlLimpa = '/uploads/' + urlLimpa;
         } else if (urlLimpa.startsWith('uploads/')) {
             urlLimpa = '/' + urlLimpa;
@@ -225,10 +224,9 @@ function montarDOMDaQuestao(q) {
         imgElem.style.maxWidth = '100%';
         imgElem.style.borderRadius = '10px';
 
-        // CORREÇÃO: Tratamento de erro caso a imagem física não seja encontrada (comum no Render)
         imgElem.onerror = function() {
             console.warn("Falha ao carregar imagem:", urlLimpa);
-            this.src = '/img/placeholder.png'; // Fallback para placeholder
+            this.style.display = 'none'; 
             this.onerror = null; 
         };
     } else {
@@ -369,11 +367,14 @@ function verificarResposta() {
         if (sfxEnabled) audioAcerto.play();
         const mat = q.modulo || moduloAtual;
         acertosPorMateria[mat] = (acertosPorMateria[mat] || 0) + 1;
-        if (q.desafio && !q.desafioFalho) {
+        
+        // CORREÇÃO: Utilizando q.isDesafio ao invés de q.desafio
+        if (q.isDesafio && !q.desafioFalho) {
             desafiosConcluidos++;
             tempoTotalGastoEmDesafios += (limiteDeTempoDoDesafio - tempoDesafioRestante);
             feedback.textContent = !isFaseJaConcluida ? `🎉 Desafio Vencido! +${q.xpExtra} XP Garantido!` : `🎉 Desafio Vencido! (Fase já concluída)`;
         } else feedback.textContent = '🎉 Correto! Muito bem!';
+        
         feedback.className = 'feedback correct show';
         btnVerificar.style.background = '#4CAF50';
         acertosTotais++;
@@ -388,10 +389,13 @@ function verificarResposta() {
         };
     } else {
         if (sfxEnabled) audioErro.play();
-        if (q.desafio && !q.desafioFalho) {
+        
+        // CORREÇÃO: Utilizando q.isDesafio ao invés de q.desafio
+        if (q.isDesafio && !q.desafioFalho) {
             tempoTotalGastoEmDesafios += (limiteDeTempoDoDesafio - tempoDesafioRestante);
             q.desafioFalho = true;
         }
+        
         feedback.textContent = `❌ Incorreto! A resposta era: "${correta}". Você perdeu uma vida.`;
         feedback.className = 'feedback incorrect show';
         errosCometidos++;

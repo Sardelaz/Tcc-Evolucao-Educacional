@@ -65,8 +65,10 @@ document.getElementById('form-admin').addEventListener('submit', async (e) => {
         alternativaD: tipo === 'multipla' ? document.getElementById('alt_d').value : null,
         respostaCorreta: tipo === 'multipla' ? document.getElementById('resposta_correta_multipla').value : document.getElementById('resposta_correta_dissertativa').value,
         desafio: isDesafio,
-        tempoDesafio: isDesafio ? parseInt(document.getElementById('tempo_desafio').value) : null,
-        xpExtra: isDesafio ? parseInt(document.getElementById('xp_extra').value) : null
+        // CORREÇÃO: Alterado de null para 0 quando não for desafio
+        tempoDesafio: isDesafio ? parseInt(document.getElementById('tempo_desafio').value) : 0,
+        // CORREÇÃO: Alterado de null para 0 quando não for desafio
+        xpExtra: isDesafio ? parseInt(document.getElementById('xp_extra').value) : 0
     };
 
     questoes.push(q);

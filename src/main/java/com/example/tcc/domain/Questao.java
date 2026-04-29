@@ -18,7 +18,8 @@ public class Questao {
     @Column(columnDefinition = "TEXT")
     private String enunciado;
     
-    @Column(name = "imagem_url")
+    // Suporte para a imagem gigante em Base64
+    @Column(name = "imagem_url", columnDefinition = "TEXT")
     private String imagemUrl;
     
     @Column(name = "alternativa_a")
@@ -36,15 +37,20 @@ public class Questao {
     @Column(name = "resposta_correta")
     private String respostaCorreta;
 
-    // Funcionalidade de Desafio
-    // O JsonProperty resolve o bug de conversão do Jackson/Lombok para campos booleanos
     @Column(name = "is_desafio")
     @JsonProperty("isDesafio")
     private boolean isDesafio = false;
     
+    // CORREÇÃO: Inicializado com 0 para evitar erro de nulidade no banco
     @Column(name = "tempo_desafio")
-    private Integer tempoDesafio; // Armazenado em segundos
+    private Integer tempoDesafio = 0; 
     
+    // CORREÇÃO: Inicializado com 0 para evitar erro de nulidade no banco
     @Column(name = "xp_extra")
-    private Integer xpExtra;
+    private Integer xpExtra = 0;
+
+    // Garante que o Jackson e o banco compreendam a variável isDesafio de forma idêntica
+    public boolean getIsDesafio() {
+        return this.isDesafio;
+    }
 }

@@ -198,19 +198,20 @@ async function salvarEdicao() {
 
     const faseNum = parseInt(document.getElementById('busca-fase').value);
     
-    // CORREÇÃO CRÍTICA: Limpamos os IDs da fase e das questões antes de enviar.
+    // Removemos os IDs das questões filhas para que o Hibernate insira as novas sem conflito
     const questoesLimpas = questoesEdicao.map(q => {
         const novaQ = { ...q };
-        delete novaQ.id; // Remove ID para o Hibernate criar novas entidades
+        delete novaQ.id; 
         return novaQ;
     });
 
     const payload = {
+        id: faseAtualId, // CORREÇÃO: Envia o ID para manter a consistência da Fase no banco
         modulo: document.getElementById('busca-modulo').value,
         fase: faseNum,
         qtd: questoesLimpas.length,
         videoAulaUrl: document.getElementById('edit_video_aula_url').value,
-        especial: document.getElementById('edit_especial').checked, // Envia o dado de especial
+        especial: document.getElementById('edit_especial').checked,
         questoes: questoesLimpas
     };
 

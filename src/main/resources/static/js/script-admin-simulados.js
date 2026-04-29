@@ -21,8 +21,10 @@ document.getElementById('form-admin-simulado').addEventListener('submit', async 
         alternativaD: tipo === 'multipla' ? document.getElementById('alt_d').value : null,
         respostaCorreta: tipo === 'multipla' ? document.getElementById('resposta_correta_multipla').value : document.getElementById('resposta_correta_dissertativa').value,
         desafio: false,
-        tempoDesafio: null,
-        xpExtra: null
+        // CORREÇÃO: Alterado de null para 0
+        tempoDesafio: 0, 
+        // CORREÇÃO: Alterado de null para 0
+        xpExtra: 0 
     };
 
     questoesSimulado.push(q);
