@@ -38,7 +38,7 @@ public class AuthController {
     private final EmailService emailService;
     private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
-    // Memória temporária para códigos de verificação (OTP)
+    // Memória temporária para usuários que aguardam a verificação
     private final Map<String, String> otpStorage = new ConcurrentHashMap<>();
     private final Map<String, RegisterDTO> pendingUsers = new ConcurrentHashMap<>();
 
@@ -55,22 +55,25 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterDTO dto) {
         try {
+            // Verificar se o email já existe no banco
             if (usuarioRepository.findByEmail(dto.getEmail()).isPresent()) {
-                return ResponseEntity.badRequest().body(Map.of("mensagem", "Este e-mail já está em uso no sistema."));
+                return ResponseEntity.badRequest().body(Map.of("mensagem", "Este e-mail já está em uso."));
             }
 
+            // Gerar código OTP de 6 dígitos
             String otp = String.format("%06d", new Random().nextInt(999999));
+
+            // Salvar temporariamente
             otpStorage.put(dto.getEmail(), otp);
             pendingUsers.put(dto.getEmail(), dto);
 
-            // Enviar e-mail real
+            // Tentar enviar email
             emailService.enviarEmailVerificacao(dto.getEmail(), otp);
             
-            return ResponseEntity.ok(Map.of("mensagem", "Código de verificação enviado para o seu e-mail."));
+            return ResponseEntity.ok(Map.of("mensagem", "Código de verificação enviado com sucesso."));
 
         } catch (Exception e) {
             e.printStackTrace();
-            // Retorna erro amigável para o frontend não crashar o core.js
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("mensagem", "Erro ao processar o registo: " + e.getMessage()));
         }
@@ -81,14 +84,9 @@ public class AuthController {
         String email = dto.getEmail();
         String codigo = dto.getCodigo();
 
-        if (!otpStorage.containsKey(email) || !pendingUsers.containsKey(email)) {
+        if (!otpStorage.containsKey(email) || !otpStorage.get(email).equals(codigo)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("mensagem", "Nenhum registo pendente encontrado. Solicite um novo código."));
-        }
-
-        if (!otpStorage.get(email).equals(codigo)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("mensagem", "Código de verificação incorreto ou expirado."));
+                    .body(Map.of("mensagem", "Código inválido ou expirado."));
         }
 
         try {
@@ -103,14 +101,14 @@ public class AuthController {
             u.setRole("ROLE_ALUNO");
 
             usuarioRepository.save(u);
+            
             otpStorage.remove(email);
             pendingUsers.remove(email);
 
             return ResponseEntity.ok(Map.of("mensagem", "Conta ativada com sucesso!"));
-
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("mensagem", "Erro ao salvar utilizador: " + e.getMessage()));
+                    .body(Map.of("mensagem", "Erro ao salvar conta: " + e.getMessage()));
         }
     }
 
@@ -118,16 +116,17 @@ public class AuthController {
     public ResponseEntity<?> resendCode(@RequestBody ResendDTO dto) {
         if (!pendingUsers.containsKey(dto.getEmail())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("mensagem", "Registo não encontrado."));
+                    .body(Map.of("mensagem", "Nenhum registo pendente encontrado."));
         }
+
         try {
             String novoOtp = String.format("%06d", new Random().nextInt(999999));
             otpStorage.put(dto.getEmail(), novoOtp);
             emailService.enviarEmailVerificacao(dto.getEmail(), novoOtp);
-            return ResponseEntity.ok(Map.of("mensagem", "Novo código enviado com sucesso!"));
+            return ResponseEntity.ok(Map.of("mensagem", "Novo código enviado."));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("mensagem", "Erro ao reenviar e-mail: " + e.getMessage()));
+                    .body(Map.of("mensagem", "Erro ao reenviar código: " + e.getMessage()));
         }
     }
 
@@ -144,42 +143,25 @@ public class AuthController {
             securityContextRepository.saveContext(context, request, response);
 
             return ResponseEntity.ok(Map.of("mensagem", "Login efetuado com sucesso", "redirect", "/"));
-
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("mensagem", "E-mail ou senha incorretos."));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("mensagem", "Erro interno no servidor."));
         }
     }
 
-    // ==========================================================
-    // DTOs - CLASSES DE TRANSFERÊNCIA DE DADOS
-    // ==========================================================
+    // ================= DTOs ================= //
 
     @Data
     public static class LoginDTO {
-        @NotBlank(message = "O e-mail é obrigatório")
-        @Email(message = "Formato de e-mail inválido")
-        private String email;
-
-        @NotBlank(message = "A senha é obrigatória")
-        private String senha;
+        @NotBlank @Email private String email;
+        @NotBlank private String senha;
     }
 
     @Data
     public static class RegisterDTO {
-        @NotBlank(message = "O nome é obrigatório")
-        private String nome;
-
-        @NotBlank(message = "O e-mail é obrigatório")
-        @Email(message = "Formato de e-mail inválido")
-        private String email;
-
-        @NotBlank(message = "A senha é obrigatória")
-        @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres")
-        private String senha;
+        @NotBlank private String nome;
+        @NotBlank @Email private String email;
+        @NotBlank @Size(min = 6) private String senha;
     }
 
     @Data

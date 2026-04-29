@@ -10,7 +10,8 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username:joaoaugustosardelasardela@gmail.com}")
+    // Recupera o email do remetente das propriedades
+    @Value("${spring.mail.username}")
     private String remetente;
 
     public EmailService(JavaMailSender mailSender) {
@@ -24,11 +25,15 @@ public class EmailService {
         mensagem.setTo(para);
         mensagem.setSubject("Código de Verificação - Evolução Educacional");
         mensagem.setText("Olá!\n\n"
-                + "Bem-vindo(a) à Evolução Educacional! \n"
-                + "O teu código de verificação é: " + codigoOtp + "\n\n"
-                + "Por favor, insere este código no site para concluíres a criação da tua conta.\n\n"
-                + "Se não solicitaste este registo, podes ignorar este e-mail.");
+                + "Seja bem-vindo(a) à Evolução Educacional! \n"
+                + "O seu código de verificação é: " + codigoOtp + "\n\n"
+                + "Insira este código no site para ativar a sua conta.");
         
-        mailSender.send(mensagem);
+        try {
+            mailSender.send(mensagem);
+        } catch (Exception e) {
+            // Lança a exceção para que o AuthController saiba que falhou
+            throw new RuntimeException("Erro ao disparar e-mail: " + e.getMessage());
+        }
     }
 }
