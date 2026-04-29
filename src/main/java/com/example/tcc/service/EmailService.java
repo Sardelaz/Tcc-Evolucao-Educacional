@@ -10,8 +10,8 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    // Vai buscar o seu e-mail configurado no application.properties
-    @Value("${spring.mail.username}")
+    // Se o Render não encontrar a variável SPRING_MAIL_USERNAME, usa este e-mail por segurança
+    @Value("${spring.mail.username:joaoaugustosardelasardela@gmail.com}")
     private String remetente;
 
     public EmailService(JavaMailSender mailSender) {
@@ -21,16 +21,14 @@ public class EmailService {
     public void enviarEmailVerificacao(String para, String codigoOtp) {
         SimpleMailMessage mensagem = new SimpleMailMessage();
         
-        // CONFIGURAÇÃO OBRIGATÓRIA QUE FALTAVA
         mensagem.setFrom(remetente); 
-        
         mensagem.setTo(para);
-        mensagem.setSubject("Código de Verificação - Evolução Educacional");
+        mensagem.setSubject("O teu Código de Verificação - Evolução Educacional");
         mensagem.setText("Olá!\n\n"
                 + "Bem-vindo(a) à Evolução Educacional! \n"
                 + "O teu código de verificação é: " + codigoOtp + "\n\n"
-                + "Por favor, insere este código no site para concluir a criação da sua conta.\n\n"
-                + "Se não solicitou este o codigo, pode ignorar este e-mail.");
+                + "Por favor, insere este código no site para concluíres a criação da tua conta.\n\n"
+                + "Se não solicitaste este registo, podes ignorar este e-mail.");
         
         mailSender.send(mensagem);
     }
