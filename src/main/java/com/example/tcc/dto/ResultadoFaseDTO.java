@@ -32,6 +32,12 @@ public class ResultadoFaseDTO {
     private List<String> enunciadosErrados;
 
     private int desafiosVencidosNestaFase;
+    
+    // ADIÇÃO: Total de desafios que existiam na fase para comparação
+    private int totalDesafiosFase;
 
     private Map<String, Integer> acertosPorMateria;
+
+    // ADIÇÃO: Vidas que sobraram ao finalizar
+    private int vidasRestantes;
 }

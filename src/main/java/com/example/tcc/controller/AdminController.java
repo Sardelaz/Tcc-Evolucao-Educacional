@@ -116,7 +116,6 @@ public class AdminController {
         String ligaAtual = u.getLiga() != null ? u.getLiga() : "FERRO";
         analise.put("liga", ligaAtual);
 
-        // CORREÇÃO: Usando !"ROLE_ADMIN".equals(...) para ignorar professores na posição do aluno
         List<Usuario> rankingLiga = usuarioRepository.findAll().stream()
                 .filter(user -> !"ROLE_ADMIN".equals(user.getRole())) 
                 .filter(user -> ligaAtual.equals(user.getLiga() != null ? user.getLiga() : "FERRO"))
@@ -141,6 +140,111 @@ public class AdminController {
         return ResponseEntity.ok(analise);
     }
 
+    @GetMapping("/usuarios/detalhes-fase/{id}")
+    public ResponseEntity<Map<String, Object>> buscarDetalhesFaseAluno(
+            @PathVariable String id, 
+            @RequestParam String modulo, 
+            @RequestParam int fase) {
+        
+        System.out.println("========== INICIO BUSCA DETALHES DA FASE ==========");
+        Usuario u = usuarioRepository.findById(id).orElseThrow();
+        System.out.println("LOG JAVA: Usuario -> " + u.getNome());
+        System.out.println("LOG JAVA: Modulo Buscado -> [" + modulo + "] | Fase Buscada -> [" + fase + "]");
+        
+        Map<String, Object> detalhes = new HashMap<>();
+        Map<String, String> statusFases = u.getStatusDasFases();
+        
+        if (statusFases == null || statusFases.isEmpty()) {
+            System.out.println("LOG JAVA: O usuario nao possui NENHUMA fase registrada.");
+            detalhes.put("encontrado", false);
+            return ResponseEntity.ok(detalhes);
+        }
+
+        System.out.println("LOG JAVA: Chaves totais no banco para este usuario -> " + statusFases.keySet());
+
+        String paramModulo = modulo.trim().toLowerCase();
+        String paramFase = String.valueOf(fase).trim();
+        List<String> chavesEncontradas = new ArrayList<>();
+
+        for (String k : statusFases.keySet()) {
+            if (k == null) continue;
+            String kLower = k.toLowerCase().trim();
+            boolean match = false;
+
+            // Tenta varios formatos de match para garantir que não vai perder
+            if (kLower.contains("_fase")) {
+                String[] partes = kLower.split("_fase");
+                String mod = partes[0].trim();
+                String num = partes[1].split("_id")[0].trim();
+                if ((mod.equals(paramModulo) || mod.contains(paramModulo) || paramModulo.contains(mod)) && num.equals(paramFase)) {
+                    match = true;
+                }
+            } else if (kLower.contains("-")) {
+                String[] partes = kLower.split("-");
+                String mod = partes[0].trim();
+                String num = partes[1].trim();
+                if ((mod.equals(paramModulo) || mod.contains(paramModulo) || paramModulo.contains(mod)) && num.equals(paramFase)) {
+                    match = true;
+                }
+            }
+            
+            // Fallback genérico se a chave tiver o nome do modulo e o numero da fase
+            if (!match && kLower.contains(paramModulo) && (kLower.contains("fase" + paramFase) || kLower.endsWith("-" + paramFase))) {
+                match = true;
+            }
+
+            if (match) {
+                chavesEncontradas.add(k);
+                System.out.println("LOG JAVA: -> Chave Correspondente Encontrada: " + k);
+            }
+        }
+
+        // Ordena para tentar pegar sempre o maior ID (tentativa mais recente)
+        chavesEncontradas.sort((k1, k2) -> Integer.compare(extrairIdDaChave(k2), extrairIdDaChave(k1)));
+
+        String melhorChave = null;
+        for (String key : chavesEncontradas) {
+            String val = statusFases.get(key);
+            if (val != null && val.toLowerCase().contains("acertos")) {
+                melhorChave = key;
+                break; // Achou a mais recente que contém os detalhes completos
+            }
+        }
+        
+        // Se não achou nenhuma com "acertos", pega a primeira que apareceu
+        if (melhorChave == null && !chavesEncontradas.isEmpty()) {
+            melhorChave = chavesEncontradas.get(0);
+        }
+
+        System.out.println("LOG JAVA: Melhor chave selecionada para envio -> " + melhorChave);
+
+        if (melhorChave != null) {
+            String statusValue = statusFases.get(melhorChave);
+            System.out.println("LOG JAVA: Valor bruto que sera enviado ao JS -> " + statusValue);
+            detalhes.put("encontrado", true);
+            detalhes.put("dadosBrutos", statusValue); 
+        } else {
+            System.out.println("LOG JAVA: FALHA! Nenhuma chave atendeu aos requisitos.");
+            detalhes.put("encontrado", false);
+        }
+        
+        System.out.println("========== FIM BUSCA DETALHES DA FASE ==========");
+        return ResponseEntity.ok(detalhes);
+    }
+    
+    private int extrairIdDaChave(String chave) {
+        if (chave == null) return -1;
+        try {
+            String kLower = chave.toLowerCase();
+            if (kLower.contains("_id")) {
+                return Integer.parseInt(kLower.split("_id")[1].trim());
+            }
+        } catch (Exception e) {
+            return -1;
+        }
+        return -1;
+    }
+    
     @PostMapping("/usuarios/alterar-senha/{id}")
     public ResponseEntity<Map<String, String>> alterarSenha(@PathVariable String id, @RequestBody Map<String, String> payload) {
         Usuario u = usuarioRepository.findById(id).orElseThrow();
@@ -164,11 +268,19 @@ public class AdminController {
     }
 
     private String formatarNomeFase(String chave, Map<String, String> nomesModulos) {
+        if (chave == null) return "FASE DESCONHECIDA";
         try {
-            String[] partesFase = chave.split("_fase");
-            String slugModulo = partesFase[0];
-            String numeroFase = partesFase[1].split("_id")[0];
-            String nomeExibicaoModulo = nomesModulos.getOrDefault(slugModulo, slugModulo.toUpperCase());
+            String kLower = chave.toLowerCase();
+            String[] partesFase = kLower.split("_fase");
+            String slugModulo = partesFase[0].trim();
+            String numeroFase = partesFase[1].split("_id")[0].trim();
+            
+            String nomeExibicaoModulo = nomesModulos.entrySet().stream()
+                .filter(e -> e.getKey().toLowerCase().equals(slugModulo))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(slugModulo.toUpperCase());
+                
             return nomeExibicaoModulo + " - FASE " + numeroFase;
         } catch (Exception e) {
             return "FASE DESCONHECIDA";

@@ -30,7 +30,6 @@
                     fetch('/api/progresso')
                 ]);
 
-                // Correção: Verifica se as respostas são válidas antes de tentar ler o JSON
                 if (!respFases.ok || !respProgresso.ok) {
                     throw new Error("Erro ao buscar dados da API. Verifique se o usuário está logado.");
                 }
@@ -94,20 +93,35 @@
                     }
                 }
 
+                // Nova função inteligente para identificar se a fase foi concluída (seja JSON ou a string 'completed' antiga)
+                function isFaseConcluida(statusValue) {
+                    if (!statusValue) return false;
+                    if (statusValue === 'completed') return true;
+                    if (typeof statusValue === 'string' && (statusValue.includes('acertos') || statusValue.startsWith('{'))) return true;
+                    if (typeof statusValue === 'object') return true;
+                    return false;
+                }
+
                 function checkAndUpdateUI() {
                     lessonElements.forEach((item, index) => {
-                        const status = statusData[item.dataset.lessonId];
+                        const rawStatus = statusData[item.dataset.lessonId];
+                        const concluida = isFaseConcluida(rawStatus);
 
-                        if (index === 0) item.classList.remove('locked');
-                        else {
+                        if (index === 0) {
+                            item.classList.remove('locked');
+                        } else {
                             const idAnterior = lessonElements[index - 1].dataset.lessonId;
-                            if (statusData[idAnterior] === 'completed') item.classList.remove('locked');
-                            else item.classList.add('locked');
+                            const prevStatus = statusData[idAnterior];
+                            if (isFaseConcluida(prevStatus)) {
+                                item.classList.remove('locked');
+                            } else {
+                                item.classList.add('locked');
+                            }
                         }
 
-                        if (status && !item.classList.contains('locked')) {
-                            item.classList.add(status);
-                            if (status === 'completed') item.querySelector('.lesson-status').textContent = 'Concluída';
+                        if (concluida && !item.classList.contains('locked')) {
+                            item.classList.add('completed'); // Adiciona a CLASSE correta, em vez do JSON inteiro
+                            item.querySelector('.lesson-status').textContent = 'Concluída';
                         }
                     });
                 }

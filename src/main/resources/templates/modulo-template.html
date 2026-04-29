@@ -124,12 +124,22 @@
                     }
                 }
 
+                // Função inteligente que lê tanto JSON quanto o formato antigo
+                function isFaseConcluida(statusValue) {
+                    if (!statusValue) return false;
+                    if (statusValue === 'completed') return true;
+                    if (typeof statusValue === 'string' && (statusValue.includes('acertos') || statusValue.startsWith('{'))) return true;
+                    if (typeof statusValue === 'object') return true;
+                    return false;
+                }
+
                 function checkAndUpdateUI() {
                     lessonElements.forEach((item, index) => {
                         const chaveForte = item.dataset.lessonId;
                         const chaveAntiga = item.dataset.fallbackId;
                         
-                        let status = statusData[chaveForte] || statusData[chaveAntiga];
+                        let rawStatus = statusData[chaveForte] || statusData[chaveAntiga];
+                        let concluida = isFaseConcluida(rawStatus);
 
                         if (index === 0) {
                             item.classList.remove('locked');
@@ -140,18 +150,16 @@
                             
                             const prevStatus = statusData[prevChaveForte] || statusData[prevChaveAntiga];
 
-                            if (prevStatus === 'completed') {
+                            if (isFaseConcluida(prevStatus)) {
                                 item.classList.remove('locked');
                             } else {
                                 item.classList.add('locked');
                             }
                         }
 
-                        if (status && !item.classList.contains('locked')) {
-                            item.classList.add(status);
-                            if (status === 'completed') {
-                                item.querySelector('.lesson-status').textContent = 'Concluída';
-                            }
+                        if (concluida && !item.classList.contains('locked')) {
+                            item.classList.add('completed');
+                            item.querySelector('.lesson-status').textContent = 'Concluída';
                         }
                     });
                 }

@@ -5,9 +5,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminToggle = document.getElementById('admin-toggle');
     const adminContent = document.getElementById('admin-content');
     
+    // Filtros de Fase
+    const selectModulo = document.getElementById('select-modulo-filtro');
+    const selectFase = document.getElementById('select-fase-filtro');
+    const btnDetalhes = document.getElementById('btn-buscar-detalhes');
+    const areaDetalhes = document.getElementById('area-detalhes-fase');
+
     let todosAlunos = [];
     let alunoSelecionadoId = null;
     let meuGrafico;
+    let progressoGlobalAluno = {};
 
     const mapaNomesModulos = {
         'mat': 'Razão e Proporção',
@@ -24,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    fetch('/api/admin/relatorios/usuarios/lista')
+    fetch(`/api/admin/relatorios/usuarios/lista?t=${Date.now()}`)
         .then(res => res.json())
         .then(data => {
             todosAlunos = data;
@@ -65,9 +72,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function formatarNomeChave(chave) {
         if (!chave) return 'DESCONHECIDA';
-        if (chave.includes('_fase')) {
+        const kLower = chave.toLowerCase();
+        if (kLower.includes('_fase')) {
             const partes = chave.split('_fase');
-            const mod = mapaNomesModulos[partes[0]] || partes[0].toUpperCase();
+            const mod = mapaNomesModulos[partes[0].toLowerCase()] || partes[0].toUpperCase();
             const num = partes[1].split('_id')[0];
             return `${mod} - FASE ${num}`;
         }
@@ -76,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.carregarAnaliseGeral = function() {
         alunoSelecionadoId = null;
+        areaDetalhes.style.display = 'none';
         if (tituloAnalise) tituloAnalise.innerHTML = `Visão Geral: <span style="color:#FFD700;">Desempenho da Turma</span>`;
         
         const perf = document.getElementById('perfil-aluno');
@@ -83,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (perf) perf.style.display = 'none';
         if (prog) prog.style.display = 'none';
         
-        fetch('/api/admin/relatorios/geral')
+        fetch(`/api/admin/relatorios/geral?t=${Date.now()}`)
             .then(res => res.json())
             .then(data => {
                 atualizarGrafico(data.acertos, data.erros);
@@ -110,9 +119,50 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     };
 
+    // LEITOR COM LOGS DETALHADOS
+    function lerDadosMisturados(str) {
+        console.log("LOG EXTRATOR: Recebido do Servidor ->", str);
+        let obj = {};
+        if (!str) return obj;
+        
+        if (typeof str === 'object') {
+            str = JSON.stringify(str);
+        }
+
+        // Tenta Parse JSON primeiro
+        try {
+            let parsed = JSON.parse(str);
+            while (typeof parsed === 'string') { parsed = JSON.parse(parsed); }
+            if (typeof parsed === 'object' && parsed !== null && ('acertos' in parsed || 'tempoSegundos' in parsed)) {
+                console.log("LOG EXTRATOR: JSON extraido com sucesso ->", parsed);
+                return parsed;
+            }
+        } catch (e) {
+            console.log("LOG EXTRATOR: Falha no parse JSON (Pode ser string do lombok), usando Regex Forte.");
+        }
+
+        // Extrator por Regex Forte
+        const extrair = (regex) => {
+            const match = str.match(regex);
+            return match ? Number(match[1]) : undefined;
+        };
+
+        obj.acertos = extrair(/acertos["']?\s*[:=]\s*(\d+)/i);
+        obj.erros = extrair(/erros["']?\s*[:=]\s*(\d+)/i);
+        obj.tempoSegundos = extrair(/tempo(?:Segundos)?["']?\s*[:=]\s*(\d+)/i);
+        obj.vidasRestantes = extrair(/vidas(?:Restantes)?["']?\s*[:=]\s*(\d+)/i);
+        obj.totalDesafiosFase = extrair(/totalDesafiosFase["']?\s*[:=]\s*(\d+)/i);
+        obj.desafiosVencidosNestaFase = extrair(/desafiosVencidos(?:NestaFase)?["']?\s*[:=]\s*(\d+)/i);
+        
+        console.log("LOG EXTRATOR: Dados capturados via Regex ->", obj);
+        return obj;
+    }
+
     window.carregarAnaliseIndividual = function(id) {
         alunoSelecionadoId = id;
-        fetch(`/api/admin/relatorios/usuarios/analise/${id}`)
+        areaDetalhes.style.display = 'none';
+        
+        fetch(`/api/admin/relatorios/usuarios/analise/${id}?t=${Date.now()}`)
             .then(res => res.json())
             .then(data => {
                 if (tituloAnalise) tituloAnalise.innerHTML = `Análise de <span style="color:var(--cor-xp)">${data.nome}</span>`;
@@ -121,6 +171,108 @@ document.addEventListener('DOMContentLoaded', () => {
                 const prog = document.getElementById('secao-progresso');
                 if (perf) perf.style.display = 'block';
                 if (prog) prog.style.display = 'block';
+
+                selectModulo.innerHTML = '<option value="">Selecionar Módulo</option>';
+                progressoGlobalAluno = data.statusFases || {};
+                const modulosEncontrados = new Set();
+                
+                Object.keys(progressoGlobalAluno).forEach(key => {
+                    const kLower = key.toLowerCase();
+                    const modId = kLower.split('_fase')[0].split('-')[0].trim();
+                    if (!modulosEncontrados.has(modId)) {
+                        modulosEncontrados.add(modId);
+                        const opt = document.createElement('option');
+                        opt.value = modId;
+                        opt.textContent = mapaNomesModulos[modId] || modId.toUpperCase();
+                        selectModulo.appendChild(opt);
+                    }
+                });
+
+                selectModulo.onchange = () => {
+                    selectFase.innerHTML = '<option value="">Fase</option>';
+                    const mod = selectModulo.value;
+                    if (!mod) return;
+                    
+                    const fasesUnicas = new Set();
+                    Object.keys(progressoGlobalAluno).forEach(key => {
+                        const kLower = key.toLowerCase();
+                        if (kLower.startsWith(mod.toLowerCase())) {
+                            let num;
+                            if (kLower.includes('_fase')) num = kLower.split('_fase')[1].split('_id')[0];
+                            else if (kLower.includes('-')) num = kLower.split('-')[1];
+                            
+                            if (num && !isNaN(parseInt(num))) {
+                                fasesUnicas.add(parseInt(num));
+                            }
+                        }
+                    });
+                    
+                    [...fasesUnicas].sort((a,b) => a-b).forEach(f => {
+                        const opt = document.createElement('option');
+                        opt.value = f;
+                        opt.textContent = f;
+                        selectFase.appendChild(opt);
+                    });
+                };
+
+                // AÇÃO DO BOTÃO COM LOGS
+                btnDetalhes.onclick = () => {
+                    const mod = selectModulo.value;
+                    const fase = selectFase.value;
+                    if (!mod || !fase) return alert("Selecione módulo e fase.");
+
+                    console.log(`LOG FRONTEND: Solicitando -> Módulo: ${mod} | Fase: ${fase}`);
+
+                    fetch(`/api/admin/relatorios/usuarios/detalhes-fase/${alunoSelecionadoId}?modulo=${mod}&fase=${fase}&t=${Date.now()}`)
+                        .then(res => res.json())
+                        .then(det => {
+                            console.log("LOG FRONTEND: Resposta completa do servidor:", det);
+                            
+                            if (det.encontrado && det.dadosBrutos) {
+                                let dados = lerDadosMisturados(det.dadosBrutos);
+                                
+                                if (!dados || typeof dados !== 'object') {
+                                    dados = {};
+                                }
+                                
+                                areaDetalhes.style.display = 'block';
+                                
+                                const acertos = dados.acertos !== undefined ? dados.acertos : 0;
+                                const erros = dados.erros !== undefined ? dados.erros : 0;
+                                const tempo = dados.tempoSegundos !== undefined ? dados.tempoSegundos : 0;
+                                const vidas = dados.vidasRestantes !== undefined ? dados.vidasRestantes : 3;
+                                const totalDesafios = dados.totalDesafiosFase !== undefined ? dados.totalDesafiosFase : 0;
+                                const desafiosVencidos = dados.desafiosVencidosNestaFase !== undefined ? dados.desafiosVencidosNestaFase : 0;
+
+                                console.log(`LOG FRONTEND: Aplicando na tela -> Acertos: ${acertos}, Erros: ${erros}, Tempo: ${tempo}`);
+
+                                document.getElementById('det-acertos').textContent = acertos;
+                                document.getElementById('det-erros').textContent = erros;
+                                
+                                const min = Math.floor(tempo / 60);
+                                const seg = tempo % 60;
+                                document.getElementById('det-tempo').textContent = `${min}:${seg.toString().padStart(2, '0')}`;
+                                
+                                document.getElementById('det-vidas').textContent = `${vidas} ❤️`;
+                                
+                                if (totalDesafios > 0) {
+                                    const concluido = desafiosVencidos === totalDesafios;
+                                    document.getElementById('det-desafio').textContent = concluido ? "Sim ✅" : "Não ❌";
+                                    document.getElementById('det-desafio').style.color = concluido ? "#58cc02" : "#ff4b4b";
+                                } else {
+                                    document.getElementById('det-desafio').textContent = "Nenhum";
+                                    document.getElementById('det-desafio').style.color = "#888";
+                                }
+                            } else {
+                                console.warn("LOG FRONTEND: Fase não encontrada ou dados estão vazios.");
+                                alert("Nenhum dado detalhado encontrado para esta fase.");
+                            }
+                        })
+                        .catch(err => {
+                            console.error("LOG FRONTEND: Erro catastrófico no fetch:", err);
+                            alert("Erro ao ler os dados históricos desta fase.");
+                        });
+                };
 
                 const elNome = document.getElementById('nome-aluno-perfil');
                 const elEmail = document.getElementById('email-aluno-perfil');
@@ -166,14 +318,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     const progressoPorModulo = {};
                     
                     Object.keys(data.statusFases || {}).forEach(key => {
+                        const kLower = key.toLowerCase();
                         let modId, num;
-                        if (key.includes('_fase')) {
-                            const partes = key.split('_fase');
-                            modId = partes[0];
+                        if (kLower.includes('_fase')) {
+                            const partes = kLower.split('_fase');
+                            modId = partes[0].trim();
                             num = parseInt(partes[1].split('_id')[0]) || 0;
-                        } else if (key.includes('-')) {
-                            const partes = key.split('-');
-                            modId = partes[0];
+                        } else if (kLower.includes('-')) {
+                            const partes = kLower.split('-');
+                            modId = partes[0].trim();
                             num = parseInt(partes[1]) || 0;
                         } else {
                             return;

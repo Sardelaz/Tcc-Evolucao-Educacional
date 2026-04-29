@@ -101,54 +101,115 @@ public class GamificacaoService {
     }
 
     public Map<String, Object> concluirFase(String lessonId, ResultadoFaseDTO resultado) {
-        Usuario userSessao = usuarioService.getCurrentUser();
-        Usuario user = usuarioRepository.findById(userSessao.getId()).orElse(userSessao);
-        
-        usuarioService.verificarResetDiario(user);
-        atribuirMissoesSeVazio(user);
+        try {
+            System.out.println("LOG JAVA - INICIANDO SALVAMENTO DA FASE: " + lessonId);
+            
+            Usuario userSessao = usuarioService.getCurrentUser();
+            Usuario user = usuarioRepository.findById(userSessao.getId()).orElse(userSessao);
+            
+            usuarioService.verificarResetDiario(user);
+            atribuirMissoesSeVazio(user);
 
-        Fase faseOriginal = faseRepository.findByModuloAndFase(resultado.getModulo(), resultado.getFase())
-                .orElseThrow(() -> new RuntimeException("Fase não encontrada"));
-
-        String chaveUnica = resultado.getModulo() + "_fase" + resultado.getFase() + "_id" + faseOriginal.getId();
-        boolean jaEstavaConcluida = user.getStatusDasFases().containsKey(chaveUnica) && "completed".equals(user.getStatusDasFases().get(chaveUnica));
-
-        if (resultado.getEnunciadosErrados() != null) {
-            for (String enunciado : resultado.getEnunciadosErrados()) {
-                user.getUltimasQuestoesErradas().add(0, String.format("[%s - F %d] %s", resultado.getModulo().toUpperCase(), resultado.getFase(), enunciado));
+            Fase faseOriginal = null;
+            if (lessonId != null && lessonId.contains("_id")) {
+                try {
+                    Long id = Long.parseLong(lessonId.split("_id")[1]);
+                    faseOriginal = faseRepository.findById(id).orElse(null);
+                } catch (Exception e) {
+                    System.out.println("LOG JAVA - Nao foi possivel extrair ID da string: " + lessonId);
+                }
             }
-            if (user.getUltimasQuestoesErradas().size() > 15) {
-                user.setUltimasQuestoesErradas(new ArrayList<>(user.getUltimasQuestoesErradas().subList(0, 15)));
+
+            if (faseOriginal == null) {
+                List<Fase> fases = faseRepository.findAll().stream()
+                        .filter(f -> f.getModulo().equals(resultado.getModulo()) && f.getFase() == resultado.getFase())
+                        .toList();
+                
+                if (!fases.isEmpty()) {
+                    faseOriginal = fases.get(fases.size() - 1); 
+                } else {
+                    throw new RuntimeException("Fase não encontrada no banco de dados.");
+                }
             }
+
+            String chaveUnica = resultado.getModulo() + "_fase" + resultado.getFase() + "_id" + faseOriginal.getId();
+            
+            // =================================================================================
+            // CORREÇÃO: Setando os mapas caso sejam nulos (Evita NullPointerException)
+            // =================================================================================
+            if (user.getStatusDasFases() == null) {
+                user.setStatusDasFases(new HashMap<>()); // Ajustado de get para set
+            }
+            if (user.getUltimasQuestoesErradas() == null) {
+                user.setUltimasQuestoesErradas(new ArrayList<>());
+            }
+
+            boolean jaEstavaConcluida = user.getStatusDasFases().containsKey(chaveUnica);
+
+            if (resultado.getEnunciadosErrados() != null && !resultado.getEnunciadosErrados().isEmpty()) {
+                for (String enunciado : resultado.getEnunciadosErrados()) {
+                    user.getUltimasQuestoesErradas().add(0, String.format("[%s - F %d] %s", resultado.getModulo().toUpperCase(), resultado.getFase(), enunciado));
+                }
+                if (user.getUltimasQuestoesErradas().size() > 15) {
+                    user.setUltimasQuestoesErradas(new ArrayList<>(user.getUltimasQuestoesErradas().subList(0, 15)));
+                }
+            }
+
+            // =================================================================================
+            // SALVAMENTO DA FASE EM JSON (Construído de forma nativa e segura)
+            // =================================================================================
+            try {
+                String jsonDados = String.format(
+                    "{\"acertos\": %d, \"erros\": %d, \"tempoSegundos\": %d, \"vidasRestantes\": %d, \"totalDesafiosFase\": %d, \"desafiosVencidosNestaFase\": %d}",
+                    resultado.getAcertos(),
+                    resultado.getErros(),
+                    resultado.getTempoSegundos(),
+                    resultado.getVidasRestantes(),
+                    resultado.getTotalDesafiosFase(),
+                    resultado.getDesafiosVencidosNestaFase()
+                );
+                user.getStatusDasFases().put(chaveUnica, jsonDados);
+                System.out.println("LOG JAVA - JSON nativo salvo com SUCESSO: " + jsonDados);
+            } catch (Exception e) {
+                System.out.println("LOG JAVA - Erro ao formatar dados: " + e.getMessage());
+                user.getStatusDasFases().put(chaveUnica, "completed");
+            }
+
+            int xpGanho = 0;
+            int moedasGanhas = 0;
+
+            if (!jaEstavaConcluida) {
+                xpGanho = (resultado.getAcertos() * 10) + (resultado.getMaxStreak() * 5);
+                
+                Boolean isEspecial = faseOriginal.getEspecial();
+                if (isEspecial != null && isEspecial) {
+                    xpGanho *= 2;
+                    moedasGanhas = Math.max(0, 50 - (resultado.getErros() * 5));
+                } else {
+                    moedasGanhas = Math.max(0, 30 - (resultado.getErros() * 5));
+                }
+
+                user.setXp(user.getXp() + xpGanho);
+                user.setXpTemporada(user.getXpTemporada() + xpGanho);
+                user.setMoedas(user.getMoedas() + moedasGanhas);
+
+                atualizarProgressoMissoes(user, "ACERTOS", resultado.getAcertos());
+                atualizarProgressoMissoes(user, "FASES", 1);
+            }
+
+            user.setNivel((user.getXp() / 100) + 1);
+            atualizarLiga(user); 
+            verificarConquistas(user, resultado);
+            usuarioRepository.save(user);
+
+            System.out.println("LOG JAVA - FASE SALVA COM SUCESSO! XP: " + xpGanho + " | Moedas: " + moedasGanhas);
+            return Map.of("xpGanho", xpGanho, "moedasGanhas", moedasGanhas, "nivel", user.getNivel(), "liga", user.getLiga());
+
+        } catch (Exception e) {
+            System.out.println("LOG JAVA - ERRO 500 CRÍTICO AO SALVAR FASE:");
+            e.printStackTrace(); 
+            throw new RuntimeException("Erro interno ao concluir fase", e);
         }
-
-        user.getStatusDasFases().put(chaveUnica, "completed");
-
-        int xpGanho = 0;
-        int moedasGanhas = 0;
-
-        if (!jaEstavaConcluida) {
-            xpGanho = (resultado.getAcertos() * 10) + (resultado.getMaxStreak() * 5);
-            // CORREÇÃO: Utilizando getEspecial() no lugar de isEspecial()
-            if (faseOriginal.getEspecial()) xpGanho *= 2;
-
-            // CORREÇÃO: Utilizando getEspecial() no lugar de isEspecial()
-            moedasGanhas = Math.max(0, (faseOriginal.getEspecial() ? 50 : 30) - (resultado.getErros() * 5));
-
-            user.setXp(user.getXp() + xpGanho);
-            user.setXpTemporada(user.getXpTemporada() + xpGanho);
-            user.setMoedas(user.getMoedas() + moedasGanhas);
-
-            atualizarProgressoMissoes(user, "ACERTOS", resultado.getAcertos());
-            atualizarProgressoMissoes(user, "FASES", 1);
-        }
-
-        user.setNivel((user.getXp() / 100) + 1);
-        atualizarLiga(user); 
-        verificarConquistas(user, resultado);
-        usuarioRepository.save(user);
-
-        return Map.of("xpGanho", xpGanho, "moedasGanhas", moedasGanhas, "nivel", user.getNivel(), "liga", user.getLiga());
     }
 
     private void atualizarProgressoMissoes(Usuario user, String categoria, int incremento) {

@@ -27,6 +27,14 @@
         .senha-box { margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
         .input-senha { background: rgba(0,0,0,0.4); border: 1px solid #555; color: #fff; padding: 10px; border-radius: 8px; width: 220px; outline: none; }
         .btn-senha { background: #e74c3c; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        /* Estilos para o Filtro de Fase */
+        .filtro-fase-container { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .select-filtro { background: #1a1a2e; color: white; border: 1px solid #58cc02; padding: 8px; border-radius: 5px; outline: none; margin-right: 10px; }
+        .detalhes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
+        .detalhe-item { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; text-align: center; }
+        .detalhe-item strong { display: block; color: #58cc02; font-size: 1.2rem; }
+        .detalhe-item span { font-size: 0.8rem; color: #888; }
     </style>
 
     <div th:replace="~{layout/base :: acessibilidade}"></div>
@@ -94,6 +102,27 @@
                         </div>
 
                         <div id="conquistas-aluno-perfil"></div>
+
+                        <div class="filtro-fase-container">
+                            <h4 style="margin-bottom: 15px; color: #58cc02;">🔍 Detalhes por Fase</h4>
+                            <select id="select-modulo-filtro" class="select-filtro">
+                                <option value="">Selecionar Módulo</option>
+                            </select>
+                            <select id="select-fase-filtro" class="select-filtro">
+                                <option value="">Fase</option>
+                            </select>
+                            <button id="btn-buscar-detalhes" class="btn-senha" style="background: #58cc02; padding: 8px 15px;">Ver Detalhes</button>
+
+                            <div id="area-detalhes-fase" style="display: none;">
+                                <div class="detalhes-grid">
+                                    <div class="detalhe-item"><strong id="det-acertos">0</strong><span>Acertos</span></div>
+                                    <div class="detalhe-item"><strong id="det-erros">0</strong><span>Erros</span></div>
+                                    <div class="detalhe-item"><strong id="det-tempo">0s</strong><span>Tempo</span></div>
+                                    <div class="detalhe-item"><strong id="det-vidas">0</strong><span>Vidas</span></div>
+                                    <div class="detalhe-item"><strong id="det-desafio">-</strong><span>Desafio</span></div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="senha-box">
                             <label style="display:block; color:#aaa; font-size:0.8rem; margin-bottom:8px;">Gestão de Segurança:</label>

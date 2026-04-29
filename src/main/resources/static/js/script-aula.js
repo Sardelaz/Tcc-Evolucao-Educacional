@@ -452,6 +452,8 @@ function finalizarFase() {
     } else videoCard.style.display = 'none';
 
     const chaveUnicaParaSalvar = `${moduloAtual}_fase${faseAtual}_id${faseAtualDbId}`;
+    
+    // CORREÇÃO: Enviando vidasRestantes e totalDesafiosFase para o histórico
     fetch(`/api/progresso/${chaveUnicaParaSalvar}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -464,13 +466,14 @@ function finalizarFase() {
             tempoSegundos: segundosTotais,
             totalQuestoes: questoes.length,
             desafiosVencidosNestaFase: desafiosConcluidos,
+            totalDesafiosFase: totalDesafiosNaFase, // ADIÇÃO
+            vidasRestantes: vidasJogador, // ADIÇÃO
             acertosPorMateria: acertosPorMateria
         })
     })
     .then(res => res.json())
     .then(data => {
         document.getElementById('resumo-xp-extra').textContent = `+${data.xpGanho || 0} XP Total`;
-        // Injeta o valor das moedas retornadas pelo backend
         document.getElementById('resumo-moedas').textContent = `+${data.moedasGanhas || 0} 🪙`;
         document.getElementById('tela-resumo').classList.add('active');
         if (data.badgesNovos && data.badgesNovos.length > 0) alert(`🏆 Conquista Desbloqueada!`);

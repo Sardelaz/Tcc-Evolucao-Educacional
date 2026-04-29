@@ -206,7 +206,7 @@ async function salvarEdicao() {
     });
 
     const payload = {
-        id: faseAtualId, // CORREÇÃO: Envia o ID para manter a consistência da Fase no banco
+        id: faseAtualId,
         modulo: document.getElementById('busca-modulo').value,
         fase: faseNum,
         qtd: questoesLimpas.length,
@@ -238,7 +238,12 @@ async function excluirFase() {
     const modulo = document.getElementById('busca-modulo').value;
     const faseNum = document.getElementById('busca-fase').value;
 
-    if (!confirm(`DESEJA EXCLUIR DEFINITIVAMENTE A FASE ${faseNum}?`)) return;
+    // AVISO DE MELHOR PRÁTICA: Informa o impacto da deleção no progresso do aluno
+    const mensagemAviso = `⚠️ ATENÇÃO: A exclusão definitiva desta fase irá apagar permanentemente o histórico e progresso de todos os alunos que já a concluíram.\n\n` +
+                          `Recomendamos EDITAR esta fase com novo conteúdo em vez de excluí-la para preservar a integridade dos dados.\n\n` +
+                          `Tem a certeza absoluta que deseja EXCLUIR DEFINITIVAMENTE a Fase ${faseNum}?`;
+
+    if (!confirm(mensagemAviso)) return;
 
     try {
         const response = await fetch(`/api/fases/${modulo}/${faseNum}`, {
