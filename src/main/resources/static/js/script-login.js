@@ -1,8 +1,41 @@
-// Variáveis globais para armazenar os dados de registo até a verificação do e-mail
+// ==========================================================
+// VARIÁVEIS GLOBAIS E ESTADO DA APLICAÇÃO
+// ==========================================================
 let pendingEmail = "";
 let pendingPassword = "";
 
-// Alternar abas de autenticação
+// ==========================================================
+// FUNÇÕES DE CONTROLE DO MODAL DE OTP (BACKUP VISUAL)
+// ==========================================================
+/**
+ * Exibe o modal customizado com o código OTP recebido do servidor.
+ * @param {string} otp - O código de 6 dígitos gerado pelo backend.
+ */
+function showOtpModal(otp) {
+    const modal = document.getElementById('otp-modal');
+    const display = document.getElementById('otp-code-display');
+    if (modal && display) {
+        display.textContent = otp;
+        modal.classList.add('active');
+    } else {
+        // Fallback caso o modal não exista no HTML
+        alert(`O seu código de verificação é: ${otp}`);
+    }
+}
+
+/**
+ * Fecha o modal de exibição de código.
+ */
+function fecharOtpModal() {
+    const modal = document.getElementById('otp-modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+// ==========================================================
+// NAVEGAÇÃO ENTRE TELAS (LOGIN, REGISTRO, VERIFICAÇÃO)
+// ==========================================================
 function switchForm(targetSectionId) {
     const sections = document.querySelectorAll('.auth-section');
     
@@ -19,13 +52,17 @@ function switchForm(targetSectionId) {
     });
 
     const targetSection = document.getElementById(targetSectionId);
-    targetSection.style.display = 'block';
-    setTimeout(() => {
-        targetSection.classList.add('active');
-    }, 10);
+    if (targetSection) {
+        targetSection.style.display = 'block';
+        setTimeout(() => {
+            targetSection.classList.add('active');
+        }, 10);
+    }
 }
 
-// Alternar visibilidade da senha (Olho)
+// ==========================================================
+// UTILITÁRIOS (PASSWORD E VALIDAÇÃO)
+// ==========================================================
 function togglePassword(inputId, btn) {
     const input = document.getElementById(inputId);
     if (input.type === 'password') {
@@ -39,16 +76,20 @@ function togglePassword(inputId, btn) {
     }
 }
 
-// Validar formato estrito de E-mail
 function validarEmail(email) {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return re.test(String(email).toLowerCase());
 }
 
+// ==========================================================
+// INICIALIZAÇÃO E EVENTOS
+// ==========================================================
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById('login-section').style.display = 'block';
+    // Define a tela inicial
+    const loginSection = document.getElementById('login-section');
+    if (loginSection) loginSection.style.display = 'block';
 
-    // Limpar os erros assim que o utilizador começa a digitar
+    // Limpar erros ao digitar
     document.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', (e) => {
             const errorSpan = document.getElementById(`${e.target.id}-error`);
@@ -56,7 +97,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // PASSO 1: REGISTO (Envia os dados e captura o OTP para exibição)
+    // ------------------------------------------------------
+    // 1. FORMULÁRIO DE REGISTRO
+    // ------------------------------------------------------
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
@@ -86,15 +129,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await res.json();
 
                 if (res.ok) {
-                    // Guarda as credenciais em memória
                     pendingEmail = email;
                     pendingPassword = senha;
                     
-                    // Atualiza a interface visualmente
-                    document.getElementById('display-email').textContent = pendingEmail;
+                    // Atualiza o texto na tela de verificação
+                    const displayEmailEl = document.getElementById('display-email');
+                    if (displayEmailEl) displayEmailEl.textContent = pendingEmail;
                     
-                    // CORREÇÃO: Exibe o código diretamente para o usuário
-                    alert(`Código de verificação enviado! Se não receber o e-mail, utilize este código: ${data.otp}`);
+                    // EXIBE O MODAL COM O CÓDIGO (Interceptação para evitar erro de envio)
+                    showOtpModal(data.otp);
                     
                     switchForm('verification-section');
                 } else {
@@ -109,7 +152,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // PASSO 2: VERIFICAR E-MAIL E AUTO-LOGIN
+    // ------------------------------------------------------
+    // 2. FORMULÁRIO DE VERIFICAÇÃO (OTP)
+    // ------------------------------------------------------
     const verificationForm = document.getElementById('verification-form');
     if (verificationForm) {
         verificationForm.addEventListener('submit', async (e) => {
@@ -123,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const btnTextoOriginal = btn.textContent;
             btn.disabled = true;
             btn.textContent = "A verificar...";
 
@@ -135,8 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 if (res.ok) {
-                    alert('E-mail verificado com sucesso! A iniciar sessão...');
-                    
+                    // Após verificar, faz login automático
                     const resLogin = await fetch('/api/auth/login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -144,8 +187,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                     
                     if(resLogin.ok) {
-                        const data = await resLogin.json();
-                        window.location.href = data.redirect || '/';
+                        const loginData = await resLogin.json();
+                        window.location.href = loginData.redirect || '/';
                     } else {
                         switchForm('login-section');
                     }
@@ -154,29 +197,26 @@ document.addEventListener("DOMContentLoaded", () => {
                     errorSpan.textContent = data.mensagem || "Código incorreto ou expirado.";
                 }
             } catch (err) {
-                errorSpan.textContent = "Erro de ligação ao tentar verificar o código.";
+                errorSpan.textContent = "Erro de ligação ao verificar.";
             } finally {
                 btn.disabled = false;
-                btn.textContent = btnTextoOriginal;
+                btn.textContent = "Verificar Conta";
             }
         });
     }
 
-    // REENVIAR CÓDIGO (Captura o novo OTP)
+    // ------------------------------------------------------
+    // 3. REENVIAR CÓDIGO
+    // ------------------------------------------------------
     const resendBtn = document.getElementById('resend-code-btn');
     if(resendBtn) {
         resendBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            
-            if(!pendingEmail) {
-                alert("Nenhum e-mail pendente encontrado.");
-                return;
-            }
+            if(!pendingEmail) return;
 
             const originalText = resendBtn.textContent;
             resendBtn.textContent = "A enviar...";
             resendBtn.style.pointerEvents = "none";
-            resendBtn.style.color = "#ccc";
 
             try {
                 const res = await fetch('/api/auth/resend-code', {
@@ -186,23 +226,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
                 
                 const data = await res.json();
-                
                 if (res.ok) {
-                    alert(`Novo código gerado: ${data.otp}`);
+                    showOtpModal(data.otp);
                 } else {
-                    alert("Falha ao reenviar: " + (data.mensagem || res.status));
+                    alert(data.mensagem || "Erro ao reenviar.");
                 }
             } catch(err) {
                 alert("Erro de ligação.");
             } finally {
                 resendBtn.textContent = originalText;
                 resendBtn.style.pointerEvents = "auto";
-                resendBtn.style.color = "";
             }
         });
     }
 
-    // LOGIN
+    // ------------------------------------------------------
+    // 4. FORMULÁRIO DE LOGIN
+    // ------------------------------------------------------
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -218,9 +258,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const btn = loginForm.querySelector('button[type="submit"]');
-            const btnTexto = btn.textContent;
             btn.disabled = true;
-            btn.textContent = "A iniciar sessão...";
+            btn.textContent = "A entrar...";
 
            try {
                 const res = await fetch('/api/auth/login', {
@@ -229,36 +268,32 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify({ email, senha })
                 });
 
-                const text = await res.text();
+                const data = await res.json().catch(() => ({}));
 
-                try {
-                    const data = JSON.parse(text); 
-                    
-                    if (res.ok) {
-                        window.location.href = data.redirect || '/';
+                if (res.ok) {
+                    window.location.href = data.redirect || '/';
+                } else {
+                    if (res.status === 401) {
+                        errorSpanSenha.textContent = "Senha incorreta.";
+                    } else if (res.status === 404) {
+                        errorSpanEmail.textContent = "E-mail não encontrado.";
                     } else {
-                        if (res.status === 404) {
-                            errorSpanEmail.textContent = "Este e-mail não existe nos nossos registos.";
-                        } else if (res.status === 401) {
-                            errorSpanSenha.textContent = "A senha está incorreta.";
-                        } else {
-                            errorSpanEmail.textContent = data.mensagem || 'Credenciais inválidas.';
-                        }
+                        errorSpanEmail.textContent = data.mensagem || 'Erro ao entrar.';
                     }
-                } catch (jsonErr) {
-                    alert("O servidor encontrou um erro crítico.");
                 }
             } catch (err) {
                 alert('Erro de ligação.');
             } finally {
                 btn.disabled = false;
-                btn.textContent = btnTexto;
+                btn.textContent = "Entrar";
             }
         });
     }
 });
 
-// RECUPERAÇÃO DE SENHA
+// ==========================================================
+// 5. RECUPERAÇÃO DE SENHA (MODAL DE SUCESSO)
+// ==========================================================
 async function enviarRecuperacao(event) {
     event.preventDefault(); 
     const emailInput = document.getElementById('forgot-email');
@@ -266,21 +301,13 @@ async function enviarRecuperacao(event) {
     const errorSpan = document.getElementById('forgot-email-error');
     const btn = document.getElementById('btn-recuperar');
 
-    errorSpan.textContent = "";
-
-    if(!email) {
-        errorSpan.textContent = "O campo de e-mail é obrigatório.";
+    if(!email || !validarEmail(email)) {
+        errorSpan.textContent = "E-mail inválido.";
         return;
     }
 
-    if (!validarEmail(email)) {
-        errorSpan.textContent = "Por favor, insira um e-mail válido.";
-        return;
-    }
-
-    const btnTextoOriginal = btn.textContent;
     btn.disabled = true;
-    btn.textContent = "A verificar...";
+    btn.textContent = "A processar...";
 
     try {
         const res = await fetch('/api/auth/recuperar', { 
@@ -289,24 +316,27 @@ async function enviarRecuperacao(event) {
             body: JSON.stringify({ email }) 
         });
         
-        if (res.ok) {
-            document.getElementById('success-modal').classList.add('active');
+        if (res.ok || res.status === 200) {
+            const successModal = document.getElementById('success-modal');
+            if (successModal) successModal.classList.add('active');
             emailInput.value = ''; 
         } else {
             const data = await res.json().catch(() => ({}));
-            errorSpan.textContent = data.mensagem || "Erro ao processar o pedido.";
+            errorSpan.textContent = data.mensagem || "Erro ao processar pedido.";
         }
     } catch (err) {
-        document.getElementById('success-modal').classList.add('active');
+        // Fallback visual para simulação em TCC caso a rota não exista
+        const successModal = document.getElementById('success-modal');
+        if (successModal) successModal.classList.add('active');
         emailInput.value = ''; 
     } finally {
         btn.disabled = false;
-        btn.textContent = btnTextoOriginal;
+        btn.textContent = "Recuperar Senha";
     }
 }
 
-// Fechar Modal de Sucesso
 function fecharModalSucesso() {
-    document.getElementById('success-modal').classList.remove('active');
+    const successModal = document.getElementById('success-modal');
+    if (successModal) successModal.classList.remove('active');
     switchForm('login-section');
 }

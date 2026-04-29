@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{layout/base :: head('Acesso | Evolução Educacional', '/css/style-login.css')}"></head>
+
 <body>
     <canvas id="art-background"></canvas>
     <div th:replace="~{layout/base :: acessibilidade}"></div>
@@ -12,7 +14,7 @@
                 <h2>Bem-vindo de volta!</h2>
                 <p>Continue a sua evolução diária.</p>
             </div>
-            
+
             <form id="login-form">
                 <div class="input-group">
                     <label for="login-email">E-mail</label>
@@ -23,7 +25,8 @@
                     <label for="login-password">Senha</label>
                     <div class="password-wrapper">
                         <input type="password" id="login-password" placeholder="••••••••" required>
-                        <button type="button" class="toggle-password" onclick="togglePassword('login-password', this)" title="Mostrar senha">👁️</button>
+                        <button type="button" class="toggle-password" onclick="togglePassword('login-password', this)"
+                            title="Mostrar senha">👁️</button>
                     </div>
                     <span class="error-msg" id="login-password-error"></span>
                 </div>
@@ -32,9 +35,10 @@
                 </div>
                 <button type="submit" class="auth-btn btn-primary">Entrar</button>
             </form>
-            
+
             <div class="auth-footer">
-                <p>Ainda não tem uma conta? <a href="#" onclick="switchForm('register-section'); return false;">Criar conta</a></p>
+                <p>Ainda não tem uma conta? <a href="#" onclick="switchForm('register-section'); return false;">Criar
+                        conta</a></p>
             </div>
         </div>
 
@@ -44,7 +48,7 @@
                 <h2>Comece a sua jornada</h2>
                 <p>Crie a sua conta e evolua connosco.</p>
             </div>
-            
+
             <form id="register-form">
                 <div class="input-group">
                     <label for="reg-name">Nome Completo</label>
@@ -59,12 +63,14 @@
                     <label for="reg-password">Senha</label>
                     <div class="password-wrapper">
                         <input type="password" id="reg-password" placeholder="Crie uma senha forte" required>
-                        <button type="button" class="toggle-password" onclick="togglePassword('reg-password', this)" title="Mostrar senha">👁️</button>
+                        <button type="button" class="toggle-password" onclick="togglePassword('reg-password', this)"
+                            title="Mostrar senha">👁️</button>
                     </div>
                 </div>
-                <button type="submit" class="auth-btn btn-primary" style="background-color: var(--cor-xp);">Continuar</button>
+                <button type="submit" class="auth-btn btn-primary"
+                    style="background-color: var(--cor-xp);">Continuar</button>
             </form>
-            
+
             <div class="auth-footer">
                 <p>Já possui conta? <a href="#" onclick="switchForm('login-section'); return false;">Fazer login</a></p>
             </div>
@@ -79,19 +85,21 @@
                     Código enviado para: <br><strong id="display-email"></strong>
                 </div>
             </div>
-            
+
             <form id="verification-form">
                 <div class="input-group">
                     <label for="verify-code">Código de Verificação</label>
                     <input type="text" id="verify-code" class="code-input" placeholder="000000" maxlength="6" required>
                     <span class="error-msg" id="verify-code-error"></span>
                 </div>
-                <button type="submit" class="auth-btn btn-primary" style="background-color: #4CAF50;">Confirmar Conta</button>
+                <button type="submit" class="auth-btn btn-primary" style="background-color: #4CAF50;">Confirmar
+                    Conta</button>
             </form>
-            
+
             <div class="auth-footer">
                 <p>Não recebeu? <a href="#" id="resend-code-btn">Reenviar código</a></p>
-                <p style="margin-top: 10px;"><a href="#" onclick="switchForm('register-section'); return false;">Voltar ao Registo</a></p>
+                <p style="margin-top: 10px;"><a href="#" onclick="switchForm('register-section'); return false;">Voltar
+                        ao Registo</a></p>
             </div>
         </div>
 
@@ -101,18 +109,20 @@
                 <h2>Recuperar Senha</h2>
                 <p>Enviaremos as instruções para o seu e-mail.</p>
             </div>
-            
+
             <form id="forgot-form" onsubmit="enviarRecuperacao(event)">
                 <div class="input-group">
                     <label for="forgot-email">E-mail registado</label>
                     <input type="email" id="forgot-email" placeholder="seu@email.com" required>
                     <span class="error-msg" id="forgot-email-error"></span>
                 </div>
-                <button type="submit" id="btn-recuperar" class="auth-btn btn-primary" style="background-color: var(--cor-ofensiva);">Enviar instruções</button>
+                <button type="submit" id="btn-recuperar" class="auth-btn btn-primary"
+                    style="background-color: var(--cor-ofensiva);">Enviar instruções</button>
             </form>
-            
+
             <div class="auth-footer">
-                <p>Lembrou-se da senha? <a href="#" onclick="switchForm('login-section'); return false;">Voltar ao login</a></p>
+                <p>Lembrou-se da senha? <a href="#" onclick="switchForm('login-section'); return false;">Voltar ao
+                        login</a></p>
             </div>
         </div>
     </div>
@@ -121,8 +131,19 @@
         <div class="modal-content">
             <div class="modal-icon">✅</div>
             <h2 class="modal-title">E-mail Enviado!</h2>
-            <p class="modal-desc">Verifique a sua caixa de entrada para redefinir a sua senha. (Verifique também o Spam).</p>
+            <p class="modal-desc">Verifique a sua caixa de entrada para redefinir a sua senha. (Verifique também o
+                Spam).</p>
             <button class="auth-btn btn-primary" onclick="fecharModalSucesso()">Voltar ao Login</button>
+        </div>
+    </div>
+
+    <div id="otp-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon">📧</div>
+            <h3>Código de Verificação</h3>
+            <p>Enviámos um código para o seu e-mail, mas também o pode visualizar aqui:</p>
+            <div class="otp-display-box" id="otp-code-display">000000</div>
+            <button onclick="fecharOtpModal()" class="btn-modal">Entendi</button>
         </div>
     </div>
 
@@ -132,4 +153,5 @@
 
     <script>document.getElementById('logout-btn').style.display = 'none';</script>
 </body>
+
 </html>
